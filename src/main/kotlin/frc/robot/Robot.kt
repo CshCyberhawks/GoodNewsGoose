@@ -1,8 +1,23 @@
 package frc.robot
 
+import cshcyberhawks.swolib.autonomous.SwerveAuto
+import cshcyberhawks.swolib.hardware.implementations.NavXGyro
+import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
+import cshcyberhawks.swolib.hardware.implementations.TalonSRXTurnMotor
+import cshcyberhawks.swolib.math.Vector2
+import cshcyberhawks.swolib.swerve.SwerveDriveTrain
+import cshcyberhawks.swolib.swerve.SwerveOdometry
+import cshcyberhawks.swolib.swerve.SwerveWheel
+import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
+import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
+import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.math.trajectory.TrapezoidProfile
+import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import frc.robot.constants.MotorPorts
+import frc.robot.util.IO
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -13,6 +28,82 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
+
+    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
+
+    val drivePID = PIDController(0.01, 0.0, 0.0)
+    val turnPID = PIDController(0.01, 0.0, 0.0)
+
+    var backLeft: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorPorts.backLeftDriveMotor),
+            TalonSRXTurnMotor(
+                MotorPorts.backLeftTurnMotor,
+                MotorPorts.backLeftEncoder,
+                MotorPorts.turnEncoderOffsets[MotorPorts.backLeftEncoder]
+            ),
+            drivePID,
+            turnPID,
+            swerveConfiguration
+        )
+    var backRight: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorPorts.backRightDriveMotor),
+            TalonSRXTurnMotor(
+                MotorPorts.backRightTurnMotor,
+                MotorPorts.backRightEncoder,
+                MotorPorts.turnEncoderOffsets[MotorPorts.backRightEncoder]
+            ),
+            drivePID,
+            turnPID,
+            swerveConfiguration
+        )
+    var frontLeft: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorPorts.frontLeftDriveMotor),
+            TalonSRXTurnMotor(
+                MotorPorts.frontLeftTurnMotor,
+                MotorPorts.frontLeftEncoder,
+                MotorPorts.turnEncoderOffsets[MotorPorts.frontLeftEncoder]
+            ),
+            drivePID,
+            turnPID,
+            swerveConfiguration
+        )
+    var frontRight: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorPorts.frontRightDriveMotor),
+            TalonSRXTurnMotor(
+                MotorPorts.frontRightTurnMotor,
+                MotorPorts.frontRightEncoder,
+                MotorPorts.turnEncoderOffsets[MotorPorts.frontRightEncoder]
+            ),
+            drivePID,
+            turnPID,
+            swerveConfiguration
+        )
+
+    val gyro = NavXGyro(SPI.Port.kMXP)
+
+    val swerveDriveTrain =
+        SwerveDriveTrain(FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft), gyro)
+
+    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
+
+    val autoPid = PIDController(1.0, 0.0, 0.05)
+    val auto = SwerveAuto(
+        autoPid,
+        autoPid,
+        PIDController(1.0, 0.0, 0.0),
+        TrapezoidProfile.Constraints(4.0, 1.5),
+        1.6,
+        0.05,
+        .135,
+        swo,
+        swerveDriveTrain,
+        gyro
+    )
+
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -43,12 +134,12 @@ class Robot : TimedRobot() {
     /**
      * This function is called once each time the robot enters Disabled mode.
      */
-    override fun disabledInit() { }
+    override fun disabledInit() {}
 
     /**
      * This function is called periodically when disabled.
      */
-    override fun disabledPeriodic() { }
+    override fun disabledPeriodic() {}
 
     /**
      * This autonomous runs the autonomous command selected by your [RobotContainer] class.
@@ -64,7 +155,7 @@ class Robot : TimedRobot() {
     /**
      * This function is called periodically during autonomous.
      */
-    override fun autonomousPeriodic() { }
+    override fun autonomousPeriodic() {}
 
     /**
      * This function is called once when teleop is enabled.
@@ -81,7 +172,9 @@ class Robot : TimedRobot() {
     /**
      * This function is called periodically during operator control.
      */
-    override fun teleopPeriodic() { }
+    override fun teleopPeriodic() {
+        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
+    }
 
     /**
      * This function is called once when test mode is enabled.
@@ -94,5 +187,5 @@ class Robot : TimedRobot() {
     /**
      * This function is called periodically during test mode.
      */
-    override fun testPeriodic() { }
+    override fun testPeriodic() {}
 }
