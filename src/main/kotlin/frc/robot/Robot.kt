@@ -2,8 +2,8 @@ package frc.robot
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.hardware.implementations.NavXGyro
+import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
-import cshcyberhawks.swolib.hardware.implementations.TalonSRXTurnMotor
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.constants.MotorPorts
@@ -37,11 +38,7 @@ class Robot : TimedRobot() {
     var backLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.backLeftDriveMotor),
-            TalonSRXTurnMotor(
-                MotorPorts.backLeftTurnMotor,
-                MotorPorts.backLeftEncoder,
-                MotorPorts.turnEncoderOffsets[MotorPorts.backLeftEncoder]
-            ),
+            SparkMaxTurnMotor(MotorPorts.backLeftTurnMotor, 0, MotorPorts.turnEncoderOffsets[0]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -49,11 +46,7 @@ class Robot : TimedRobot() {
     var backRight: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.backRightDriveMotor),
-            TalonSRXTurnMotor(
-                MotorPorts.backRightTurnMotor,
-                MotorPorts.backRightEncoder,
-                MotorPorts.turnEncoderOffsets[MotorPorts.backRightEncoder]
-            ),
+            SparkMaxTurnMotor(MotorPorts.backRightTurnMotor, 0, MotorPorts.turnEncoderOffsets[1]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -61,11 +54,7 @@ class Robot : TimedRobot() {
     var frontLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.frontLeftDriveMotor),
-            TalonSRXTurnMotor(
-                MotorPorts.frontLeftTurnMotor,
-                MotorPorts.frontLeftEncoder,
-                MotorPorts.turnEncoderOffsets[MotorPorts.frontLeftEncoder]
-            ),
+            SparkMaxTurnMotor(MotorPorts.frontLeftTurnMotor, 0, MotorPorts.turnEncoderOffsets[2]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -73,11 +62,7 @@ class Robot : TimedRobot() {
     var frontRight: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.frontRightDriveMotor),
-            TalonSRXTurnMotor(
-                MotorPorts.frontRightTurnMotor,
-                MotorPorts.frontRightEncoder,
-                MotorPorts.turnEncoderOffsets[MotorPorts.frontRightEncoder]
-            ),
+            SparkMaxTurnMotor(MotorPorts.frontRightTurnMotor, 0, MotorPorts.turnEncoderOffsets[3]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -187,5 +172,9 @@ class Robot : TimedRobot() {
     /**
      * This function is called periodically during test mode.
      */
-    override fun testPeriodic() {}
+    override fun testPeriodic() {
+        val encoderValues = arrayOf(backLeft.getRawEncoder(), backRight.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder())
+
+        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
+    }
 }
