@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.constants.MotorPorts
+import frc.robot.temp.CustomSparkMaxTurnMotor
 import frc.robot.util.IO
 
 /**
@@ -38,7 +39,7 @@ class Robot : TimedRobot() {
     var backLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.backLeftDriveMotor),
-            SparkMaxTurnMotor(MotorPorts.backLeftTurnMotor, 0, MotorPorts.turnEncoderOffsets[0]),
+            CustomSparkMaxTurnMotor(MotorPorts.backLeftTurnMotor, MotorPorts.turnEncoderOffsets[0]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -46,7 +47,7 @@ class Robot : TimedRobot() {
     var backRight: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.backRightDriveMotor),
-            SparkMaxTurnMotor(MotorPorts.backRightTurnMotor, 0, MotorPorts.turnEncoderOffsets[1]),
+            CustomSparkMaxTurnMotor(MotorPorts.backRightTurnMotor, MotorPorts.turnEncoderOffsets[1]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -54,7 +55,7 @@ class Robot : TimedRobot() {
     var frontLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.frontLeftDriveMotor),
-            SparkMaxTurnMotor(MotorPorts.frontLeftTurnMotor, 0, MotorPorts.turnEncoderOffsets[2]),
+            CustomSparkMaxTurnMotor(MotorPorts.frontLeftTurnMotor, MotorPorts.turnEncoderOffsets[2]),
             drivePID,
             turnPID,
             swerveConfiguration
@@ -62,7 +63,7 @@ class Robot : TimedRobot() {
     var frontRight: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorPorts.frontRightDriveMotor),
-            SparkMaxTurnMotor(MotorPorts.frontRightTurnMotor, 0, MotorPorts.turnEncoderOffsets[3]),
+            CustomSparkMaxTurnMotor(MotorPorts.frontRightTurnMotor, MotorPorts.turnEncoderOffsets[3]),
             drivePID,
             turnPID,
             swerveConfiguration
