@@ -6,6 +6,8 @@ object IO {
     private val rightJoy = Joystick(0)
     private val leftJoy = Joystick(1)
 
+    private const val hosas = false
+
     val moveX
         get() = rightJoy.x
 
@@ -13,5 +15,5 @@ object IO {
         get() = rightJoy.y
 
     val moveTwist
-        get() = leftJoy.x
+        get() = if (hosas) {leftJoy.x} else rightJoy.twist
 }

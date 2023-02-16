@@ -19,5 +19,5 @@ object MotorConstants {
     const val backRightEncoder = 13
     const val backLeftEncoder = 10
 
-    val turnEncoderOffsets: Array<Double> = arrayOf(345.1904697418213, 233.98533630371094, 357.19047808647156, 347.40471935272217)
+    val turnEncoderOffsets: Array<Double> = arrayOf(0.0, 0.0, 0.0, 0.0)
 }

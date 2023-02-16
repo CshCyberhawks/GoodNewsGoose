@@ -33,7 +33,7 @@ class Robot : TimedRobot() {
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePID = PIDController(0.01, 0.0, 0.0)
-    val turnPID = PIDController(0.01, 0.0, 0.0)
+    val turnPID = PIDController(0.001, 0.0, 0.0)
 
     var backLeft: SwerveWheel =
         SwerveWheel(
@@ -173,7 +173,7 @@ class Robot : TimedRobot() {
      * This function is called periodically during test mode.
      */
     override fun testPeriodic() {
-        val encoderValues = arrayOf(backLeft.getRawEncoder(), backRight.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder())
+        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder(), backRight.getRawEncoder())
 
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
     }
