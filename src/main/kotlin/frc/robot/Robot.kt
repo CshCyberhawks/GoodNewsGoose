@@ -17,8 +17,7 @@ import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.robot.constants.MotorPorts
-import frc.robot.temp.CustomSparkMaxTurnMotor
+import frc.robot.constants.MotorConstants
 import frc.robot.util.IO
 
 /**
@@ -38,32 +37,32 @@ class Robot : TimedRobot() {
 
     var backLeft: SwerveWheel =
         SwerveWheel(
-            TalonFXDriveMotor(MotorPorts.backLeftDriveMotor),
-            CustomSparkMaxTurnMotor(MotorPorts.backLeftTurnMotor, MotorPorts.turnEncoderOffsets[0]),
+            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
+            SparkMaxTurnMotor(MotorConstants.backLeftTurnMotor, MotorConstants.backLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]),
             drivePID,
             turnPID,
             swerveConfiguration
         )
     var backRight: SwerveWheel =
         SwerveWheel(
-            TalonFXDriveMotor(MotorPorts.backRightDriveMotor),
-            CustomSparkMaxTurnMotor(MotorPorts.backRightTurnMotor, MotorPorts.turnEncoderOffsets[1]),
+            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
+            SparkMaxTurnMotor(MotorConstants.backRightTurnMotor, MotorConstants.backRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]),
             drivePID,
             turnPID,
             swerveConfiguration
         )
     var frontLeft: SwerveWheel =
         SwerveWheel(
-            TalonFXDriveMotor(MotorPorts.frontLeftDriveMotor),
-            CustomSparkMaxTurnMotor(MotorPorts.frontLeftTurnMotor, MotorPorts.turnEncoderOffsets[2]),
+            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
+            SparkMaxTurnMotor(MotorConstants.frontLeftTurnMotor, MotorConstants.frontLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]),
             drivePID,
             turnPID,
             swerveConfiguration
         )
     var frontRight: SwerveWheel =
         SwerveWheel(
-            TalonFXDriveMotor(MotorPorts.frontRightDriveMotor),
-            CustomSparkMaxTurnMotor(MotorPorts.frontRightTurnMotor, MotorPorts.turnEncoderOffsets[3]),
+            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
+            SparkMaxTurnMotor(MotorConstants.frontRightTurnMotor, MotorConstants.frontRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]),
             drivePID,
             turnPID,
             swerveConfiguration

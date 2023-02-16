@@ -1,6 +1,6 @@
 package frc.robot.constants
 
-object MotorPorts {
+object MotorConstants {
     // TalonSRX Motors
     const val frontRightTurnMotor: Int = 8
     const val frontLeftTurnMotor: Int = 7
@@ -14,10 +14,10 @@ object MotorPorts {
     const val backLeftDriveMotor: Int = 2
 
     // Encoders
-    const val frontRightEncoder = 0
-    const val frontLeftEncoder = 1
-    const val backRightEncoder = 3
-    const val backLeftEncoder = 2
+    const val frontRightEncoder = 12
+    const val frontLeftEncoder = 11
+    const val backRightEncoder = 13
+    const val backLeftEncoder = 10
 
     val turnEncoderOffsets: Array<Double> = arrayOf(345.1904697418213, 233.98533630371094, 357.19047808647156, 347.40471935272217)
 }
