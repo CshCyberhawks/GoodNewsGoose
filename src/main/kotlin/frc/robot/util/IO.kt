@@ -6,7 +6,7 @@ object IO {
     private val rightJoy = Joystick(0)
     private val leftJoy = Joystick(1)
 
-    private const val hosas = false
+    private const val hosas = true
 
     val moveX
         get() = rightJoy.x
