@@ -29,7 +29,7 @@ import frc.robot.constants.MotorConstants
 class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-
+    val pipIndex = 0;
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
@@ -43,7 +43,8 @@ class Robot : TimedRobot() {
 
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
-
+    val limelightFid = Limelight("victoria", 0.12, 20)
+    val limelightVis = Limelight("fido", 0.12, 20)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -189,6 +190,10 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
+      pipIndex += 1;
+      if pipIndex == 3 {
+        pipIndex = 0
+      }
     }
 
     /** This function is called once when test mode is enabled. */
@@ -199,7 +204,7 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during test mode. */
     override fun testPeriodic() {
-        val encoderValues =
+      val encoderValues =
                 arrayOf(
                         backLeft.getRawEncoder(),
                         frontLeft.getRawEncoder(),
