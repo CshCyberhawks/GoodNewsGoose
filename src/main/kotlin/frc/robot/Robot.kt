@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import frc.robot.commands.HardwareTestCommand
 import frc.robot.commands.SwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
@@ -124,6 +125,7 @@ class Robot : TimedRobot() {
 
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro);
     var autoCommand = TestingAuto(auto);
+    var hardwareTestCommand = HardwareTestCommand(swerveDriveTrain)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -198,6 +200,7 @@ class Robot : TimedRobot() {
     override fun testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll()
+        hardwareTestCommand.schedule()
     }
 
     /** This function is called periodically during test mode. */
@@ -209,6 +212,7 @@ class Robot : TimedRobot() {
                         frontRight.getRawEncoder(),
                         backRight.getRawEncoder()
                 )
+
 
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
     }
