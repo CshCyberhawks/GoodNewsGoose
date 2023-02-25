@@ -4,6 +4,7 @@ import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
+import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
@@ -29,7 +30,7 @@ import frc.robot.constants.MotorConstants
 class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-    val pipIndex = 0;
+    var pipIndex = 0;
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
@@ -43,8 +44,8 @@ class Robot : TimedRobot() {
 
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
-    val limelightFid = Limelight("victoria", 0.12, 20)
-    val limelightVis = Limelight("fido", 0.12, 20)
+    val limelightFid = Limelight("limelight", 0.12, 0.0)
+//    val limelightVis = Limelight("fido", 0.12, 20)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -191,9 +192,10 @@ class Robot : TimedRobot() {
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
       pipIndex += 1;
-      if pipIndex == 3 {
+      if (pipIndex == 2) {
         pipIndex = 0
       }
+        limelightFid.setPipeline(pipIndex);
     }
 
     /** This function is called once when test mode is enabled. */
