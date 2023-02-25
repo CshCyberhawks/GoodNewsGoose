@@ -1,10 +1,9 @@
 package frc.robot
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
-import cshcyberhawks.swolib.hardware.implementations.NavXGyro
+import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
-import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
@@ -13,7 +12,6 @@ import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
-import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -21,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.commands.SwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
-import frc.robot.util.IO
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -96,7 +93,7 @@ class Robot : TimedRobot() {
                     swerveConfiguration
             )
 
-    val gyro = NavXGyro(SPI.Port.kMXP)
+    val gyro = Pigeon2Gyro(15)
 
     val swerveDriveTrain =
             SwerveDriveTrain(
@@ -106,12 +103,12 @@ class Robot : TimedRobot() {
 
     val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0))
 
-    val autoPid = PIDController(.1, 0.0, 0.2)
+    val autoPid = PIDController(.1, 0.0, 0.0)
     val auto =
             SwerveAuto(
                     autoPid,
                     autoPid,
-                    PIDController(.1, 0.0, 0.0),
+                    PIDController(.1, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
                     1.6,
@@ -122,8 +119,8 @@ class Robot : TimedRobot() {
                     gyro
             )
 
-    var swerveCommand = SwerveCommand(swerveDriveTrain, gyro);
-    var autoCommand = TestingAuto(auto);
+    var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
+    var autoCommand = TestingAuto(auto, gyro)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -148,8 +145,10 @@ class Robot : TimedRobot() {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
 
+        swo.updatePosition()
         SmartDashboard.putNumber("swo x", swo.fieldPosition.x)
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
+        SmartDashboard.putNumber("gyro", gyro.getYaw())
         CommandScheduler.getInstance().run()
     }
 
@@ -168,9 +167,7 @@ class Robot : TimedRobot() {
         // scheduling it
         autonomousCommand?.schedule()
 
-        gyro.setYawOffset();
-
-        autoCommand.schedule();
+        autoCommand.schedule()
     }
 
     /** This function is called periodically during autonomous. */
@@ -185,9 +182,9 @@ class Robot : TimedRobot() {
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
         // cancelling it
         autonomousCommand?.cancel()
-        gyro.setYawOffset();
-        
-        swerveCommand.schedule();
+        gyro.setYawOffset()
+
+        swerveCommand.schedule()
     }
 
     /** This function is called periodically during operator control. */
