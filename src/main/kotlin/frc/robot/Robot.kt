@@ -125,7 +125,7 @@ class Robot : TimedRobot() {
 
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
     var autoCommand = TestingAuto(auto, gyro)
-    val autoPathManager = AutoPathManager(auto)
+    val autoPathManager = AutoPathManager(auto, gyro)
 
     /**
      * This function is run when the robot is first started up and should be used for any
