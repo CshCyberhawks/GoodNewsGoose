@@ -31,7 +31,7 @@ import frc.robot.constants.MotorConstants
 class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-    var pipIndex = 0;
+    var pipIndex = 0
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
@@ -46,7 +46,7 @@ class Robot : TimedRobot() {
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
     val limelightFid = Limelight("limelight", 0.12, 0.0)
-//    val limelightVis = Limelight("fido", 0.12, 20)
+    //    val limelightVis = Limelight("fido", 0.12, 20)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -106,11 +106,11 @@ class Robot : TimedRobot() {
 
     val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
 
-    val autoPid = PIDController(.1, 0.0, 0.0)
-    val auto =
+    var autoPID = PIDController(.1, 0.0, 0.0)
+    var auto =
             SwerveAuto(
-                    autoPid,
-                    autoPid,
+                    autoPID,
+                    autoPID,
                     PIDController(.1, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
@@ -164,12 +164,25 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-        autonomousCommand = robotContainer?.autonomousCommand
+        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
-        // Schedule the autonomous command (example)
-        // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
-        // scheduling it
-        autonomousCommand?.schedule()
+        autoPID = PIDController(.1, 0.0, 0.0)
+        auto =
+                SwerveAuto(
+                        autoPID,
+                        autoPID,
+                        PIDController(.1, 0.0, 0.05),
+                        // TrapezoidProfile.Constraints(4.0, 1.5),
+                        TrapezoidProfile.Constraints(1.0, .2),
+                        1.6,
+                        0.05,
+                        .135,
+                        swo,
+                        swerveDriveTrain,
+                        gyro
+                )
+
+        autoCommand = TestingAuto(auto, gyro)
 
         autoPathManager.paths["TestPath"]!!.schedule()
     }
@@ -193,11 +206,11 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
-      pipIndex += 1;
-      if (pipIndex == 2) {
-        pipIndex = 0
-      }
-        limelightFid.setPipeline(pipIndex);
+        pipIndex += 1
+        if (pipIndex == 2) {
+            pipIndex = 0
+        }
+        limelightFid.setPipeline(pipIndex)
     }
 
     /** This function is called once when test mode is enabled. */
@@ -208,7 +221,7 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during test mode. */
     override fun testPeriodic() {
-      val encoderValues =
+        val encoderValues =
                 arrayOf(
                         backLeft.getRawEncoder(),
                         frontLeft.getRawEncoder(),
