@@ -124,6 +124,7 @@ class Robot : TimedRobot() {
             )
 
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
+    var autoCommand = TestingAuto(auto, gyro)
     val autoPathManager = AutoPathManager(auto)
 
     /**
