@@ -1,6 +1,7 @@
 package frc.robot
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
+import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
@@ -103,7 +104,7 @@ class Robot : TimedRobot() {
                     gyro
             )
 
-    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0))
+    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
 
     val autoPid = PIDController(.1, 0.0, 0.0)
     val auto =
@@ -118,11 +119,12 @@ class Robot : TimedRobot() {
                     .135,
                     swo,
                     swerveDriveTrain,
-                    gyro
+                    gyro,
+                true
             )
 
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
-    var autoCommand = TestingAuto(auto, gyro)
+    val autoPathManager = AutoPathManager(auto)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -169,7 +171,7 @@ class Robot : TimedRobot() {
         // scheduling it
         autonomousCommand?.schedule()
 
-        autoCommand.schedule()
+        autoPathManager.paths["TestPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
