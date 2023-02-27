@@ -1,18 +1,22 @@
-package frc.robot.commands;
+package frc.robot.commands
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
-import cshcyberhawks.swolib.autonomous.*;
-import cshcyberhawks.swolib.autonomous.commands.*;
+import cshcyberhawks.swolib.autonomous.*
+import cshcyberhawks.swolib.autonomous.commands.*
 import cshcyberhawks.swolib.math.Vector2
+import cshcyberhawks.swolib.math.FieldPosition
+import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 
-//define an empty SequentialCommandGroup
-public class TestingAuto(val swerveAuto: SwerveAuto) : SequentialCommandGroup() {
+// define an empty SequentialCommandGroup
+public class TestingAuto(val swerveAuto: SwerveAuto, val gyro: GenericGyro) : SequentialCommandGroup() {
 
-    //define the constructor
+    // define the constructor
     init {
-        //add the commands to the SequentialCommandGroup
+        gyro.setYawOffset()
+        // add the commands to the SequentialCommandGroup
         addCommands(
-            GoToPosition(swerveAuto, Vector2(1.0, 0.0)),
-        );
+                GoToPosition(swerveAuto, FieldPosition(0.0, 4.0, 180.0)),
+                GoToPosition(swerveAuto, FieldPosition(0.0, 0.0, 0.0)),
+        )
     }
 }

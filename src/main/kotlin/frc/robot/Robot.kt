@@ -1,10 +1,11 @@
 package frc.robot
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
-import cshcyberhawks.swolib.hardware.implementations.NavXGyro
+import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
+import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
-import cshcyberhawks.swolib.math.Vector2
+import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
@@ -13,7 +14,6 @@ import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
-import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -22,7 +22,6 @@ import frc.robot.commands.HardwareTestCommand
 import frc.robot.commands.SwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
-import frc.robot.util.IO
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,7 +32,7 @@ import frc.robot.util.IO
 class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-
+    var pipIndex = 0
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
@@ -47,7 +46,8 @@ class Robot : TimedRobot() {
 
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
-
+    val limelightFid = Limelight("limelight", 0.12, 0.0)
+    //    val limelightVis = Limelight("fido", 0.12, 20)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -97,7 +97,7 @@ class Robot : TimedRobot() {
                     swerveConfiguration
             )
 
-    val gyro = NavXGyro(SPI.Port.kMXP)
+    val gyro = Pigeon2Gyro(15)
 
     val swerveDriveTrain =
             SwerveDriveTrain(
@@ -105,14 +105,14 @@ class Robot : TimedRobot() {
                     gyro
             )
 
-    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0))
+    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
 
-    val autoPid = PIDController(.1, 0.0, 0.2)
-    val auto =
+    var autoPID = PIDController(.1, 0.0, 0.0)
+    var auto =
             SwerveAuto(
-                    autoPid,
-                    autoPid,
-                    PIDController(.1, 0.0, 0.0),
+                    autoPID,
+                    autoPID,
+                    PIDController(.1, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
                     1.6,
@@ -120,12 +120,19 @@ class Robot : TimedRobot() {
                     .135,
                     swo,
                     swerveDriveTrain,
-                    gyro
+                    gyro,
+                true
             )
 
+<<<<<<< HEAD
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro);
     var autoCommand = TestingAuto(auto);
     var hardwareTestCommand = HardwareTestCommand(swerveDriveTrain)
+=======
+    var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
+    var autoCommand = TestingAuto(auto, gyro)
+    val autoPathManager = AutoPathManager(auto, gyro)
+>>>>>>> 7d1e3411b8011f5962d85050197be400f61ad31f
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -150,8 +157,10 @@ class Robot : TimedRobot() {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
 
+        swo.updatePosition()
         SmartDashboard.putNumber("swo x", swo.fieldPosition.x)
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
+        SmartDashboard.putNumber("gyro", gyro.getYaw())
         CommandScheduler.getInstance().run()
     }
 
@@ -163,16 +172,27 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-        autonomousCommand = robotContainer?.autonomousCommand
+        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
-        // Schedule the autonomous command (example)
-        // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
-        // scheduling it
-        autonomousCommand?.schedule()
+        autoPID = PIDController(.1, 0.0, 0.0)
+        auto =
+                SwerveAuto(
+                        autoPID,
+                        autoPID,
+                        PIDController(.1, 0.0, 0.05),
+                        // TrapezoidProfile.Constraints(4.0, 1.5),
+                        TrapezoidProfile.Constraints(1.0, .2),
+                        1.6,
+                        0.05,
+                        .135,
+                        swo,
+                        swerveDriveTrain,
+                        gyro
+                )
 
-        gyro.setYawOffset();
+        autoCommand = TestingAuto(auto, gyro)
 
-        autoCommand.schedule();
+        autoPathManager.paths["TestPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
@@ -187,13 +207,18 @@ class Robot : TimedRobot() {
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
         // cancelling it
         autonomousCommand?.cancel()
-        gyro.setYawOffset();
-        
-        swerveCommand.schedule();
+        gyro.setYawOffset()
+
+        swerveCommand.schedule()
     }
 
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
+        pipIndex += 1
+        if (pipIndex == 2) {
+            pipIndex = 0
+        }
+        limelightFid.setPipeline(pipIndex)
     }
 
     /** This function is called once when test mode is enabled. */
