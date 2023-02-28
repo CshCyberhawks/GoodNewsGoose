@@ -40,11 +40,11 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
     }
 
     fun setRelativeArmPosition(position: Vector3) {
-        val angleRadians = Math.toRadians(Math.toDegrees(atan2(position.y, position.x)) - gyro.getYaw())
+        val angleTwistRadians = atan2(position.y, position.x) - Math.toRadians(gyro.getYaw())
         val dist = sqrt(position.x * position.x + position.y * position.y)
 
-        var x = dist * cos(angleRadians)
-        var y = dist * sin(angleRadians)
+        var x = dist * cos(angleTwistRadians)
+        var y = dist * sin(angleTwistRadians)
 
         val desiredArmTwist = atan2(y, x)
         val armTwistRadians = Math.toRadians(getArmTwist())
