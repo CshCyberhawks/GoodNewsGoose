@@ -5,27 +5,36 @@ import cshcyberhawks.swolib.math.Vector3
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.ArmMeasurements
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
     private val traversalPID = PIDController(0.1, 0.0, 0.0)
+    private val armTwistPID = PIDController(0.1, 0.0, 0.0)
 
     // Placeholder methods
     private fun getArmAngle(): Double = 0.0
     private fun getTraversalLength(): Double = 0.0
     private fun getArmTwist(): Double = 0.0
 
-    fun getRelativePosition(): Vector3 {
-        var x = ArmMeasurements.armLength * sin(Math.toRadians(getArmAngle())) + getTraversalLength()
-        var y = ArmMeasurements.armHeight - ArmMeasurements.armLength * cos(Math.toRadians(getArmAngle()))
+    fun getRelativePositions(): Vector3 {
+        val armAngleRadians = Math.toRadians(getArmAngle())
+
+        var x = (ArmMeasurements.armLength + getTraversalLength()) * sin(armAngleRadians)
+        var y = (ArmMeasurements.armLength + getTraversalLength()) * cos(armAngleRadians)
+
+        val armTwistRadians = Math.toRadians(getArmTwist())
 
         val z = y
-        y = x * sin(Math.toRadians(getArmTwist()))
-        x *= cos(Math.toRadians(getArmTwist()))
+        y = x * sin(armTwistRadians)
+        x *= cos(armTwistRadians)
 
         val angleRadians = Math.toRadians(Math.toDegrees(atan2(y, x)) + gyro.getYaw())
         val dist = sqrt(x * x + y * y)
+
 
         return Vector3(dist * cos(angleRadians), dist * sin(angleRadians), z)
     }
@@ -33,15 +42,21 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
     fun setRelativeArmPosition(position: Vector3) {
         val angleRadians = Math.toRadians(Math.toDegrees(atan2(position.y, position.x)) - gyro.getYaw())
         val dist = sqrt(position.x * position.x + position.y * position.y)
-        val armAngleRadians = Math.toRadians(getArmTwist())
 
-        val x = (dist * cos(angleRadians) / cos(armAngleRadians) + dist * sin(angleRadians) / sin(armAngleRadians)) / 2
-        val y = position.z
+        var x = dist * cos(angleRadians)
+        var y = dist * sin(angleRadians)
 
-        val desiredArmAngle = Math.toDegrees(acos((ArmMeasurements.armHeight - y) / ArmMeasurements.armLength))
-        val desiredTraversalLength = x - ArmMeasurements.armLength * sin(Math.toRadians(desiredArmAngle))
+        val desiredArmTwist = atan2(y, x)
+        val armTwistRadians = Math.toRadians(getArmTwist())
+
+        x = (x / cos(armTwistRadians) + y / sin(armTwistRadians)) / 2
+        y = position.z
+
+        val desiredTraversalLength = sqrt(x * x + y * y)
+        val desiredArmAngle = atan2(y, x)
 
         armAnglePID.setpoint = desiredArmAngle
+        armTwistPID.setpoint = desiredArmTwist
         traversalPID.setpoint = desiredTraversalLength
     }
 
