@@ -75,18 +75,21 @@ class Robot : TimedRobot() {
 
     val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
 
-    val autoPid = PIDController(1.0, 0.0, 0.05)
+    val autoPIDX = PIDController(1.0, 0.0, 0.05)
+    val autoPIDY = PIDController(1.0, 0.0, 0.05)
     val auto = SwerveAuto(
-        autoPid,
-        autoPid,
-        PIDController(1.0, 0.0, 0.0),
-        TrapezoidProfile.Constraints(4.0, 1.5),
-        1.6,
-        0.05,
-        .135,
+        autoPIDX,
+        autoPIDY,
+        PIDController(1.5, 0.0, 0.05),
+        // TrapezoidProfile.Constraints(4.0, 1.5),
+        TrapezoidProfile.Constraints(1.0, .2),
+        10.0, // TODO: Tune PIDs so this can be smaller
+        0.2,
+        .05,
+        .01,
         swo,
         swerveDriveTrain,
-        gyro
+        gyro,
     )
 
 
