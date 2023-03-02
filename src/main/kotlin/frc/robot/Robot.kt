@@ -168,24 +168,25 @@ class Robot : TimedRobot() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
         autoPID = PIDController(.1, 0.0, 0.0)
-        auto =
-                SwerveAuto(
-                        autoPID,
-                        autoPID,
-                        PIDController(.1, 0.0, 0.05),
-                        // TrapezoidProfile.Constraints(4.0, 1.5),
-                        TrapezoidProfile.Constraints(1.0, .2),
-                        1.6,
-                        0.05,
-                        .135,
-                        swo,
-                        swerveDriveTrain,
-                        gyro
-                )
+        // auto =
+        //         SwerveAuto(
+        //                 autoPID,
+        //                 autoPID,
+        //                 PIDController(.1, 0.0, 0.05),
+        //                 // TrapezoidProfile.Constraints(4.0, 1.5),
+        //                 TrapezoidProfile.Constraints(1.0, .2),
+        //                 1.6,
+        //                 0.05,
+        //                 .135,
+        //                 swo,
+        //                 swerveDriveTrain,
+        //                 gyro
+        //         )
 
         autoCommand = TestingAuto(auto, gyro)
+        autoCommand.schedule();
 
-        autoPathManager.paths["TestPath"]!!.schedule()
+        // autoPathManager.paths["TestPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
