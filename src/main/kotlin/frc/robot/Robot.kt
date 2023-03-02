@@ -106,16 +106,18 @@ class Robot : TimedRobot() {
 
     val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
 
-    var autoPID = PIDController(.1, 0.0, 0.0)
+    var autoPIDX = PIDController(.1, 0.0, 0.0)
+    var autoPIDY = PIDController(.1, 0.0, 0.0)
+
     var auto =
             SwerveAuto(
-                    autoPID,
-                    autoPID,
+                    autoPIDX,
+                    autoPIDY,
                     PIDController(.1, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
                     1.6,
-                    0.05,
+                    0.2,
                     .135,
                     swo,
                     swerveDriveTrain,
@@ -125,7 +127,7 @@ class Robot : TimedRobot() {
 
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
     var autoCommand = TestingAuto(auto, gyro)
-    val autoPathManager = AutoPathManager(auto, gyro)
+//    val autoPathManager = AutoPathManager(auto, gyro)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -167,25 +169,25 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
-        autoPID = PIDController(.1, 0.0, 0.0)
-        auto =
-                SwerveAuto(
-                        autoPID,
-                        autoPID,
-                        PIDController(.1, 0.0, 0.05),
-                        // TrapezoidProfile.Constraints(4.0, 1.5),
-                        TrapezoidProfile.Constraints(1.0, .2),
-                        1.6,
-                        0.05,
-                        .135,
-                        swo,
-                        swerveDriveTrain,
-                        gyro
-                )
+        // auto =
+        //         SwerveAuto(
+        //                 autoPID,
+        //                 autoPID,
+        //                 PIDController(.1, 0.0, 0.05),
+        //                 // TrapezoidProfile.Constraints(4.0, 1.5),
+        //                 TrapezoidProfile.Constraints(1.0, .2),
+        //                 1.6,
+        //                 0.05,
+        //                 .135,
+        //                 swo,
+        //                 swerveDriveTrain,
+        //                 gyro
+        //         )
 
         autoCommand = TestingAuto(auto, gyro)
-
-        autoPathManager.paths["TestPath"]!!.schedule()
+        autoCommand.schedule();
+//        autoCommand = TestingAuto(auto, gyro)
+        // autoPathManager.paths["TestPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
