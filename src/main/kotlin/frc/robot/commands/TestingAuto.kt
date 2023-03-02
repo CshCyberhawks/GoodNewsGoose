@@ -17,6 +17,7 @@ public class TestingAuto(val swerveAuto: SwerveAuto, val gyro: GenericGyro) : Se
         addCommands(
                 GoToPosition(swerveAuto, FieldPosition(0.0, 4.0, 180.0)),
                 GoToPosition(swerveAuto, FieldPosition(0.0, 0.0, 0.0)),
+                GoToPosition(swerveAuto, FieldPosition(-1.0, 2.0, 90.0))
         )
     }
 }
