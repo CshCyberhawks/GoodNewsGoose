@@ -47,9 +47,8 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
         var y = dist * sin(angleTwistRadians)
 
         val desiredArmTwist = atan2(y, x)
-        val armTwistRadians = Math.toRadians(getArmTwist())
 
-        x = (x / cos(armTwistRadians) + y / sin(armTwistRadians)) / 2
+        x = (x / cos(desiredArmTwist) + y / sin(desiredArmTwist)) / 2
         y = position.z
 
         val desiredTraversalLength = sqrt(x * x + y * y)
