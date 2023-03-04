@@ -12,9 +12,12 @@ import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
+import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
+import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -45,8 +48,8 @@ class Robot : TimedRobot() {
 
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
-    val limelightFid = Limelight("limelight-back", 0.12, 0.0)
-//    val limelightVis = Limelight("limelight-front", 0.12, 0.0)
+    val limelightBack = Limelight("limelight-back", 0.12, 0.0)
+    val limelightFront = Limelight("limelight-front", 0.12, 0.0)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -136,6 +139,12 @@ class Robot : TimedRobot() {
     override fun robotInit() {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
+//        PortForwarder.add(5800, "limelight.local", 5800)
+        limelightBack.openCamera(2,2)
+        limelightFront.openCamera(2,2)
+        for (i in 5800.. 5808) {
+            PortForwarder.add(i, "limelight.local", i)
+        }
         robotContainer = RobotContainer()
     }
 
@@ -210,11 +219,11 @@ class Robot : TimedRobot() {
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
         pipIndex += 1
-        if (pipIndex == 2) {
+        if (pipIndex == 3) {
             pipIndex = 0
         }
-        limelightFid.setPipeline(pipIndex)
-//        limelightVis.setPipeline(pipIndex)
+        limelightBack.setPipeline(pipIndex)
+        limelightFront.setPipeline(pipIndex)
     }
 
     /** This function is called once when test mode is enabled. */
