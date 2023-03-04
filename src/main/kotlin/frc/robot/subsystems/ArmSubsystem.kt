@@ -20,13 +20,13 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
     private fun getTraversalLength(): Double = 0.0
     private fun getArmTwist(): Double = 0.0
 
-    fun getRelativePositions(): Vector3 {
-        val armAngleRadians = Math.toRadians(getArmAngle())
+    fun getRelativePositions(armAngle: Double = getArmAngle(), armTwist: Double = getArmTwist(), traversalLength: Double = getTraversalLength()): Vector3 {
+        val armAngleRadians = Math.toRadians(armAngle)
 
-        var x = (ArmMeasurements.armLength + getTraversalLength()) * sin(armAngleRadians)
-        var y = (ArmMeasurements.armLength + getTraversalLength()) * cos(armAngleRadians)
+        var x = (ArmMeasurements.armLength + traversalLength) * sin(armAngleRadians)
+        var y = (ArmMeasurements.armLength + traversalLength) * cos(armAngleRadians)
 
-        val armTwistRadians = Math.toRadians(getArmTwist())
+        val armTwistRadians = Math.toRadians(armTwist)
 
         val z = y
         y = x * sin(armTwistRadians)
@@ -38,7 +38,7 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
         return Vector3(dist * cos(angleRadians), dist * sin(angleRadians), z)
     }
 
-    fun setRelativeArmPosition(position: Vector3) {
+    fun setRelativeArmPosition(position: Vector3): Triple<Double, Double, Double> {
         val angleTwistRadians = atan2(position.y, position.x) - Math.toRadians(gyro.getYaw())
         val dist = sqrt(position.x * position.x + position.y * position.y)
 
@@ -56,6 +56,8 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
         armAnglePID.setpoint = desiredArmAngle
         armTwistPID.setpoint = Math.toDegrees(desiredArmTwistRadians)
         traversalPID.setpoint = desiredTraversalLength
+
+        return Triple(desiredArmAngle, Math.toDegrees(desiredArmTwistRadians), desiredTraversalLength)
     }
 
     override fun periodic() {
