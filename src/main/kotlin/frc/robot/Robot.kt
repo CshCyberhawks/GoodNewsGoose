@@ -46,7 +46,7 @@ class Robot : TimedRobot() {
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
     val limelightFid = Limelight("limelight-back", 0.12, 0.0)
-//    val limelightVis = Limelight("limelight-front", 0.12, 0.0)
+    //    val limelightVis = Limelight("limelight-front", 0.12, 0.0)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -104,25 +104,26 @@ class Robot : TimedRobot() {
                     gyro
             )
 
-    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
+    val swo =
+            SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
 
-    var autoPIDX = PIDController(.5, 0.0, 0.0)
-    var autoPIDY = PIDController(.5, 0.0, 0.0)
+    var autoPIDX = PIDController(.01, 0.0, 0.0)
+    var autoPIDY = PIDController(.01, 0.0, 0.0)
 
     var auto =
             SwerveAuto(
                     autoPIDX,
                     autoPIDY,
-                    PIDController(1.5, 0.0, 0.05),
+                    PIDController(.5, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
-                    10.0, // TODO: Tune PIDs so this can be smaller
+                    1.0, // TODO: Tune PIDs so this can be smaller
                     0.2,
-                    .05,
+                    1.0,
                     swo,
                     swerveDriveTrain,
                     gyro,
-                true
+                    true
             )
 
     var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
@@ -169,25 +170,9 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
-        // auto =
-        //         SwerveAuto(
-        //                 autoPID,
-        //                 autoPID,
-        //                 PIDController(.1, 0.0, 0.05),
-        //                 // TrapezoidProfile.Constraints(4.0, 1.5),
-        //                 TrapezoidProfile.Constraints(1.0, .2),
-        //                 1.6,
-        //                 0.05,
-        //                 .135,
-        //                 swo,
-        //                 swerveDriveTrain,
-        //                 gyro
-        //         )
-
-//        autoCommand = TestingAuto(auto, gyro)
-//        autoCommand.schedule();
-//        autoCommand = TestingAuto(auto, gyro)
-         autoPathManager.paths["TestPath"]!!.schedule()
+        autoCommand = TestingAuto(auto, gyro)
+        autoCommand.schedule()
+        // autoPathManager.paths["Path"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
@@ -214,7 +199,7 @@ class Robot : TimedRobot() {
             pipIndex = 0
         }
         limelightFid.setPipeline(pipIndex)
-//        limelightVis.setPipeline(pipIndex)
+        //        limelightVis.setPipeline(pipIndex)
     }
 
     /** This function is called once when test mode is enabled. */
