@@ -45,8 +45,8 @@ class Robot : TimedRobot() {
 
     val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
-    val limelightFid = Limelight("limelight", 0.12, 0.0)
-    //    val limelightVis = Limelight("fido", 0.12, 20)
+    val limelightFid = Limelight("limelight-back", 0.12, 0.0)
+//    val limelightVis = Limelight("limelight-front", 0.12, 0.0)
     var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -215,6 +215,7 @@ class Robot : TimedRobot() {
             pipIndex = 0
         }
         limelightFid.setPipeline(pipIndex)
+//        limelightVis.setPipeline(pipIndex)
     }
 
     /** This function is called once when test mode is enabled. */
