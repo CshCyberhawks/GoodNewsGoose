@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 
-class ArmSubsystem(/*private val gyro: GenericGyro*/) : SubsystemBase() {
+class ArmSubsystem : SubsystemBase() {
     var desiredTraversalExtended = false
     var desiredArmAngle = 0.0
         set(value) {
@@ -86,18 +86,19 @@ class ArmSubsystem(/*private val gyro: GenericGyro*/) : SubsystemBase() {
         armAngleMotor[ControlMode.PercentOutput] = if (!armAnglePID.atSetpoint()) {
             armAnglePID.calculate(getArmAngle())
         } else {
-             0.0
-        }
-
-        traversalMotor[ControlMode.PercentOutput] = if (!(traversalExtendedSwitch.get() || traversalRetractedSwitch.get())) {
-            if (desiredTraversalExtended) {
-                0.1
-            } else {
-                -0.1
-            }
-        } else {
             0.0
         }
+
+        traversalMotor[ControlMode.PercentOutput] =
+            if (!(traversalExtendedSwitch.get() || traversalRetractedSwitch.get())) {
+                if (desiredTraversalExtended) {
+                    0.1
+                } else {
+                    -0.1
+                }
+            } else {
+                0.0
+            }
     }
 
     override fun simulationPeriodic() {

@@ -2,12 +2,15 @@ package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.subsystems.ArmSubsystem
-import frc.robot.subsystems.ExampleSubsystem
 
 /**
  * @property subsystem
  */
-class AutoArmGoToPosition(private val subsystem: ArmSubsystem, private val desiredArmAngle: Double, private val desiredTraversal: Boolean) : CommandBase() {
+class AutoArmGoToPosition(
+    private val subsystem: ArmSubsystem,
+    private val desiredArmAngle: Double,
+    private val desiredTraversal: Boolean
+) : CommandBase() {
     /**
      * Creates a new ExampleCommand.
      */

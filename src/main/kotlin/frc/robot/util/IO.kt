@@ -1,6 +1,5 @@
 package frc.robot.util
 
-import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
@@ -19,7 +18,9 @@ object IO {
         get() = MiscCalculations.calculateDeadzone(rightJoy.y, 0.1)
 
     val moveTwist
-        get() = if (hosas) {leftJoy.x} else rightJoy.twist
+        get() = if (hosas) {
+            leftJoy.x
+        } else rightJoy.twist
 
 
     val toggleTraversal: Boolean
