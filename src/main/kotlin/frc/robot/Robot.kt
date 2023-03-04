@@ -17,7 +17,9 @@ import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import frc.robot.commands.ManualArmCommand
 import frc.robot.constants.MotorConstants
+import frc.robot.subsystems.ArmSubsystem
 import frc.robot.util.IO
 
 /**
@@ -68,28 +70,30 @@ class Robot : TimedRobot() {
             swerveConfiguration
         )
 
-    val gyro = NavXGyro(SPI.Port.kMXP)
+//    val gyro = NavXGyro(SPI.Port.kMXP)
 
-    val swerveDriveTrain =
-        SwerveDriveTrain(FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft), gyro)
+//    val swerveDriveTrain =
+//        SwerveDriveTrain(FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft), gyro)
+//
+//    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
+//
+//    val autoPIDX = PIDController(1.0, 0.0, 0.05)
+//    val autoPIDY = PIDController(1.0, 0.0, 0.05)
+//    val auto = SwerveAuto(
+//        autoPIDX,
+//        autoPIDY,
+//        PIDController(1.5, 0.0, 0.05),
+//        // TrapezoidProfile.Constraints(4.0, 1.5),
+//        TrapezoidProfile.Constraints(1.0, .2),
+//        10.0, // TODO: Tune PIDs so this can be smaller
+//        0.2,
+//        .05,
+//        swo,
+//        swerveDriveTrain,
+//        gyro,
+//    )
 
-    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
-
-    val autoPIDX = PIDController(1.0, 0.0, 0.05)
-    val autoPIDY = PIDController(1.0, 0.0, 0.05)
-    val auto = SwerveAuto(
-        autoPIDX,
-        autoPIDY,
-        PIDController(1.5, 0.0, 0.05),
-        // TrapezoidProfile.Constraints(4.0, 1.5),
-        TrapezoidProfile.Constraints(1.0, .2),
-        10.0, // TODO: Tune PIDs so this can be smaller
-        0.2,
-        .05,
-        swo,
-        swerveDriveTrain,
-        gyro,
-    )
+    val armSystem = ArmSubsystem()
 
 
     /**
@@ -154,13 +158,16 @@ class Robot : TimedRobot() {
         // this line or comment it out.
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before cancelling it
         autonomousCommand?.cancel()
+        val armCommand = ManualArmCommand(armSystem)
+        armCommand.schedule()
     }
 
     /**
      * This function is called periodically during operator control.
      */
     override fun teleopPeriodic() {
-        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
+//        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
+        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
 
     /**
