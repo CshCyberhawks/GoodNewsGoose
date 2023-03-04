@@ -1,14 +1,18 @@
 package frc.robot.subsystems
 
 import com.ctre.phoenix.motorcontrol.ControlMode
+import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.ctre.phoenix.motorcontrol.can.VictorSPX
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Encoder
+import edu.wpi.first.wpilibj.PneumaticsModuleType
+import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.robot.constants.MotorConstants
 
 class ArmSubsystem : SubsystemBase() {
     var desiredTraversalExtended = false
@@ -19,7 +23,8 @@ class ArmSubsystem : SubsystemBase() {
         }
 
 //    private val armAngleMotor = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless)
-    private val traversalMotor = VictorSPX(2)
+    private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
+    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
 
@@ -92,6 +97,12 @@ class ArmSubsystem : SubsystemBase() {
 //        } else {
 //            0.0
 //        })
+        if (!armAnglePID.atSetpoint()) {
+            brakeSolenoid.set(false)
+            armAnglePID.calculate(getArmAngle())
+        } else {
+            brakeSolenoid.set(true)
+        }
 
         traversalMotor[ControlMode.PercentOutput] =
             if (!(traversalExtendedSwitch.get() || traversalRetractedSwitch.get())) {

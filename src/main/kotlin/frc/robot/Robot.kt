@@ -10,6 +10,7 @@ import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
+import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.SPI
@@ -104,6 +105,7 @@ class Robot : TimedRobot() {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
+        CameraServer.startAutomaticCapture()
     }
 
     /**
