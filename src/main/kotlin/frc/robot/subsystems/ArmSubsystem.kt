@@ -35,7 +35,6 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
         val angleRadians = Math.toRadians(Math.toDegrees(atan2(y, x)) + gyro.getYaw())
         val dist = sqrt(x * x + y * y)
 
-
         return Vector3(dist * cos(angleRadians), dist * sin(angleRadians), z)
     }
 
@@ -46,16 +45,16 @@ class ArmSubsystem(private val gyro: GenericGyro) : SubsystemBase() {
         var x = dist * cos(angleTwistRadians)
         var y = dist * sin(angleTwistRadians)
 
-        val desiredArmTwist = atan2(y, x)
+        val desiredArmTwistRadians = atan2(y, x)
 
-        x = (x / cos(desiredArmTwist) + y / sin(desiredArmTwist)) / 2
+        x = (x / cos(desiredArmTwistRadians) + y / sin(desiredArmTwistRadians)) / 2
         y = position.z
 
-        val desiredTraversalLength = sqrt(x * x + y * y)
-        val desiredArmAngle = atan2(y, x)
+        val desiredTraversalLength = sqrt(x * x + y * y) - ArmMeasurements.armLength
+        val desiredArmAngle = Math.toDegrees(atan2(y, x))
 
         armAnglePID.setpoint = desiredArmAngle
-        armTwistPID.setpoint = desiredArmTwist
+        armTwistPID.setpoint = Math.toDegrees(desiredArmTwistRadians)
         traversalPID.setpoint = desiredTraversalLength
     }
 

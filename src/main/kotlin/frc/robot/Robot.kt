@@ -86,7 +86,6 @@ class Robot : TimedRobot() {
         10.0, // TODO: Tune PIDs so this can be smaller
         0.2,
         .05,
-        .01,
         swo,
         swerveDriveTrain,
         gyro,
