@@ -1,6 +1,7 @@
 package frc.robot.constants
 
 object ArmMeasurements {
-    const val armHeight: Double = 0.0
-    const val armLength: Double = 0.0
+    // TODO: Measure correctly
+    const val armHeight: Double = 1.0
+    const val armLength: Double = 0.8
 }

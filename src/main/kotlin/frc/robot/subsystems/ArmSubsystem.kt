@@ -2,6 +2,8 @@ package frc.robot.subsystems
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.can.VictorSPX
+import com.revrobotics.CANSparkMax
+import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Encoder
@@ -16,14 +18,14 @@ class ArmSubsystem : SubsystemBase() {
             field = value
         }
 
-    private val armAngleMotor = VictorSPX(1)
+//    private val armAngleMotor = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless)
     private val traversalMotor = VictorSPX(2)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
 
     private val armAngleEncoder = Encoder(0, 1)
-    private val traversalExtendedSwitch = DigitalInput(3)
-    private val traversalRetractedSwitch = DigitalInput(4)
+    private val traversalExtendedSwitch = DigitalInput(0)
+    private val traversalRetractedSwitch = DigitalInput(1)
 
     init {
         armAngleEncoder.distancePerPulse = 360.0 / 8192.0 // Set it to measure in degrees
@@ -82,12 +84,14 @@ class ArmSubsystem : SubsystemBase() {
     override fun periodic() {
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
         SmartDashboard.putBoolean("Desired Traversal", desiredTraversalExtended)
+        SmartDashboard.putBoolean("Traversal Extended", traversalExtendedSwitch.get())
+        SmartDashboard.putBoolean("Traversal Retracted", traversalRetractedSwitch.get())
 
-        armAngleMotor[ControlMode.PercentOutput] = if (!armAnglePID.atSetpoint()) {
-            armAnglePID.calculate(getArmAngle())
-        } else {
-            0.0
-        }
+//        armAngleMotor.set(if (!armAnglePID.atSetpoint()) {
+//            armAnglePID.calculate(getArmAngle())
+//        } else {
+//            0.0
+//        })
 
         traversalMotor[ControlMode.PercentOutput] =
             if (!(traversalExtendedSwitch.get() || traversalRetractedSwitch.get())) {
