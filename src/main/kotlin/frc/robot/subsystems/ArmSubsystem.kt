@@ -75,6 +75,10 @@ class ArmSubsystem(/*private val gyro: GenericGyro*/) : SubsystemBase() {
 //        return Triple(desiredArmAngle, Math.toDegrees(desiredArmTwistRadians), desiredTraversalLength)
 //    }
 
+    fun isAtPos(): Boolean {
+        return armAnglePID.atSetpoint() && ((desiredTraversalExtended && traversalExtendedSwitch.get()) || (!desiredTraversalExtended && traversalRetractedSwitch.get()))
+    }
+
     override fun periodic() {
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
         SmartDashboard.putBoolean("Desired Traversal", desiredTraversalExtended)
