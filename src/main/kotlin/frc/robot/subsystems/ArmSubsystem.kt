@@ -5,7 +5,12 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.wpilibj.AnalogEncoder
+import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.DigitalInput
+import edu.wpi.first.wpilibj.DutyCycleEncoder
+import edu.wpi.first.wpilibj.Encoder
+import edu.wpi.first.wpilibj.PWM
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -21,14 +26,14 @@ class ArmSubsystem : SubsystemBase() {
             field = value
         }
 
-    private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
+    private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
-    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
+//    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
 
-    //    private val armAngleEncoder = Encoder(2, 3)
-    private val armAngleEncoder = armAngleMotor.encoder
+//    private val armAngleEncoder = Encoder(2, 3)
+    private val armAngleEncoder = DutyCycleEncoder(2)
     private val traversalExtendedSwitch = DigitalInput(0)
     private val traversalRetractedSwitch = DigitalInput(1)
 
@@ -36,10 +41,11 @@ class ArmSubsystem : SubsystemBase() {
 //        armAngleEncoder.distancePerPulse = 360.0 / 8192.0 // Set it to measure in degrees
         armAnglePID.enableContinuousInput(0.0, 360.0)
         armAnglePID.setTolerance(1.0)
+        armAngleEncoder.distancePerRotation = 360.0
     }
 
     // Placeholder methods
-    fun getArmAngle(): Double = (armAngleEncoder.position * 360) % 360
+    fun getArmAngle(): Double = armAngleEncoder.distance % 360
 
 //    fun getRelativePositions(armAngle: Double = getArmAngle(), armTwist: Double = getArmTwist(), traversalLength: Double = getTraversalLength()): Vector3 {
 //        val armAngleRadians = Math.toRadians(armAngle)
@@ -132,7 +138,7 @@ class ArmSubsystem : SubsystemBase() {
 
         SmartDashboard.putNumber("Traversal Output", trav)
 //        traversalMotor[ControlMode.PercentOutput] = trav
-        traversalMotor[ControlMode.PercentOutput] = IO.travManualControl
+        traversalMotor[ControlMode.PercentOutput] = IO.travManualControl / 10
 
     }
 
