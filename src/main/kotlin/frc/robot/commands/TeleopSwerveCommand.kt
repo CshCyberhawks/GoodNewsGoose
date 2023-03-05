@@ -8,7 +8,6 @@ import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import edu.wpi.first.math.MathUtil
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.MiscConstants
@@ -18,7 +17,7 @@ class TeleopSwerveCommand(
         private var swerveDriveTrain: SwerveDriveTrain,
         val swerveAuto: SwerveAuto,
         var gyro: GenericGyro,
-        val driverTab: ShuffleboardTab
+        val driverTab: ShuffleboardTab,
         val limelight1: Limelight,
         val limelight2: Limelight
 ) : CommandBase() {
