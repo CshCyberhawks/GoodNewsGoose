@@ -17,10 +17,11 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.robot.commands.SwerveCommand
+import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
 import frc.robot.commands.ManualArmCommand
@@ -34,6 +35,9 @@ import frc.robot.util.IO
  * project.
  */
 class Robot : TimedRobot() {
+
+    val driverTab = Shuffleboard.getTab("Driver")
+
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
     var pipIndex = 0
@@ -195,7 +199,15 @@ class Robot : TimedRobot() {
                     true
             )
 
-    var swerveCommand = SwerveCommand(swerveDriveTrain, gyro)
+    var teleopCommand =
+            TeleopSwerveCommand(
+                    swerveDriveTrain,
+                    auto,
+                    gyro,
+                    driverTab,
+                    limelightFront,
+                    limelightBack
+            )
     var autoCommand = TestingAuto(auto, gyro)
     val autoPathManager = AutoPathManager(auto, gyro)
 
@@ -207,8 +219,6 @@ class Robot : TimedRobot() {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         //        PortForwarder.add(5800, "limelight.local", 5800)
-        limelightBack.openCamera(2, 2)
-        limelightFront.openCamera(2, 2)
         for (i in 5800..5808) {
             PortForwarder.add(i, "limelight.local", i)
         }
@@ -265,9 +275,9 @@ class Robot : TimedRobot() {
         autonomousCommand?.cancel()
         gyro.setYawOffset()
 
-        swerveCommand.schedule()
         val armCommand = ManualArmCommand(armSystem)
         armCommand.schedule()
+        teleopCommand.schedule()
     }
 
     /** This function is called periodically during operator control. */
