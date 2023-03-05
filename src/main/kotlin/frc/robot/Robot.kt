@@ -12,6 +12,7 @@ import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
+import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.net.PortForwarder
@@ -22,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.commands.SwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
+import frc.robot.commands.ManualArmCommand
+import frc.robot.subsystems.ArmSubsystem
+import frc.robot.util.IO
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -112,6 +116,69 @@ class Robot : TimedRobot() {
     var autoPIDX = PIDController(.01, 0.0, 0.0)
     var autoPIDY = PIDController(.01, 0.0, 0.0)
 
+//    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
+//
+//    val drivePID = PIDController(0.01, 0.0, 0.0)
+//    val turnPID = PIDController(0.001, 0.0, 0.0)
+//
+//    var backLeft: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.backLeftTurnMotor, MotorConstants.backLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+//    var backRight: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.backRightTurnMotor, MotorConstants.backRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+//    var frontLeft: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.frontLeftTurnMotor, MotorConstants.frontLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+//    var frontRight: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.frontRightTurnMotor, MotorConstants.frontRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+
+//    val gyro = NavXGyro(SPI.Port.kMXP)
+
+//    val swerveDriveTrain =
+//        SwerveDriveTrain(FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft), gyro)
+//
+//    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
+//
+//    val autoPIDX = PIDController(1.0, 0.0, 0.05)
+//    val autoPIDY = PIDController(1.0, 0.0, 0.05)
+//    val auto = SwerveAuto(
+//        autoPIDX,
+//        autoPIDY,
+//        PIDController(1.5, 0.0, 0.05),
+//        // TrapezoidProfile.Constraints(4.0, 1.5),
+//        TrapezoidProfile.Constraints(1.0, .2),
+//        10.0, // TODO: Tune PIDs so this can be smaller
+//        0.2,
+//        .05,
+//        swo,
+//        swerveDriveTrain,
+//        gyro,
+//    )
+
+    val armSystem = ArmSubsystem()
+
     var auto =
             SwerveAuto(
                     autoPIDX,
@@ -146,6 +213,7 @@ class Robot : TimedRobot() {
             PortForwarder.add(i, "limelight.local", i)
         }
         robotContainer = RobotContainer()
+        CameraServer.startAutomaticCapture()
     }
 
     /**
@@ -198,6 +266,8 @@ class Robot : TimedRobot() {
         gyro.setYawOffset()
 
         swerveCommand.schedule()
+        val armCommand = ManualArmCommand(armSystem)
+        armCommand.schedule()
     }
 
     /** This function is called periodically during operator control. */
@@ -208,6 +278,8 @@ class Robot : TimedRobot() {
         }
         limelightBack.setPipeline(pipIndex)
         limelightFront.setPipeline(pipIndex)
+//        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
+        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
 
     /** This function is called once when test mode is enabled. */
@@ -227,5 +299,8 @@ class Robot : TimedRobot() {
                 )
 
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
+//        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder(), backRight.getRawEncoder())
+//
+//        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
     }
 }
