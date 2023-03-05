@@ -39,6 +39,8 @@ class TeleopSwerveCommand(
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
+        var fieldOriented = true
+
         if (IO.killCommand) {
             currentCommand?.cancel()
             currentCommand = null
@@ -69,11 +71,6 @@ class TeleopSwerveCommand(
             throttle += MiscConstants.quickThrottleChange
         }
 
-        // val angle = if (IO.limelightLockOn()) MathClass.calculateDeadzone(
-        //         -Robot.limelight.getHorizontalOffset(),
-        //         .5
-        // ) / 32 else IO.turnControl()
-
         if (MiscCalculations.calculateDeadzone(IO.moveyThrottle - prevJoyMoveyThrottle, .005) != 0.0
         ) {
             throttle = IO.moveyThrottle
@@ -96,6 +93,7 @@ class TeleopSwerveCommand(
                             32
         } else if (IO.limelightTranslate) {
             currentCommand = TeleopLimelight(currentLimelight, swerveDriveTrain)
+            return
         } else if (IO.limelightTranslateSingleAxisX) {
             currentCommand =
                     AutoLimelightSingleAxis(
@@ -104,6 +102,7 @@ class TeleopSwerveCommand(
                             1.0,
                             AutoLimelightSingleAxis.Axis.X
                     )
+            return
         } else if (IO.limelightTranslateSingleAxisY) {
             currentCommand =
                     AutoLimelightSingleAxis(
@@ -112,15 +111,17 @@ class TeleopSwerveCommand(
                             1.0,
                             AutoLimelightSingleAxis.Axis.Y
                     )
+            return
+        }
+
+        if (IO.disableFieldOrientation) {
+            fieldOriented = false
         }
 
         prevJoyMoveyThrottle = IO.moveyThrottle
 
         SmartDashboard.putNumber("throttle", throttle)
 
-        swerveDriveTrain.drive(
-                driveVec,
-                driveTwist,
-        )
+        swerveDriveTrain.drive(driveVec, driveTwist, fieldOriented)
     }
 }

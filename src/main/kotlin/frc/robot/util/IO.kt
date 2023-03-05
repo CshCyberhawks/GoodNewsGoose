@@ -50,4 +50,7 @@ object IO {
 
     val toggleLimelight
         get() = rightJoy.getRawButtonPressed(6)
+
+    val disableFieldOrientation
+        get() = rightJoy.getRawButtonPressed(8)
 }
