@@ -14,13 +14,15 @@ import frc.robot.constants.MiscConstants
 import frc.robot.util.IO
 
 class TeleopSwerveCommand(
-        private var swerveDriveTrain: SwerveDriveTrain,
-        val swerveAuto: SwerveAuto,
-        var gyro: GenericGyro,
-        val driverTab: ShuffleboardTab,
-        val limelight1: Limelight,
-        val limelight2: Limelight
+    private var swerveDriveTrain: SwerveDriveTrain,
+    val swerveAuto: SwerveAuto,
+    var gyro: GenericGyro,
+    val driverTab: ShuffleboardTab,
+    val limelight1: Limelight,
+    val limelight2: Limelight
 ) : CommandBase() {
+
+    var desiredPip = 0
 
     var throttle = 0.6
     var prevJoyMoveyThrottle = 0.0
@@ -51,6 +53,16 @@ class TeleopSwerveCommand(
 
         if (currentCommand != null && currentCommand?.isFinished() == false) {
             return
+        }
+
+        if (IO.pip0) {
+            desiredPip = 0
+        } else if (IO.pip1) {
+            desiredPip = 1
+        } else if (IO.pip2) {
+            desiredPip = 2
+        } else if (IO.pip3) {
+            desiredPip = 3
         }
 
         if (IO.gyroReset) {
@@ -90,28 +102,30 @@ class TeleopSwerveCommand(
 
         if (IO.limelightAngleLock) {
             driveTwist =
-                    MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
-                            32
+                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
+                        32
         } else if (IO.limelightTranslate) {
-            currentCommand = TeleopLimelight(currentLimelight, swerveDriveTrain)
+            currentCommand = TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPip)
             return
         } else if (IO.limelightTranslateSingleAxisX) {
             currentCommand =
-                    AutoLimelightSingleAxis(
-                            swerveAuto,
-                            currentLimelight,
-                            1.0,
-                            AutoLimelightSingleAxis.Axis.X
-                    )
+                AutoLimelightSingleAxis(
+                    swerveAuto,
+                    currentLimelight,
+                    1.0,
+                    AutoLimelightSingleAxis.Axis.X,
+                    desiredPip
+                )
             return
         } else if (IO.limelightTranslateSingleAxisY) {
             currentCommand =
-                    AutoLimelightSingleAxis(
-                            swerveAuto,
-                            currentLimelight,
-                            1.0,
-                            AutoLimelightSingleAxis.Axis.Y
-                    )
+                AutoLimelightSingleAxis(
+                    swerveAuto,
+                    currentLimelight,
+                    1.0,
+                    AutoLimelightSingleAxis.Axis.Y,
+                    desiredPip
+                )
             return
         }
 

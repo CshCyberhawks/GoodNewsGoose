@@ -16,6 +16,8 @@ import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.net.PortForwarder
+import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -27,6 +29,7 @@ import frc.robot.constants.MotorConstants
 import frc.robot.commands.ManualArmCommand
 import frc.robot.subsystems.ArmSubsystem
 import frc.robot.util.IO
+import javax.swing.GroupLayout.Alignment
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -36,11 +39,14 @@ import frc.robot.util.IO
  */
 class Robot : TimedRobot() {
 
+    companion object {
+        var pipIndex = 0;
+    }
+
     val driverTab = Shuffleboard.getTab("Driver")
 
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-    var pipIndex = 0
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
@@ -106,7 +112,7 @@ class Robot : TimedRobot() {
                     swerveConfiguration
             )
 
-    val gyro = Pigeon2Gyro(15)
+    val gyro = Pigeon2Gyro(30)
 
     val swerveDriveTrain =
             SwerveDriveTrain(
@@ -208,7 +214,7 @@ class Robot : TimedRobot() {
                     limelightFront,
                     limelightBack
             )
-    var autoCommand = TestingAuto(auto, gyro)
+//    var autoCommand = TestingAuto(auto, gyro)
     val autoPathManager = AutoPathManager(auto, gyro)
 
     /**
@@ -243,6 +249,15 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("swo x", swo.fieldPosition.x)
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
         SmartDashboard.putNumber("gyro", gyro.getYaw())
+
+
+        pipIndex += 1
+        if (pipIndex == 2) {
+            pipIndex = 0
+        }
+        limelightBack.setPipeline(pipIndex)
+        limelightFront.setPipeline(pipIndex)
+
         CommandScheduler.getInstance().run()
     }
 
@@ -256,9 +271,14 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
-        autoCommand = TestingAuto(auto, gyro)
-        autoCommand.schedule()
+//        autoCommand = TestingAuto(auto, gyro)
+//        autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
+        autoPathManager.paths[if (DriverStation.getAlliance() == Alliance.Blue) {
+          "BlueLeftDriveToBalance"
+        } else {
+            "RedRightDriveToBalance"
+        }]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
@@ -282,12 +302,7 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
-        pipIndex += 1
-        if (pipIndex == 3) {
-            pipIndex = 0
-        }
-        limelightBack.setPipeline(pipIndex)
-        limelightFront.setPipeline(pipIndex)
+
 //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
         SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
