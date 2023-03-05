@@ -16,11 +16,12 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.robot.commands.TestingAuto
 import frc.robot.commands.TeleopSwerveCommand
+import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
 
 /**
@@ -30,6 +31,9 @@ import frc.robot.constants.MotorConstants
  * project.
  */
 class Robot : TimedRobot() {
+
+    val driverTab = Shuffleboard.getTab("Driver")
+
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
     var pipIndex = 0
@@ -128,7 +132,15 @@ class Robot : TimedRobot() {
                     true
             )
 
-    var teleopCommand = TeleopSwerveCommand(swerveDriveTrain, gyro, limelightFront, limelightBack)
+    var teleopCommand =
+            TeleopSwerveCommand(
+                    swerveDriveTrain,
+                    auto,
+                    gyro,
+                    driverTab,
+                    limelightFront,
+                    limelightBack
+            )
     var autoCommand = TestingAuto(auto, gyro)
     val autoPathManager = AutoPathManager(auto, gyro)
 

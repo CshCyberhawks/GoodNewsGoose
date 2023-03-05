@@ -9,6 +9,7 @@ import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.MiscConstants
 import frc.robot.util.IO
@@ -17,6 +18,7 @@ class TeleopSwerveCommand(
         private var swerveDriveTrain: SwerveDriveTrain,
         val swerveAuto: SwerveAuto,
         var gyro: GenericGyro,
+        val driverTab: ShuffleboardTab
         val limelight1: Limelight,
         val limelight2: Limelight
 ) : CommandBase() {
@@ -27,6 +29,8 @@ class TeleopSwerveCommand(
     var currentLimelight = limelight1
 
     var currentCommand: CommandBase? = null
+
+    val throttleShuffle = driverTab.add("Throttle", 0.0).entry
 
     init {
         addRequirements(swerveDriveTrain)
@@ -53,8 +57,6 @@ class TeleopSwerveCommand(
         if (IO.gyroReset) {
             gyro.setYawOffset()
         }
-
-        SmartDashboard.putBoolean("gyro reset button: ", IO.gyroReset)
 
         if (IO.fastThrottle) {
             throttle = 0.9
@@ -120,7 +122,8 @@ class TeleopSwerveCommand(
 
         prevJoyMoveyThrottle = IO.moveyThrottle
 
-        SmartDashboard.putNumber("throttle", throttle)
+
+        throttleShuffle.setDouble(throttle)
 
         swerveDriveTrain.drive(driveVec, driveTwist, fieldOriented)
     }
