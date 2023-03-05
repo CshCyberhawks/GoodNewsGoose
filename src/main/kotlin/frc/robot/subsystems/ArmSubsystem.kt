@@ -28,7 +28,7 @@ class ArmSubsystem : SubsystemBase() {
 
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
-    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
+    val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
     private val grabSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)

@@ -270,6 +270,7 @@ class Robot : TimedRobot() {
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
+        armSystem.brakeSolenoid.set(true)
 
 //        autoCommand = TestingAuto(auto, gyro)
 //        autoCommand.schedule()
