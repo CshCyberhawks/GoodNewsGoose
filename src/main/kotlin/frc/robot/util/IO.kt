@@ -34,23 +34,23 @@ object IO {
         get() = if (hosas) {MiscCalculations.calculateDeadzone(leftJoy.x, .05)} else MiscCalculations.calculateDeadzone(rightJoy.twist, .05)
 
     val killCommand
-        get() = rightJoy.getRawButtonPressed(7)
+        get() = leftJoy.getRawButtonPressed(2)
 
     val limelightAngleLock
-        get() = rightJoy.getRawButtonPressed(1)
+        get() = rightJoy.getRawButtonPressed(4)
     
     val limelightTranslate
-        get() = rightJoy.getRawButtonPressed(3)
-
-    val limelightTranslateSingleAxisX
-        get() = rightJoy.getRawButtonPressed(4)
-
-    val limelightTranslateSingleAxisY
         get() = rightJoy.getRawButtonPressed(5)
 
-    val toggleLimelight
+    val limelightTranslateSingleAxisX
         get() = rightJoy.getRawButtonPressed(6)
 
+    val limelightTranslateSingleAxisY
+        get() = rightJoy.getRawButtonPressed(7)
+
+    val toggleLimelight
+        get() = rightJoy.getRawButtonPressed(2)
+
     val disableFieldOrientation
-        get() = rightJoy.getRawButtonPressed(8)
+        get() = rightJoy.getRawButtonPressed(1)
 }
