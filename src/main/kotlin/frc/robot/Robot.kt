@@ -33,43 +33,43 @@ class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
 
-    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
-
-    val drivePID = PIDController(0.01, 0.0, 0.0)
-    val turnPID = PIDController(0.001, 0.0, 0.0)
-
-    var backLeft: SwerveWheel =
-        SwerveWheel(
-            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
-            SparkMaxTurnMotor(MotorConstants.backLeftTurnMotor, MotorConstants.backLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]),
-            drivePID,
-            turnPID,
-            swerveConfiguration
-        )
-    var backRight: SwerveWheel =
-        SwerveWheel(
-            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
-            SparkMaxTurnMotor(MotorConstants.backRightTurnMotor, MotorConstants.backRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]),
-            drivePID,
-            turnPID,
-            swerveConfiguration
-        )
-    var frontLeft: SwerveWheel =
-        SwerveWheel(
-            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
-            SparkMaxTurnMotor(MotorConstants.frontLeftTurnMotor, MotorConstants.frontLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]),
-            drivePID,
-            turnPID,
-            swerveConfiguration
-        )
-    var frontRight: SwerveWheel =
-        SwerveWheel(
-            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
-            SparkMaxTurnMotor(MotorConstants.frontRightTurnMotor, MotorConstants.frontRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]),
-            drivePID,
-            turnPID,
-            swerveConfiguration
-        )
+//    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
+//
+//    val drivePID = PIDController(0.01, 0.0, 0.0)
+//    val turnPID = PIDController(0.001, 0.0, 0.0)
+//
+//    var backLeft: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.backLeftTurnMotor, MotorConstants.backLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+//    var backRight: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.backRightTurnMotor, MotorConstants.backRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+//    var frontLeft: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.frontLeftTurnMotor, MotorConstants.frontLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
+//    var frontRight: SwerveWheel =
+//        SwerveWheel(
+//            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
+//            SparkMaxTurnMotor(MotorConstants.frontRightTurnMotor, MotorConstants.frontRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]),
+//            drivePID,
+//            turnPID,
+//            swerveConfiguration
+//        )
 
 //    val gyro = NavXGyro(SPI.Port.kMXP)
 
@@ -184,8 +184,8 @@ class Robot : TimedRobot() {
      * This function is called periodically during test mode.
      */
     override fun testPeriodic() {
-        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder(), backRight.getRawEncoder())
-
-        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
+//        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder(), backRight.getRawEncoder())
+//
+//        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
     }
 }

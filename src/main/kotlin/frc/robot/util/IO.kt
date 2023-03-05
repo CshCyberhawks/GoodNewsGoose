@@ -28,4 +28,7 @@ object IO {
 
     val controlArmAngle
         get() = MiscCalculations.calculateDeadzone(-xbox.leftY, 0.1)
+
+    val travManualControl
+        get() = xbox.rightY
 }

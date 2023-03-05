@@ -2,17 +2,16 @@ package frc.robot.subsystems
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.can.TalonSRX
-import com.ctre.phoenix.motorcontrol.can.VictorSPX
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
-import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.MotorConstants
+import frc.robot.util.IO
 
 class ArmSubsystem : SubsystemBase() {
     var desiredTraversalExtended = false
@@ -22,24 +21,25 @@ class ArmSubsystem : SubsystemBase() {
             field = value
         }
 
-//    private val armAngleMotor = CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless)
+    private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
     private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
 
-    private val armAngleEncoder = Encoder(0, 1)
+    //    private val armAngleEncoder = Encoder(2, 3)
+    private val armAngleEncoder = armAngleMotor.encoder
     private val traversalExtendedSwitch = DigitalInput(0)
     private val traversalRetractedSwitch = DigitalInput(1)
 
     init {
-        armAngleEncoder.distancePerPulse = 360.0 / 8192.0 // Set it to measure in degrees
+//        armAngleEncoder.distancePerPulse = 360.0 / 8192.0 // Set it to measure in degrees
         armAnglePID.enableContinuousInput(0.0, 360.0)
         armAnglePID.setTolerance(1.0)
     }
 
     // Placeholder methods
-    fun getArmAngle(): Double = armAngleEncoder.distance % 360
+    fun getArmAngle(): Double = (armAngleEncoder.position * 360) % 360
 
 //    fun getRelativePositions(armAngle: Double = getArmAngle(), armTwist: Double = getArmTwist(), traversalLength: Double = getTraversalLength()): Vector3 {
 //        val armAngleRadians = Math.toRadians(armAngle)
@@ -83,37 +83,57 @@ class ArmSubsystem : SubsystemBase() {
 //    }
 
     fun isAtPos(): Boolean {
-        return armAnglePID.atSetpoint() && ((desiredTraversalExtended && traversalExtendedSwitch.get()) || (!desiredTraversalExtended && traversalRetractedSwitch.get()))
+        return armAnglePID.atSetpoint() && ((desiredTraversalExtended && !traversalExtendedSwitch.get()) ||
+                (!desiredTraversalExtended && !traversalRetractedSwitch.get()))
     }
 
     override fun periodic() {
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
         SmartDashboard.putBoolean("Desired Traversal", desiredTraversalExtended)
-        SmartDashboard.putBoolean("Traversal Extended", traversalExtendedSwitch.get())
-        SmartDashboard.putBoolean("Traversal Retracted", traversalRetractedSwitch.get())
+        SmartDashboard.putBoolean("Traversal Extended", !traversalExtendedSwitch.get())
+        SmartDashboard.putBoolean("Traversal Retracted", !traversalRetractedSwitch.get())
+        SmartDashboard.putNumber("Arm Angle", getArmAngle())
 
-//        armAngleMotor.set(if (!armAnglePID.atSetpoint()) {
-//            armAnglePID.calculate(getArmAngle())
+        SmartDashboard.putNumber(
+            "Arm Move", if (!armAnglePID.atSetpoint()) armAnglePID.calculate(getArmAngle()) else
+                0.0
+        )
+//        armAngleMotor.set(
+//            if (!armAnglePID.atSetpoint()) armAnglePID.calculate(getArmAngle()) else
+//                0.0
+//        )
+
+        armAngleMotor.set(IO.controlArmAngle)
+//        if (!armAnglePID.atSetpoint()) {
+//            brakeSolenoid.set(false)
+//            armAngleMotor.set(armAnglePID.calculate(getArmAngle()))
+//        } else {
+//            armAngleMotor.set(0.0)
+//            brakeSolenoid.set(true)
+//        }
+
+//        val trav = if (!(!traversalExtendedSwitch.get() || !traversalRetractedSwitch.get())) {
+//            if (desiredTraversalExtended) {
+//                1.0
+//            } else {
+//                -1.0
+//            }
 //        } else {
 //            0.0
-//        })
-        if (!armAnglePID.atSetpoint()) {
-            brakeSolenoid.set(false)
-            armAnglePID.calculate(getArmAngle())
+//        }
+
+        val trav = if (desiredTraversalExtended && traversalExtendedSwitch.get()) {
+            -1.0
+        } else if (!desiredTraversalExtended && traversalRetractedSwitch.get()) {
+            1.0
         } else {
-            brakeSolenoid.set(true)
+            0.0
         }
 
-        traversalMotor[ControlMode.PercentOutput] =
-            if (!(traversalExtendedSwitch.get() || traversalRetractedSwitch.get())) {
-                if (desiredTraversalExtended) {
-                    0.1
-                } else {
-                    -0.1
-                }
-            } else {
-                0.0
-            }
+        SmartDashboard.putNumber("Traversal Output", trav)
+//        traversalMotor[ControlMode.PercentOutput] = trav
+        traversalMotor[ControlMode.PercentOutput] = IO.travManualControl
+
     }
 
     override fun simulationPeriodic() {
