@@ -51,10 +51,10 @@ object IO {
         }
 
     val toggleGrabber: Boolean
-        get() = xbox.xButton
+        get() = xbox.rightBumper
 
     val toggleBrake: Boolean
-        get() = xbox.bButton
+        get() = xbox.leftBumper
 
     val controlArmAngle
         get() = MiscCalculations.calculateDeadzone(-xbox.leftY, 0.1)
@@ -111,7 +111,7 @@ object IO {
     private var toggleLimelightLast = false
     val toggleLimelight: Boolean
         get() {
-            val current = rightJoy.getRawButton(2)
+            val current = leftJoy.getRawButton(2)
             val toggled = current && !toggleLimelightLast
             toggleLimelightLast = current
             return toggled

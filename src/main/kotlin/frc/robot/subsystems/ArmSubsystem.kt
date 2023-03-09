@@ -13,18 +13,22 @@ import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.PWM
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.MotorConstants
 import frc.robot.util.IO
 
-class ArmSubsystem : SubsystemBase() {
+class ArmSubsystem(private val driver: ShuffleboardTab) : SubsystemBase() {
     var desiredTraversalExtended = false
     var desiredArmAngle = 0.0
         set(value) {
             armAnglePID.setpoint = desiredArmAngle
             field = value
         }
+
+    private val traversalExtendedShuffle = driver.add("Traversal Extended", false).entry
+    private val traversalRetractedShuffle = driver.add("Traversal Retracted", false).entry
 
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
@@ -97,8 +101,8 @@ class ArmSubsystem : SubsystemBase() {
     override fun periodic() {
 //        SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
 //        SmartDashboard.putBoolean("Desired Traversal", desiredTraversalExtended)
-        SmartDashboard.putBoolean("Traversal Extended", !traversalExtendedSwitch.get())
-        SmartDashboard.putBoolean("Traversal Retracted", !traversalRetractedSwitch.get())
+//        SmartDashboard.putBoolean("Traversal Extended", !traversalExtendedSwitch.get())
+//        SmartDashboard.putBoolean("Traversal Retracted", !traversalRetractedSwitch.get())
 //        SmartDashboard.putNumber("Arm Angle", getArmAngle())
 
 //        SmartDashboard.putNumber(
@@ -109,10 +113,12 @@ class ArmSubsystem : SubsystemBase() {
 //            if (!armAnglePID.atSetpoint()) armAnglePID.calculate(getArmAngle()) else
 //                0.0
 //        )
-        SmartDashboard.putBoolean("Grabber", IO.toggleGrabber)
+        traversalExtendedShuffle.setBoolean(!traversalExtendedSwitch.get())
+        traversalRetractedShuffle.setBoolean(!traversalRetractedSwitch.get())
+
         grabSolenoid.set(IO.toggleGrabber)
         brakeSolenoid.set(IO.toggleBrake)
-        armAngleMotor.set(IO.controlArmAngle)
+        armAngleMotor.set(-IO.controlArmAngle)
 //        if (!armAnglePID.atSetpoint()) {
 //            brakeSolenoid.set(false)
 //            armAngleMotor.set(armAnglePID.calculate(getArmAngle()))

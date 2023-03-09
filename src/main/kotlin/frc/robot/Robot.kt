@@ -10,6 +10,7 @@ import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
+import cshcyberhawks.swolib.swerve.configurations.FourWheelAngleConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.cameraserver.CameraServer
@@ -116,78 +117,15 @@ class Robot : TimedRobot() {
 
     val swerveDriveTrain =
             SwerveDriveTrain(
-                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft),
+                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, angleConfiguration = FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)),
                     gyro
             )
 
     val swo =
-            SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
+            SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), limelightFront, debugLogging = true)
 
     var autoPIDX = PIDController(.01, 0.0, 0.0)
     var autoPIDY = PIDController(.01, 0.0, 0.0)
-
-//    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
-//
-//    val drivePID = PIDController(0.01, 0.0, 0.0)
-//    val turnPID = PIDController(0.001, 0.0, 0.0)
-//
-//    var backLeft: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.backLeftTurnMotor, MotorConstants.backLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-//    var backRight: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.backRightTurnMotor, MotorConstants.backRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-//    var frontLeft: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.frontLeftTurnMotor, MotorConstants.frontLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-//    var frontRight: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.frontRightTurnMotor, MotorConstants.frontRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-
-//    val gyro = NavXGyro(SPI.Port.kMXP)
-
-//    val swerveDriveTrain =
-//        SwerveDriveTrain(FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft), gyro)
-//
-//    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
-//
-//    val autoPIDX = PIDController(1.0, 0.0, 0.05)
-//    val autoPIDY = PIDController(1.0, 0.0, 0.05)
-//    val auto = SwerveAuto(
-//        autoPIDX,
-//        autoPIDY,
-//        PIDController(1.5, 0.0, 0.05),
-//        // TrapezoidProfile.Constraints(4.0, 1.5),
-//        TrapezoidProfile.Constraints(1.0, .2),
-//        10.0, // TODO: Tune PIDs so this can be smaller
-//        0.2,
-//        .05,
-//        swo,
-//        swerveDriveTrain,
-//        gyro,
-//    )
-
-    val armSystem = ArmSubsystem()
 
     var auto =
             SwerveAuto(
@@ -202,7 +140,7 @@ class Robot : TimedRobot() {
                     swo,
                     swerveDriveTrain,
                     gyro,
-                    true
+                    false
             )
 
     var teleopCommand =
@@ -214,6 +152,9 @@ class Robot : TimedRobot() {
                     limelightFront,
                     limelightBack
             )
+
+    val armSystem = ArmSubsystem(driverTab)
+
 //    var autoCommand = TestingAuto(auto, gyro)
     val autoPathManager = AutoPathManager(auto, gyro)
 
@@ -224,12 +165,24 @@ class Robot : TimedRobot() {
     override fun robotInit() {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
+        robotContainer = RobotContainer()
+
         //        PortForwarder.add(5800, "limelight.local", 5800)
         for (i in 5800..5808) {
             PortForwarder.add(i, "limelight.local", i)
         }
-        robotContainer = RobotContainer()
         CameraServer.startAutomaticCapture()
+
+        val sink = CameraServer.getVideo()
+        val source = sink.source
+
+        driverTab.add("Camera", source)
+        driverTab.add("BackLL", limelightBack.feed)
+        driverTab.add("FrontLL", limelightFront.feed)
+
+
+        limelightBack.setPipeline(3)
+        limelightFront.setPipeline(3)
     }
 
     /**
@@ -251,12 +204,9 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("gyro", gyro.getYaw())
 
 
-        pipIndex += 1
-        if (pipIndex == 2) {
-            pipIndex = 0
-        }
-        limelightBack.setPipeline(pipIndex)
-        limelightFront.setPipeline(pipIndex)
+//        pipIndex = (pipIndex + 1) % 4
+//        limelightBack.setPipeline(pipIndex)
+//        limelightFront.setPipeline(pipIndex)
 
         CommandScheduler.getInstance().run()
     }
@@ -269,17 +219,13 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
+//        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         armSystem.brakeSolenoid.set(true)
 
 //        autoCommand = TestingAuto(auto, gyro)
 //        autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
-        autoPathManager.paths[if (DriverStation.getAlliance() == Alliance.Blue) {
-          "BlueLeftDriveToBalance"
-        } else {
-            "RedRightDriveToBalance"
-        }]!!.schedule()
+        autoPathManager.paths["Balance"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
