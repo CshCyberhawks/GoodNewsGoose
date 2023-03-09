@@ -177,8 +177,8 @@ class Robot : TimedRobot() {
         val source = sink.source
 
         driverTab.add("Camera", source)
-        driverTab.add("BackLL", limelightBack.feed)
-        driverTab.add("FrontLL", limelightFront.feed)
+//        driverTab.add("BackLL", limelightBack.feed)
+//        driverTab.add("FrontLL", limelightFront.feed)
 
 
         limelightBack.setPipeline(3)

@@ -12,7 +12,7 @@ class TeleopLimelight(val limelight: Limelight, val swerveDriveTrain: SwerveDriv
                 MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset(), .5) / 32
 
         if (Robot.pipIndex == pip) {
-            swerveDriveTrain.drive(Vector2(1.0, 0.0), inputTwist, true)
+            swerveDriveTrain.drive(Vector2(1.0, 0.0), inputTwist)
         }
     }
 }

@@ -100,7 +100,7 @@ class TeleopSwerveCommand(
             currentLimelight = if (currentLimelight == limelight1) limelight2 else limelight1
         }
 
-        Limelight.openCamera(currentLimelight)
+//        Limelight.openCamera(currentLimelight)
 
         if (IO.limelightAngleLock) {
             driveTwist =
@@ -139,6 +139,6 @@ class TeleopSwerveCommand(
 
 
 
-        swerveDriveTrain.drive(driveVec, driveTwist, fieldOriented)
+        swerveDriveTrain.drive(driveVec, driveTwist, !fieldOriented)
     }
 }
