@@ -111,7 +111,7 @@ class Robot : TimedRobot() {
 
     val swerveDriveTrain =
             SwerveDriveTrain(
-                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)),
+                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, FourWheelAngleConfiguration(135.0, -135.0, 45.0, -45.0)),
                     gyro
             )
 
