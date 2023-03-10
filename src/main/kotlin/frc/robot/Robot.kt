@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.commands.TeleopSwerveCommand
-import frc.robot.commands.HardwareTestCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
 import frc.robot.commands.ManualArmCommand
@@ -118,7 +117,6 @@ class Robot : TimedRobot() {
 
     val swerveDriveTrain =
             SwerveDriveTrain(
-
                     FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, angleConfiguration = FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)),
                     gyro
             )
@@ -129,72 +127,6 @@ class Robot : TimedRobot() {
     var autoPIDX = PIDController(.01, 0.0, 0.0)
     var autoPIDY = PIDController(.01, 0.0, 0.0)
 
-<<<<<<< HEAD
-//    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
-//
-//    val drivePID = PIDController(0.01, 0.0, 0.0)
-//    val turnPID = PIDController(0.001, 0.0, 0.0)
-//
-//    var backLeft: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.backLeftTurnMotor, MotorConstants.backLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-//    var backRight: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.backRightTurnMotor, MotorConstants.backRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-//    var frontLeft: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.frontLeftTurnMotor, MotorConstants.frontLeftEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-//    var frontRight: SwerveWheel =
-//        SwerveWheel(
-//            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
-//            SparkMaxTurnMotor(MotorConstants.frontRightTurnMotor, MotorConstants.frontRightEncoder, MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]),
-//            drivePID,
-//            turnPID,
-//            swerveConfiguration
-//        )
-
-//    val gyro = NavXGyro(SPI.Port.kMXP)
-
-//    val swerveDriveTrain =
-//        SwerveDriveTrain(FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft), gyro)
-//
-//    val swo = SwerveOdometry(swerveDriveTrain, gyro, 1.0)
-//
-//    val autoPIDX = PIDController(1.0, 0.0, 0.05)
-//    val autoPIDY = PIDController(1.0, 0.0, 0.05)
-//    val auto = SwerveAuto(
-//        autoPIDX,
-//        autoPIDY,
-//        PIDController(1.5, 0.0, 0.05),
-//        // TrapezoidProfile.Constraints(4.0, 1.5),
-//        TrapezoidProfile.Constraints(1.0, .2),
-//        10.0, // TODO: Tune PIDs so this can be smaller
-//        0.2,
-//        .05,
-//        swo,
-//        swerveDriveTrain,
-//        gyro,
-//    )
-
-//    val armSystem = ArmSubsystem()
-
-=======
->>>>>>> main
     var auto =
             SwerveAuto(
                     autoPIDX,
@@ -202,7 +134,7 @@ class Robot : TimedRobot() {
                     PIDController(.5, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
-                    10.0, // TODO: Tune PIDs so this can be smaller
+                    1.0, // TODO: Tune PIDs so this can be smaller
                     0.2,
                     1.0,
                     swo,
@@ -220,15 +152,10 @@ class Robot : TimedRobot() {
                     limelightFront,
                     limelightBack
             )
-<<<<<<< HEAD
-    var autoCommand = TestingAuto(auto, gyro);
-    var hardwareTestCommand = HardwareTestCommand(swerveDriveTrain)
-=======
 
     val armSystem = ArmSubsystem(driverTab)
 
 //    var autoCommand = TestingAuto(auto, gyro)
->>>>>>> main
     val autoPathManager = AutoPathManager(auto, gyro)
 
     /**
@@ -297,12 +224,8 @@ class Robot : TimedRobot() {
 
 //        autoCommand = TestingAuto(auto, gyro)
 //        autoCommand.schedule()
-<<<<<<< HEAD
-         autoPathManager.paths["TestPath"]!!.schedule()
-=======
         // autoPathManager.paths["Path"]!!.schedule()
         autoPathManager.paths["Balance"]!!.schedule()
->>>>>>> main
     }
 
     /** This function is called periodically during autonomous. */
@@ -319,8 +242,8 @@ class Robot : TimedRobot() {
         autonomousCommand?.cancel()
         gyro.setYawOffset()
 
-//        val armCommand = ManualArmCommand(armSystem)
-//        armCommand.schedule()
+        val armCommand = ManualArmCommand(armSystem)
+        armCommand.schedule()
         teleopCommand.schedule()
     }
 
@@ -328,14 +251,13 @@ class Robot : TimedRobot() {
     override fun teleopPeriodic() {
 
 //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
-//        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
+        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
 
     /** This function is called once when test mode is enabled. */
     override fun testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll()
-        hardwareTestCommand.schedule()
     }
 
     /** This function is called periodically during test mode. */
@@ -347,7 +269,6 @@ class Robot : TimedRobot() {
                         frontRight.getRawEncoder(),
                         backRight.getRawEncoder()
                 )
-
 
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
 //        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder(), backRight.getRawEncoder())
