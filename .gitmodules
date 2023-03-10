@@ -1,4 +1,0 @@
-[submodule "src/main/kotlin/SwoLib"]
-	path = src/main/kotlin/SwoLib
-	url = https://github.com/CshCyberhawks/SwoLib
-	branch = publish
