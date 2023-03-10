@@ -3,7 +3,6 @@ package frc.robot.util
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 
 object IO {
     private val rightJoy = Joystick(0)

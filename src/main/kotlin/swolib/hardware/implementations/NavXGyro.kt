@@ -3,9 +3,8 @@ package cshcyberhawks.swolib.hardware.implementations
 import com.kauailabs.navx.frc.AHRS
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.AngleCalculations
-import cshcyberhawks.swolib.math.FieldPosition
-import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Polar
+import cshcyberhawks.swolib.math.Vector2
 import edu.wpi.first.wpilibj.SPI
 
 /**
