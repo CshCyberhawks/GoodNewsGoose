@@ -61,8 +61,6 @@ class SwerveDriveTrain(
     }
 
     fun drive(input: Vector2, inputTwist: Double, disableFieldOrientation: Boolean = false) {
-        SmartDashboard.putBoolean("Disable field oriented", disableFieldOrientation)
-
         if (input == Vector2() && inputTwist == 0.0) {
             swerveConfiguration.preserveWheelAngles()
             return
