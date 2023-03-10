@@ -11,26 +11,25 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 import java.io.File
 
 class AutoPath(
-        inputFile: File,
-        val swerveAuto: SwerveAuto,
-        val gyro: GenericGyro,
-        val commandsIn: HashMap<Int, Pair<CommandBase, AttachedCommandType>> = HashMap()
+    inputFile: File,
+    val swerveAuto: SwerveAuto,
+    val gyro: GenericGyro,
+    val commandsInput: HashMap<Int, Pair<CommandBase, AttachedCommandType>> = HashMap()
 ) : CommandBase() {
-    var commandsToRun: List<CommandBase>
-
     val positions =
-            Klaxon().parseArray<AutoPathNode>(inputFile)!!.map { Vector2(it.point.x, it.point.y) }
+        Klaxon().parseArray<AutoPathNode>(inputFile)!!.map { Vector2(
+            -it.point.y,
+            it.point.x
+        )
+        }
 
     var currentCommand: CommandBase? = null
+    var attachedCommand: CommandBase? = null
     var currentIndex = 1
 
     init {
-        commandsToRun =
-                Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
-                    GoToPosition(swerveAuto, Vector2(it.point.x, it.point.y))
-                }
 
-        swerveAuto.swo.fieldPosition = Vector3(positions[0].x, positions[0].y, 0.0)
+
         // if (commandsIn.size != 0) {
         //     commandsIn.forEach { (key, (cmd, typ)) ->
         //         if (key < commandsToRun.size) commandsToRun.add(cmd, key)
@@ -39,32 +38,35 @@ class AutoPath(
         //        gyro.setYawOffset(jsonData.startPosition.angle)
     }
 
-    override fun execute() {
-        if ((currentCommand == null || currentCommand?.isFinished == true) &&
-                        currentIndex < positions.size
-        ) {
-            if (commandsIn.containsKey(currentIndex + 1)) {
-                val pair = commandsIn[currentIndex + 1]
-                if (pair != null) {
-                    val (cmd, typ) = pair
+    override fun initialize() {
+        swerveAuto.swo.fieldPosition = Vector3(positions[0].x, positions[0].y, 0.0)
+    }
 
-                    when (typ) {
-                        AttachedCommandType.SYNC -> {
-                            currentCommand = cmd
-                            currentCommand?.schedule()
-                        }
-                        AttachedCommandType.ASYNC -> {
-                            cmd.schedule()
-                        }
+    override fun execute() {
+        if ((currentCommand == null || currentCommand?.isFinished == true) && currentIndex < positions.size) {
+            if (attachedCommand != null && attachedCommand?.isFinished == false) {
+                attachedCommand?.cancel()
+                attachedCommand = null
+            }
+
+            if (commandsInput.containsKey(currentIndex) && commandsInput[currentIndex] != null) {
+                val (cmd, type) = commandsInput[currentIndex]!!
+
+                when (type) {
+                    AttachedCommandType.ASYNC -> {
+                        cmd.schedule()
                     }
-                    return
+                    AttachedCommandType.SYNC -> {
+                        attachedCommand = cmd
+                        attachedCommand?.schedule()
+                    }
                 }
             }
 
-            currentCommand = commandsToRun[currentIndex++]
+            currentCommand = GoToPosition(swerveAuto, positions[currentIndex++])
             currentCommand?.schedule()
         }
     }
 
-    override fun isFinished(): Boolean = currentIndex == commandsToRun.size
+    override fun isFinished(): Boolean = currentIndex == positions.size
 }

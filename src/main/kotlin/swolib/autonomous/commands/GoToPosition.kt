@@ -11,6 +11,8 @@ class GoToPosition(val swerveAuto: SwerveAuto, val desiredPosition: FieldPositio
 
     override fun initialize() {
         swerveAuto.desiredPosition = desiredPosition
+        SmartDashboard.putNumber("Des Pos X", desiredPosition.x)
+        SmartDashboard.putNumber("Des Pos Y", desiredPosition.y)
     }
 
     override fun execute() {

@@ -259,9 +259,9 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
-        autoCommand = TestingAuto(auto, gyro)
-        autoCommand.schedule()
-        // autoPathManager.paths["Path"]!!.schedule()
+//        autoCommand = TestingAuto(auto, gyro)
+//        autoCommand.schedule()
+         autoPathManager.paths["TestPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
