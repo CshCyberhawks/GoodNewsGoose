@@ -18,7 +18,6 @@ class SwerveAuto(
     val xPID: PIDController,
     val yPID: PIDController,
     val twistPID: PIDController,
-    val trapConstraints: TrapezoidProfile.Constraints,
     val angleDeadzone: Double,
     val positionDeadzone: Double,
     val twistFeedForward: Double,
@@ -31,6 +30,15 @@ class SwerveAuto(
         set(value) {
             trapXDesiredState = TrapezoidProfile.State(value.x, 0.0)
             trapYDesiredState = TrapezoidProfile.State(value.y, 0.0)
+            trapXCurrentState = TrapezoidProfile.State(
+                swo.fieldPosition.x,
+                swo.getVelocity().x
+            )
+            trapYCurrentState = TrapezoidProfile.State(
+                swo.fieldPosition.y,
+                swo.getVelocity().y
+            )
+            prevTime = 0.0
             field = value
         }
 
@@ -99,11 +107,17 @@ class SwerveAuto(
         val timeNow = WPIUtilJNI.now() * 1.0e-6
         val trapTime: Double = if (prevTime == 0.0) 0.0 else timeNow - prevTime
 
+        SmartDashboard.putNumber("Trap Des X", trapXDesiredState.position)
+        SmartDashboard.putNumber("Trap Cur X", trapXCurrentState.position)
+
         val trapXProfile = TrapezoidProfile(trapConstraints, trapXDesiredState, trapXCurrentState)
         val trapYProfile = TrapezoidProfile(trapConstraints, trapYDesiredState, trapYCurrentState)
 
         val trapXOutput = trapXProfile.calculate(trapTime)
         val trapYOutput = trapYProfile.calculate(trapTime)
+
+        SmartDashboard.putNumber("Trap X", trapXOutput.velocity)
+        SmartDashboard.putNumber("Trap Y", trapYOutput.velocity)
 
         val xPIDOutput =
             xPID.calculate(
@@ -115,6 +129,10 @@ class SwerveAuto(
                 swo.fieldPosition.y,
                 trapYOutput.position
             )
+
+        SmartDashboard.putNumber("PID X", xPIDOutput)
+        SmartDashboard.putNumber("PID Y", yPIDOutput)
+
         val xVel = (trapXOutput.velocity + xPIDOutput)
         val yVel = (trapYOutput.velocity + yPIDOutput)
 
