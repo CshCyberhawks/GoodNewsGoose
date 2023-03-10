@@ -9,6 +9,8 @@ import frc.robot.util.IO
  * @property subsystem
  */
 class ManualArmCommand(private val subsystem: ArmSubsystem) : CommandBase() {
+    var lastTraversal = false
+
     init {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem)
@@ -19,13 +21,15 @@ class ManualArmCommand(private val subsystem: ArmSubsystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-//        subsystem.desiredArmAngle += IO.controlArmAngle
-//        subsystem.desiredArmAngle %= 360
+        subsystem.desiredArmAngle += IO.controlArmAngle
+        subsystem.desiredArmAngle %= 360
 
-//        SmartDashboard.putBoolean("IO Toggle", IO.toggleTraversal)
-//        if (IO.toggleTraversal) {
-//            subsystem.desiredTraversalExtended = !subsystem.desiredTraversalExtended
-//        }
+        SmartDashboard.putBoolean("IO Toggle", IO.toggleTraversal)
+        if (IO.toggleTraversal && !lastTraversal) {
+            subsystem.desiredTraversalExtended = !subsystem.desiredTraversalExtended
+        }
+
+        lastTraversal = IO.toggleTraversal
     }
 
     // Called once the command ends or is interrupted.

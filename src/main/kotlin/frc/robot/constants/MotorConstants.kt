@@ -25,5 +25,5 @@ object MotorConstants {
     const val brakeSolenoid = 0
     const val grabberSolenoid = 1
 
-    const val pcm = 31
+    const val pcm = 0
 }
