@@ -44,6 +44,13 @@ class TeleopSwerveCommand(
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
+<<<<<<< HEAD
+=======
+        throttleShuffle.setDouble(throttle)
+
+        var fieldOriented = true
+
+>>>>>>> main
         if (IO.killCommand) {
             currentCommand?.cancel()
             currentCommand = null
@@ -131,6 +138,14 @@ class TeleopSwerveCommand(
 
         prevJoyMoveyThrottle = IO.moveyThrottle
 
+<<<<<<< HEAD
+        throttleShuffle.setDouble(throttle)
+
+        swerveDriveTrain.drive(driveVec, driveTwist, disableFieldOrientation)
+=======
+
+
         swerveDriveTrain.drive(driveVec, driveTwist, !fieldOriented)
+>>>>>>> main
     }
 }

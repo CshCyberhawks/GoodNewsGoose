@@ -17,8 +17,6 @@ import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.net.PortForwarder
-import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -31,7 +29,6 @@ import frc.robot.constants.MotorConstants
 import frc.robot.commands.ManualArmCommand
 import frc.robot.subsystems.ArmSubsystem
 import frc.robot.util.IO
-import javax.swing.GroupLayout.Alignment
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -41,14 +38,11 @@ import javax.swing.GroupLayout.Alignment
  */
 class Robot : TimedRobot() {
 
-    companion object {
-        var pipIndex = 0;
-    }
-
     val driverTab = Shuffleboard.getTab("Driver")
 
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
+    var pipIndex = 0
     val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
@@ -118,18 +112,16 @@ class Robot : TimedRobot() {
 
     val swerveDriveTrain =
             SwerveDriveTrain(
-
-                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, angleConfiguration = FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)),
+                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, FourWheelAngleConfiguration(135.0, -135.0, 45.0, -45.0)),
                     gyro
             )
 
     val swo =
-            SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), limelightFront, debugLogging = true)
+            SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), debugLogging = true)
 
     var autoPIDX = PIDController(.01, 0.0, 0.0)
     var autoPIDY = PIDController(.01, 0.0, 0.0)
 
-<<<<<<< HEAD
 //    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 //
 //    val drivePID = PIDController(0.01, 0.0, 0.0)
@@ -193,8 +185,6 @@ class Robot : TimedRobot() {
 
 //    val armSystem = ArmSubsystem()
 
-=======
->>>>>>> main
     var auto =
             SwerveAuto(
                     autoPIDX,
@@ -208,7 +198,7 @@ class Robot : TimedRobot() {
                     swo,
                     swerveDriveTrain,
                     gyro,
-                    false
+                    true
             )
 
     var teleopCommand =
@@ -220,15 +210,8 @@ class Robot : TimedRobot() {
                     limelightFront,
                     limelightBack
             )
-<<<<<<< HEAD
     var autoCommand = TestingAuto(auto, gyro);
     var hardwareTestCommand = HardwareTestCommand(swerveDriveTrain)
-=======
-
-    val armSystem = ArmSubsystem(driverTab)
-
-//    var autoCommand = TestingAuto(auto, gyro)
->>>>>>> main
     val autoPathManager = AutoPathManager(auto, gyro)
 
     /**
@@ -238,24 +221,12 @@ class Robot : TimedRobot() {
     override fun robotInit() {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
-        robotContainer = RobotContainer()
-
         //        PortForwarder.add(5800, "limelight.local", 5800)
         for (i in 5800..5808) {
             PortForwarder.add(i, "limelight.local", i)
         }
+        robotContainer = RobotContainer()
         CameraServer.startAutomaticCapture()
-
-        val sink = CameraServer.getVideo()
-        val source = sink.source
-
-        driverTab.add("Camera", source)
-//        driverTab.add("BackLL", limelightBack.feed)
-//        driverTab.add("FrontLL", limelightFront.feed)
-
-
-        limelightBack.setPipeline(3)
-        limelightFront.setPipeline(3)
     }
 
     /**
@@ -275,12 +246,6 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("swo x", swo.fieldPosition.x)
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
         SmartDashboard.putNumber("gyro", gyro.getYaw())
-
-
-//        pipIndex = (pipIndex + 1) % 4
-//        limelightBack.setPipeline(pipIndex)
-//        limelightFront.setPipeline(pipIndex)
-
         CommandScheduler.getInstance().run()
     }
 
@@ -292,17 +257,11 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-//        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
-        armSystem.brakeSolenoid.set(true)
+        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 
 //        autoCommand = TestingAuto(auto, gyro)
 //        autoCommand.schedule()
-<<<<<<< HEAD
          autoPathManager.paths["TestPath"]!!.schedule()
-=======
-        // autoPathManager.paths["Path"]!!.schedule()
-        autoPathManager.paths["Balance"]!!.schedule()
->>>>>>> main
     }
 
     /** This function is called periodically during autonomous. */
@@ -326,7 +285,12 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
-
+        pipIndex += 1
+        if (pipIndex == 3) {
+            pipIndex = 0
+        }
+        limelightBack.setPipeline(pipIndex)
+        limelightFront.setPipeline(pipIndex)
 //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
 //        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }

@@ -13,12 +13,13 @@ import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.PWM
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.MotorConstants
 import frc.robot.util.IO
 
-class ArmSubsystem : SubsystemBase() {
+class ArmSubsystem(private val driver: ShuffleboardTab) : SubsystemBase() {
     var desiredTraversalExtended = false
     var desiredArmAngle = 0.0
         set(value) {
@@ -26,9 +27,13 @@ class ArmSubsystem : SubsystemBase() {
             field = value
         }
 
+    private val traversalExtendedShuffle = driver.add("Traversal Extended", false).entry
+    private val traversalRetractedShuffle = driver.add("Traversal Retracted", false).entry
+
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
-//    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
+    val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
+    private val grabSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
 
@@ -94,22 +99,26 @@ class ArmSubsystem : SubsystemBase() {
     }
 
     override fun periodic() {
-        SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
-        SmartDashboard.putBoolean("Desired Traversal", desiredTraversalExtended)
-        SmartDashboard.putBoolean("Traversal Extended", !traversalExtendedSwitch.get())
-        SmartDashboard.putBoolean("Traversal Retracted", !traversalRetractedSwitch.get())
-        SmartDashboard.putNumber("Arm Angle", getArmAngle())
+//        SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
+//        SmartDashboard.putBoolean("Desired Traversal", desiredTraversalExtended)
+//        SmartDashboard.putBoolean("Traversal Extended", !traversalExtendedSwitch.get())
+//        SmartDashboard.putBoolean("Traversal Retracted", !traversalRetractedSwitch.get())
+//        SmartDashboard.putNumber("Arm Angle", getArmAngle())
 
-        SmartDashboard.putNumber(
-            "Arm Move", if (!armAnglePID.atSetpoint()) armAnglePID.calculate(getArmAngle()) else
-                0.0
-        )
+//        SmartDashboard.putNumber(
+//            "Arm Move", if (!armAnglePID.atSetpoint()) armAnglePID.calculate(getArmAngle()) else
+//                0.0
+//        )
 //        armAngleMotor.set(
 //            if (!armAnglePID.atSetpoint()) armAnglePID.calculate(getArmAngle()) else
 //                0.0
 //        )
+        traversalExtendedShuffle.setBoolean(!traversalExtendedSwitch.get())
+        traversalRetractedShuffle.setBoolean(!traversalRetractedSwitch.get())
 
-        armAngleMotor.set(IO.controlArmAngle)
+        grabSolenoid.set(IO.toggleGrabber)
+        brakeSolenoid.set(IO.toggleBrake)
+        armAngleMotor.set(-IO.controlArmAngle)
 //        if (!armAnglePID.atSetpoint()) {
 //            brakeSolenoid.set(false)
 //            armAngleMotor.set(armAnglePID.calculate(getArmAngle()))
@@ -128,17 +137,17 @@ class ArmSubsystem : SubsystemBase() {
 //            0.0
 //        }
 
-        val trav = if (desiredTraversalExtended && traversalExtendedSwitch.get()) {
-            -1.0
-        } else if (!desiredTraversalExtended && traversalRetractedSwitch.get()) {
-            1.0
-        } else {
-            0.0
-        }
+//        val trav = if (desiredTraversalExtended && traversalExtendedSwitch.get()) {
+//            -1.0
+//        } else if (!desiredTraversalExtended && traversalRetractedSwitch.get()) {
+//            1.0
+//        } else {
+//            0.0
+//        }
 
-        SmartDashboard.putNumber("Traversal Output", trav)
+//        SmartDashboard.putNumber("Traversal Output", trav)
 //        traversalMotor[ControlMode.PercentOutput] = trav
-        traversalMotor[ControlMode.PercentOutput] = IO.travManualControl / 10
+        traversalMotor[ControlMode.PercentOutput] = IO.travManualControl
 
     }
 

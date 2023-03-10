@@ -119,6 +119,8 @@ object IO {
 
     val disableFieldOrientation
         get() = rightJoy.getRawButton(1)
+<<<<<<< HEAD
+=======
 
     val pip0
         get() = leftJoy.getRawButton(5)
@@ -131,4 +133,5 @@ object IO {
 
     val pip3
         get() = leftJoy.getRawButton(10)
+>>>>>>> main
 }
