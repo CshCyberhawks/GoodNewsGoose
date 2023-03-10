@@ -23,6 +23,6 @@ class GoToPosition(val swerveAuto: SwerveAuto, val desiredPosition: FieldPositio
     }
 
     override fun end(int: Boolean) {
-        swerveAuto.kill();
+        swerveAuto.kill()
     }
 }

@@ -1,14 +1,20 @@
 package frc.robot.commands
 
-import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.autonomous.SwerveAuto
+import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.math.Vector2
 import edu.wpi.first.wpilibj2.command.CommandBase
 
 
-
-class AutoLimelightSingleAxis(val swerveAuto: SwerveAuto, val limelight: Limelight, val targetHeight: Double, val axis: Axis, val pip: Int, val setAngle: Boolean = false) : CommandBase() {
+class AutoLimelightSingleAxis(
+    val swerveAuto: SwerveAuto,
+    val limelight: Limelight,
+    val targetHeight: Double,
+    val axis: Axis,
+    val pip: Int,
+    val setAngle: Boolean = false
+) : CommandBase() {
     enum class Axis {
         X, Y
     }
@@ -42,8 +48,7 @@ class AutoLimelightSingleAxis(val swerveAuto: SwerveAuto, val limelight: Limelig
                     0.0
                 )
         }
-        if (setAngle == true)
-        {
+        if (setAngle == true) {
             swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
         }
         didSetDesired = true

@@ -7,10 +7,10 @@ import edu.wpi.first.wpilibj.Filesystem
 import edu.wpi.first.wpilibj2.command.CommandBase
 
 class AutoPathManager(
-        swerveAuto: SwerveAuto,
-        gyro: GenericGyro,
-        val commandsToRun: HashMap<String, HashMap<Int, Pair<CommandBase, AttachedCommandType>>> =
-                hashMapOf()
+    swerveAuto: SwerveAuto,
+    gyro: GenericGyro,
+    val commandsToRun: HashMap<String, HashMap<Int, Pair<CommandBase, AttachedCommandType>>> =
+        hashMapOf()
 ) {
     val paths: HashMap<String, AutoPath> = hashMapOf()
 

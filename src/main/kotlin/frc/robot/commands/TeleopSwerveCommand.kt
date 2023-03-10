@@ -53,7 +53,7 @@ class TeleopSwerveCommand(
             currentCommand = null
         }
 
-        if (currentCommand != null && currentCommand?.isFinished() == false) {
+        if (currentCommand != null && currentCommand?.isFinished == false) {
             return
         }
 

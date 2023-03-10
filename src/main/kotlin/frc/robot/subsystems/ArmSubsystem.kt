@@ -5,16 +5,11 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.wpilibj.AnalogEncoder
-import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.DutyCycleEncoder
-import edu.wpi.first.wpilibj.Encoder
-import edu.wpi.first.wpilibj.PWM
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.MotorConstants
 import frc.robot.util.IO
@@ -33,11 +28,12 @@ class ArmSubsystem(private val driver: ShuffleboardTab) : SubsystemBase() {
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
     val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
-    private val grabSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
+    private val grabSolenoid =
+        Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 
     private val armAnglePID = PIDController(0.1, 0.0, 0.0)
 
-//    private val armAngleEncoder = Encoder(2, 3)
+    //    private val armAngleEncoder = Encoder(2, 3)
     private val armAngleEncoder = DutyCycleEncoder(2)
     private val traversalExtendedSwitch = DigitalInput(0)
     private val traversalRetractedSwitch = DigitalInput(1)

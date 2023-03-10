@@ -6,10 +6,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.Robot
 
 class TeleopLimelight(val limelight: Limelight, val swerveDriveTrain: SwerveDriveTrain, val pip: Int) :
-        CommandBase() {
+    CommandBase() {
     override fun execute() {
         val inputTwist =
-                MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset(), .5) / 32
+            MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset(), .5) / 32
 
         if (Robot.pipIndex == pip) {
             swerveDriveTrain.drive(Vector2(1.0, 0.0), inputTwist)

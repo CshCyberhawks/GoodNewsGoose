@@ -6,7 +6,8 @@ import com.revrobotics.CANSparkMaxLowLevel
 import cshcyberhawks.swolib.hardware.interfaces.GenericTurnMotor
 import cshcyberhawks.swolib.math.AngleCalculations
 
-class SparkMaxTurnMotor(deviceId: Int, override val encoderPort: Int, val offset: Double, canBus: String = "") : GenericTurnMotor {
+class SparkMaxTurnMotor(deviceId: Int, override val encoderPort: Int, val offset: Double, canBus: String = "") :
+    GenericTurnMotor {
     val motor = CANSparkMax(deviceId, CANSparkMaxLowLevel.MotorType.kBrushless)
     val encoder = CANCoder(encoderPort, canBus)
 

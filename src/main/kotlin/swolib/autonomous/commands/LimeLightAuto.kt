@@ -1,10 +1,9 @@
 package cshcyberhawks.swolib.commands.autonomous
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
-import cshcyberhawks.swolib.math.FieldPosition
-import cshcyberhawks.swolib.math.Vector2
-import edu.wpi.first.wpilibj2.command.CommandBase
 import cshcyberhawks.swolib.limelight.Limelight
+import cshcyberhawks.swolib.math.FieldPosition
+import edu.wpi.first.wpilibj2.command.CommandBase
 
 class LimeLightAuto(val swerveAuto: SwerveAuto, val limelight: Limelight, val targetHeight: Double) : CommandBase() {
     init {
@@ -12,7 +11,8 @@ class LimeLightAuto(val swerveAuto: SwerveAuto, val limelight: Limelight, val ta
     }
 
     override fun initialize() {
-        swerveAuto.desiredPosition = FieldPosition(limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro), 0.0)
+        swerveAuto.desiredPosition =
+            FieldPosition(limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro), 0.0)
         swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
     }
 
@@ -25,6 +25,6 @@ class LimeLightAuto(val swerveAuto: SwerveAuto, val limelight: Limelight, val ta
     }
 
     override fun end(int: Boolean) {
-        swerveAuto.kill();
+        swerveAuto.kill()
     }
 }

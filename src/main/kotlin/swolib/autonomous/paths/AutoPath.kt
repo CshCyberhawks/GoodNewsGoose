@@ -11,24 +11,24 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 import java.io.File
 
 class AutoPath(
-        inputFile: File,
-        val swerveAuto: SwerveAuto,
-        val gyro: GenericGyro,
-        val commandsIn: HashMap<Int, Pair<CommandBase, AttachedCommandType>> = HashMap()
+    inputFile: File,
+    val swerveAuto: SwerveAuto,
+    val gyro: GenericGyro,
+    val commandsIn: HashMap<Int, Pair<CommandBase, AttachedCommandType>> = HashMap()
 ) : CommandBase() {
     var commandsToRun: List<CommandBase>
 
     val positions =
-            Klaxon().parseArray<AutoPathNode>(inputFile)!!.map { Vector2(it.point.x, it.point.y) }
+        Klaxon().parseArray<AutoPathNode>(inputFile)!!.map { Vector2(it.point.x, it.point.y) }
 
     var currentCommand: CommandBase? = null
     var currentIndex = 1
 
     init {
         commandsToRun =
-                Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
-                    GoToPosition(swerveAuto, Vector2(it.point.x, it.point.y))
-                }
+            Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
+                GoToPosition(swerveAuto, Vector2(it.point.x, it.point.y))
+            }
 
         swerveAuto.swo.fieldPosition = Vector3(positions[0].x, positions[0].y, 0.0)
         // if (commandsIn.size != 0) {
@@ -41,7 +41,7 @@ class AutoPath(
 
     override fun execute() {
         if ((currentCommand == null || currentCommand?.isFinished == true) &&
-                        currentIndex < positions.size
+            currentIndex < positions.size
         ) {
             if (commandsIn.containsKey(currentIndex + 1)) {
                 val pair = commandsIn[currentIndex + 1]
@@ -53,6 +53,7 @@ class AutoPath(
                             currentCommand = cmd
                             currentCommand?.schedule()
                         }
+
                         AttachedCommandType.ASYNC -> {
                             cmd.schedule()
                         }

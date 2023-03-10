@@ -4,7 +4,6 @@ import cshcyberhawks.swolib.hardware.enums.MotorNeutralMode
 import cshcyberhawks.swolib.hardware.interfaces.GenericDriveMotor
 import cshcyberhawks.swolib.hardware.interfaces.GenericTurnMotor
 import cshcyberhawks.swolib.math.AngleCalculations
-import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.math.MathUtil

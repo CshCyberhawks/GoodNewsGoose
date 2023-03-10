@@ -2,20 +2,29 @@ package cshcyberhawks.swolib.limelight
 
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.*
-import edu.wpi.first.networktables.NetworkTable
-import edu.wpi.first.networktables.NetworkTableInstance
-import kotlin.math.tan
 import cshcyberhawks.swolib.swerve.SwerveOdometry
+import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Translation3d
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
-import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.net.PortForwarder
-import java.util.Optional
-import kotlin.collections.Map
+import edu.wpi.first.networktables.NetworkTable
+import edu.wpi.first.networktables.NetworkTableInstance
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import java.util.*
+import kotlin.math.tan
 
-class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double, ledMode: LedMode = LedMode.Pipeline, cameraMode: CameraMode = CameraMode.VisionProcessor, pipeline: Int = 0, streamMode: StreamMode = StreamMode.Standard, snapshotMode: SnapshotMode = SnapshotMode.Reset, crop: Array<Number> = arrayOf(0, 0, 0, 0)) {
+class Limelight(
+    name: String,
+    val cameraHeight: Double,
+    val cameraAngle: Double,
+    ledMode: LedMode = LedMode.Pipeline,
+    cameraMode: CameraMode = CameraMode.VisionProcessor,
+    pipeline: Int = 0,
+    streamMode: StreamMode = StreamMode.Standard,
+    snapshotMode: SnapshotMode = SnapshotMode.Reset,
+    crop: Array<Number> = arrayOf(0, 0, 0, 0)
+) {
     private val limelight: NetworkTable
 
     init {
@@ -46,13 +55,13 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
         var feed: HttpCamera?
         if (name == "limelight-front") {
             feed = HttpCamera("Limelight Feed-Front", "http://10.28.75.11:5800")
-        }
-        else /* (name == "limelight-back") */ {
+        } else /* (name == "limelight-back") */ {
             feed = HttpCamera("Limelight Feed-Back", "http://10.28.75.13:5800")
-        } 
+        }
         tab.add("LLFeed $name", feed).withPosition(0, 0).withSize(8, 4)
         PortForwarder.add(5800, "limelight.local", 5800)
-   }
+    }
+
     /**
      * @return Whether the limelight has any valid targets.
      */
@@ -95,7 +104,7 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
 
     fun getCamPose(): Optional<FieldPosition> {
         val data = limelight.getEntry("campose").getDoubleArray(arrayOf())
-        var pose: Pose3d? = null;
+        var pose: Pose3d? = null
         if (data.isNotEmpty()) {
             val translation = Translation3d(data[0], data[1], data[2])
             val rotation = Rotation3d(data[3], data[4], data[5])
@@ -104,11 +113,11 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
         if (pose != null) {
             val fieldPosition = FieldPosition(pose.x, pose.y, pose.rotation.z)
             return Optional.of(fieldPosition)
-        }
-        else {
+        } else {
             return Optional.empty()
         }
     }
+
     fun getCamDebug(): Array<Double> {
         val data = limelight.getEntry("campose").getDoubleArray(arrayOf())
         var pose: Pose3d? = null
@@ -121,7 +130,8 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
             return arrayOf(0.0, 0.0, 0.0)
         }
         return arrayOf(pose.x, pose.y, pose.rotation.z)
-      }
+    }
+
     fun getBotPose(): Vector3 {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
         if (data.isEmpty()) {
@@ -129,6 +139,7 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
         }
         return Vector3(data[0], data[1], data[2])
     }
+
     fun getBotDebug(): Array<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
         if (data.isEmpty()) {
@@ -136,6 +147,7 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
         }
         return arrayOf(data[0], data[1], data[2])
     }
+
     fun getDetectorClass(): Double = limelight.getEntry("tclass").getDouble(0.0)
 
     fun getColorUnderCrosshair(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
@@ -144,11 +156,11 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
      * @return Distance from target (meters).
      */
     fun findTargetDistance(ballHeight: Double): Double =
-            if (hasTarget()) (cameraHeight - ballHeight) * tan(Math.toRadians(getVerticalOffset() + cameraAngle)) else -1.0
+        if (hasTarget()) (cameraHeight - ballHeight) * tan(Math.toRadians(getVerticalOffset() + cameraAngle)) else -1.0
 
     fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
 
-    public fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Vector2 {
+    fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Vector2 {
         val distance: Double = findTargetDistance(ballHeight)  //.639
         val angle: Double = AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
 
@@ -158,6 +170,7 @@ class Limelight(name: String, val cameraHeight: Double, val cameraAngle: Double,
 
         return ret
     }
+
     fun setPipeline(pipeline: Int) {
         if (pipeline < 0 || pipeline > 9)
             error("Invalid pipeline value")

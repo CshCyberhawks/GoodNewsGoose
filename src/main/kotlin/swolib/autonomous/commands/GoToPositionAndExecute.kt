@@ -30,9 +30,10 @@ class GoToPositionAndExecute(
     }
 
     override fun end(interrupted: Boolean) {
-        swerveAuto.kill();
+        swerveAuto.kill()
         command.cancel()
     }
+
     override fun isFinished(): Boolean {
         return when (finishCondition) {
             FinishCondition.POSITION -> swerveAuto.isFinishedMoving()
