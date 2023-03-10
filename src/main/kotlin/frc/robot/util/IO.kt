@@ -63,5 +63,5 @@ object IO {
         get() = rightJoy.getRawButtonPressed(2)
 
     val disableFieldOrientation
-        get() = rightJoy.getRawButtonPressed(1)
+        get() = rightJoy.getRawButton(1)
 }

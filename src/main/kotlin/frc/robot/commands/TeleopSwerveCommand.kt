@@ -42,8 +42,6 @@ class TeleopSwerveCommand(
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-        var fieldOriented = true
-
         if (IO.killCommand) {
             currentCommand?.cancel()
             currentCommand = null
@@ -115,15 +113,12 @@ class TeleopSwerveCommand(
             return
         }
 
-        if (IO.disableFieldOrientation) {
-            fieldOriented = false
-        }
+        val disableFieldOrientation = IO.disableFieldOrientation
 
         prevJoyMoveyThrottle = IO.moveyThrottle
 
-
         throttleShuffle.setDouble(throttle)
 
-        swerveDriveTrain.drive(driveVec, driveTwist, fieldOriented)
+        swerveDriveTrain.drive(driveVec, driveTwist, disableFieldOrientation)
     }
 }

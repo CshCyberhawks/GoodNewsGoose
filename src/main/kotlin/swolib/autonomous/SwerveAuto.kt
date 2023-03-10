@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.util.WPIUtilJNI
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlin.math.abs
 
 class SwerveAuto(
@@ -102,12 +103,14 @@ class SwerveAuto(
 
         //ryan suggested this
         val pidVal = twistPID.calculate(gyro.getYaw() / 360, desiredAngle / 360)
+        SmartDashboard.putNumber("Twist PID", pidVal)
 
         if (abs(pidVal) < 0.1) {
             return -pidVal
         }
 
         val twistFF = if (pidVal > 0.0) twistFeedForward else -twistFeedForward
+        SmartDashboard.putNumber("Twist Feed", twistFF)
 
         if (debugLogging) {
             twistPIDOutputShuffle.setDouble(pidVal);

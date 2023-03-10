@@ -192,7 +192,7 @@ class Robot : TimedRobot() {
                     PIDController(.5, 0.0, 0.05),
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     TrapezoidProfile.Constraints(1.0, .2),
-                    1.0, // TODO: Tune PIDs so this can be smaller
+                    10.0, // TODO: Tune PIDs so this can be smaller
                     0.2,
                     1.0,
                     swo,
