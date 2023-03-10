@@ -19,7 +19,7 @@ object MotorConstants {
     const val backRightEncoder = 13
     const val backLeftEncoder = 10
 
-    val turnEncoderOffsets: Array<Double> = arrayOf(72.16, 333.37, 41.22, 116.19)
+    val turnEncoderOffsets: Array<Double> = arrayOf(343.125, 245.390625, 323.525390625, 21.357421875)
     const val armAngleMotor = 20
     const val traversalMotor = 21
     const val brakeSolenoid = 0

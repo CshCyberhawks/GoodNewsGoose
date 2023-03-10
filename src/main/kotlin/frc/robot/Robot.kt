@@ -10,6 +10,7 @@ import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
+import cshcyberhawks.swolib.swerve.configurations.FourWheelAngleConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.cameraserver.CameraServer
@@ -106,11 +107,11 @@ class Robot : TimedRobot() {
                     swerveConfiguration
             )
 
-    val gyro = Pigeon2Gyro(15)
+    val gyro = Pigeon2Gyro(30)
 
     val swerveDriveTrain =
             SwerveDriveTrain(
-                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft),
+                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)),
                     gyro
             )
 
@@ -181,7 +182,7 @@ class Robot : TimedRobot() {
 //        gyro,
 //    )
 
-    val armSystem = ArmSubsystem()
+//    val armSystem = ArmSubsystem()
 
     var auto =
             SwerveAuto(
@@ -275,8 +276,8 @@ class Robot : TimedRobot() {
         autonomousCommand?.cancel()
         gyro.setYawOffset()
 
-        val armCommand = ManualArmCommand(armSystem)
-        armCommand.schedule()
+//        val armCommand = ManualArmCommand(armSystem)
+//        armCommand.schedule()
         teleopCommand.schedule()
     }
 
@@ -289,7 +290,7 @@ class Robot : TimedRobot() {
         limelightBack.setPipeline(pipIndex)
         limelightFront.setPipeline(pipIndex)
 //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
-        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
+//        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
 
     /** This function is called once when test mode is enabled. */
