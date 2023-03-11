@@ -15,9 +15,11 @@ class TestingAuto(val swerveAuto: SwerveAuto, val gyro: GenericGyro) : Sequentia
         // add the commands to the SequentialCommandGroup
         addCommands(
             GoToPosition(swerveAuto, FieldPosition(0.0, 2.0, 0.0)),
-            // GoToPosition(swerveAuto, FieldPosition(0.0, 2.0, 180.0)),
-            // GoToPosition(swerveAuto, FieldPosition(0.0, 0.0, 0.0)),
-            // GoToPosition(swerveAuto, FieldPosition(-1.0, 2.0, 90.0))
+             GoToPosition(swerveAuto, FieldPosition(0.0, 2.0, 180.0)),
+             GoToPosition(swerveAuto, FieldPosition(0.0, 0.0, 0.0)),
+//             GoToPosition(swerveAuto, FieldPosition(-1.0, 2.0, 90.0)),
+//            GoToPosition(swerveAuto, FieldPosition(5.0, 0.0, 90.0))
+
         )
     }
 }

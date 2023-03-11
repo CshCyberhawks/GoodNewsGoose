@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlin.math.abs
 
 class SwerveAuto(
@@ -28,15 +29,18 @@ class SwerveAuto(
     var desiredPosition: FieldPosition = FieldPosition(0.0, 0.0, 0.0)
         set(value) {
             xPID.goal = TrapezoidProfile.State(value.x, 0.0)
-            yPID.goal = TrapezoidProfile.State(value.x, 0.0)
+            yPID.goal = TrapezoidProfile.State(value.y, 0.0)
+            xPID.reset(swo.fieldPosition.x)
+            yPID.reset(swo.fieldPosition.y)
             field = value
         }
 
     fun setDesiredEndVelocity(velo: Vector2) {
         this.xPID.goal = TrapezoidProfile.State(xPID.goal.position, velo.x)
-        this.yPID.goal = TrapezoidProfile.State(yPID.goal.position, velo.x)
+        this.yPID.goal = TrapezoidProfile.State(yPID.goal.position, velo.y)
     }
 
+    var prevTwistPIDOut: Double = 999.0
     val autoShuffleboardTab = Shuffleboard.getTab("Auto")
 
     //make all the shuffleboard items entries
@@ -55,34 +59,14 @@ class SwerveAuto(
         twistPID.enableContinuousInput(0.0, 1.0)
     }
 
-    // twists and translates
-    fun move() {
-        var translation: Vector2 = Vector2(0.0, 0.0)
-        var twist: Double = 0.0
-
-        if (!isAtDesiredPosition()) {
-            translation = calculateTranslation()
-        }
-
-        val atDesiredAngle = isAtDesiredAngle()
-        if (!atDesiredAngle) {
-            twist = calculateTwist(desiredPosition.angle)
-        }
-
-        if (debugLogging) {
-            translationTwistShuffleboard.setDouble(twist)
-        }
-
-        swerveSystem.drive(translation, twist)
-    }
-
     private fun calculateTwist(desiredAngle: Double): Double {
-
         //ryan suggested this
-        val pidVal = twistPID.calculate(gyro.getYaw() / 360, desiredAngle / 360)
+        val pidVal = twistPID.calculate(gyro.getYaw() / 360)
+        prevTwistPIDOut = pidVal
+        SmartDashboard.putNumber("Twist PID Output", pidVal)
 
         if (abs(pidVal) < 0.1) {
-            return -pidVal
+            return 0.0
         }
 
         val twistFF = if (pidVal > 0.0) twistFeedForward else -twistFeedForward
@@ -90,6 +74,7 @@ class SwerveAuto(
         if (debugLogging) {
             twistPIDOutputShuffle.setDouble(pidVal)
         }
+
 
         // TODO: Fix this for other gyros
         return -(pidVal + twistFF)
@@ -105,6 +90,8 @@ class SwerveAuto(
                 swo.fieldPosition.y
             )
 
+        SmartDashboard.putNumber("X PID", xPIDOutput)
+        SmartDashboard.putNumber("Y PID", yPIDOutput)
 
         if (debugLogging) {
             xPIDOutputShuffle.setDouble(xPIDOutput)
@@ -114,14 +101,34 @@ class SwerveAuto(
         return Vector2(xPIDOutput, yPIDOutput)
     }
 
+    // twists and translates
+    fun move() {
+        var translation: Vector2 = Vector2(0.0, 0.0)
+        var twist: Double = 0.0
+
+        SmartDashboard.putBoolean("At Des Pos", isAtDesiredPosition())
+        if (!isAtDesiredPosition()) {
+            translation = calculateTranslation()
+        }
+
+        val atDesiredAngle = isAtDesiredAngle()
+        SmartDashboard.putBoolean("At Des Angle", atDesiredAngle)
+        if (!atDesiredAngle) {
+            twist = calculateTwist(desiredPosition.angle)
+        }
+
+        if (debugLogging) {
+            translationTwistShuffleboard.setDouble(twist)
+        }
+
+        swerveSystem.drive(translation, twist)
+    }
+
     private fun isAtDesiredAngle(): Boolean {
-        return MiscCalculations.calculateDeadzone(
-            AngleCalculations.wrapAroundAngles(
-                gyro.getYaw() -
-                        desiredPosition.angle
-            ),
-            this.angleDeadzone
-        ) == 0.0
+        if (AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) < angleDeadzone || AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) > 360 - angleDeadzone) {
+            return true
+        }
+            return false
     }
 
     private fun isAtDesiredPosition(): Boolean {

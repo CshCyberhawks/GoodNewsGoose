@@ -5,6 +5,7 @@ import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
+import edu.wpi.first.math.geometry.Rotation2d
 
 class Pigeon2Gyro(private val port: Int) : GenericGyro {
     val gyro = Pigeon2(port)
@@ -30,6 +31,10 @@ class Pigeon2Gyro(private val port: Int) : GenericGyro {
      */
     override fun setYawOffset(currentPos: Double) {
         offsetValue = AngleCalculations.wrapAroundAngles(gyro.yaw - currentPos)
+    }
+
+    override fun getYawRotation2d(): Rotation2d {
+        return Rotation2d(Math.toRadians(getYaw()))
     }
 
 

@@ -7,6 +7,7 @@ import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Vector3
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -20,6 +21,9 @@ class SwerveOdometry(
 ) {
     var fieldPosition = Vector3() + startingPosition
     var lastTime = MiscCalculations.getCurrentTime()
+
+    public val field2d = Field2d()
+
 
     val odometryShuffleTab = Shuffleboard.getTab("Odometry")
     val xPosition = odometryShuffleTab.add("X Position", 0.0).withPosition(0, 0).withSize(2, 1).entry
@@ -52,18 +56,23 @@ class SwerveOdometry(
     fun updatePosition() {
         fieldPosition += getVelocity() * (MiscCalculations.getCurrentTime() - lastTime)
 
-        if (limelight != null) {
-            val limelightPosition = limelight.getBotPose()
-            if (limelightPosition != null) {
-                fieldPosition = (limelightPosition + startingPosition)
-            }
-        }
+//        if (limelight != null) {
+//            val limelightPosition = limelight.getBotPose()
+//            if (limelightPosition != null) {
+//                fieldPosition = (limelightPosition + startingPosition)
+//            }
+//        }
 
         if (debugLogging) {
             xPosition.setDouble(fieldPosition.x)
             yPosition.setDouble(fieldPosition.y)
         }
 
+        updateField()
         lastTime = MiscCalculations.getCurrentTime()
+    }
+
+    fun updateField() {
+        field2d.setRobotPose(this.fieldPosition.x, this.fieldPosition.y, gyro.getYawRotation2d())
     }
 }

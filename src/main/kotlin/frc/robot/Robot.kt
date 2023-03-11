@@ -23,10 +23,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.robot.commands.ManualArmCommand
 import frc.robot.commands.TeleopSwerveCommand
+import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
-import frc.robot.subsystems.ArmSubsystem
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -118,7 +117,7 @@ class Robot : TimedRobot() {
                 frontLeft,
                 backRight,
                 backLeft,
-                angleConfiguration = FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)
+                angleConfiguration = FourWheelAngleConfiguration(135.0, -135.0, 45.0, -45.0)
             ),
             gyro
         )
@@ -126,23 +125,25 @@ class Robot : TimedRobot() {
     val swo =
         SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), limelightFront, debugLogging = true)
 
-    val autoTrapConstraints = TrapezoidProfile.Constraints(1.0, 0.2)
-    val autoPIDX = ProfiledPIDController(.01, 0.0, 0.0, autoTrapConstraints)
-    val autoPIDY = ProfiledPIDController(.01, 0.0, 0.0, autoTrapConstraints)
+    //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
+    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
+
+    val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
+    val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
 
     val auto =
         SwerveAuto(
             autoPIDX,
             autoPIDY,
-            PIDController(.5, 0.0, 0.05),
+            PIDController(15.0, 0.0, 0.0),
             // TrapezoidProfile.Constraints(4.0, 1.5),
-            1.0, // TODO: Tune PIDs so this can be smaller
+            .5, // TODO: Tune PIDs so this can be smaller
             0.2,
-            1.0,
+            0.135,
             swo,
             swerveDriveTrain,
             gyro,
-            false
+            true
         )
 
     var teleopCommand =
@@ -155,10 +156,13 @@ class Robot : TimedRobot() {
             limelightBack
         )
 
-    val armSystem = ArmSubsystem(driverTab)
 
-    //    var autoCommand = TestingAuto(auto, gyro)
+//    val armSystem = ArmSubsystem(driverTab)
+
+    var autoCommand = TestingAuto(auto, gyro)
     val autoPathManager = AutoPathManager(auto, gyro)
+
+    val fieldShuffleboard = driverTab.add("Field", swo.field2d)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -205,7 +209,6 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
         SmartDashboard.putNumber("gyro", gyro.getYaw())
 
-
 //        pipIndex = (pipIndex + 1) % 4
 //        limelightBack.setPipeline(pipIndex)
 //        limelightFront.setPipeline(pipIndex)
@@ -222,12 +225,12 @@ class Robot : TimedRobot() {
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
 //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
-        armSystem.brakeSolenoid.set(true)
+//        armSystem.brakeSolenoid.set(true)
 
-//        autoCommand = TestingAuto(auto, gyro)
-//        autoCommand.schedule()
+        autoCommand = TestingAuto(auto, gyro)
+        autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
-        autoPathManager.paths["Balance"]!!.schedule()
+//        autoPathManager.paths["TestPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
@@ -244,8 +247,8 @@ class Robot : TimedRobot() {
         autonomousCommand?.cancel()
         gyro.setYawOffset()
 
-        val armCommand = ManualArmCommand(armSystem)
-        armCommand.schedule()
+//        val armCommand = ManualArmCommand(armSystem)
+//        armCommand.schedule()
         teleopCommand.schedule()
     }
 
@@ -253,7 +256,7 @@ class Robot : TimedRobot() {
     override fun teleopPeriodic() {
 
 //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
-        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
+//        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
 
     /** This function is called once when test mode is enabled. */

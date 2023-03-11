@@ -5,8 +5,11 @@ import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.limelight.AttachedCommandType
-import cshcyberhawks.swolib.math.Vector2
+import cshcyberhawks.swolib.math.AngleCalculations
+import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.math.Vector3
+import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj2.command.CommandBase
 import java.io.File
 
@@ -16,56 +19,57 @@ class AutoPath(
     val gyro: GenericGyro,
     val commandsIn: HashMap<Int, Pair<CommandBase, AttachedCommandType>> = HashMap()
 ) : CommandBase() {
-    var commandsToRun: List<CommandBase>
-
-    val positions =
-        Klaxon().parseArray<AutoPathNode>(inputFile)!!.map { Vector2(it.point.x, it.point.y) }
+    var positions: List<FieldPosition>
 
     var currentCommand: CommandBase? = null
+    var attachedCommand: CommandBase? = null
     var currentIndex = 1
 
     init {
-        commandsToRun =
-            Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
-                GoToPosition(swerveAuto, Vector2(it.point.x, it.point.y))
+        if (DriverStation.getAlliance() == Alliance.Blue) {
+            this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
+                FieldPosition(it.point.y, -it.point.x, it.point.angle)
             }
+        } else {
+            this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
+                FieldPosition(it.point.y, it.point.x, it.point.angle)
+            }
+        }
 
-        swerveAuto.swo.fieldPosition = Vector3(positions[0].x, positions[0].y, 0.0)
-        // if (commandsIn.size != 0) {
-        //     commandsIn.forEach { (key, (cmd, typ)) ->
-        //         if (key < commandsToRun.size) commandsToRun.add(cmd, key)
-        //     }
-        // }
-        //        gyro.setYawOffset(jsonData.startPosition.angle)
+    }
+
+    override fun initialize() {
+        swerveAuto.swo.fieldPosition =
+            Vector3(positions[0].x, positions[0].y, AngleCalculations.wrapAroundAngles(positions[0].angle + 180))
     }
 
     override fun execute() {
-        if ((currentCommand == null || currentCommand?.isFinished == true) &&
-            currentIndex < positions.size
-        ) {
-            if (commandsIn.containsKey(currentIndex + 1)) {
-                val pair = commandsIn[currentIndex + 1]
-                if (pair != null) {
-                    val (cmd, typ) = pair
+        if ((currentCommand == null || currentCommand?.isFinished == true) && currentIndex < positions.size) {
+            if (attachedCommand != null && attachedCommand?.isFinished == false) {
+                attachedCommand?.cancel()
+                attachedCommand = null
+            }
 
-                    when (typ) {
-                        AttachedCommandType.SYNC -> {
-                            currentCommand = cmd
-                            currentCommand?.schedule()
-                        }
+            if (commandsIn.containsKey(currentIndex) && commandsIn[currentIndex] != null) {
+                val (cmd, type) = commandsIn[currentIndex]!!
 
-                        AttachedCommandType.ASYNC -> {
-                            cmd.schedule()
-                        }
+                when (type) {
+                    AttachedCommandType.ASYNC -> {
+                        cmd.schedule()
                     }
-                    return
+
+                    AttachedCommandType.SYNC -> {
+                        attachedCommand = cmd
+                        attachedCommand?.schedule()
+                    }
                 }
             }
 
-            currentCommand = commandsToRun[currentIndex++]
+            currentCommand = GoToPosition(swerveAuto, positions[currentIndex++])
             currentCommand?.schedule()
         }
     }
 
-    override fun isFinished(): Boolean = currentIndex == commandsToRun.size
+
+    override fun isFinished(): Boolean = currentIndex == positions.size
 }

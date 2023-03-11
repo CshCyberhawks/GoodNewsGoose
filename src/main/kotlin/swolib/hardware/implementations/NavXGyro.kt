@@ -5,6 +5,7 @@ import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.SPI
 
 /**
@@ -40,5 +41,9 @@ class NavXGyro(private val port: SPI.Port) : GenericGyro {
      */
     override fun setYawOffset(currentPos: Double) {
         offsetValue = AngleCalculations.wrapAroundAngles(gyro.yaw.toDouble() - currentPos)
+    }
+
+    override fun getYawRotation2d(): Rotation2d {
+        TODO("Not yet implemented")
     }
 }
