@@ -1,6 +1,5 @@
 package frc.robot.commands
 
-import TeleopLimelight
 import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.limelight.Limelight
@@ -8,6 +7,7 @@ import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.MiscConstants
@@ -17,21 +17,21 @@ class TeleopSwerveCommand(
     private var swerveDriveTrain: SwerveDriveTrain,
     val swerveAuto: SwerveAuto,
     var gyro: GenericGyro,
-    val driverTab: ShuffleboardTab,
-    val limelight1: Limelight,
-    val limelight2: Limelight
+    driverTab: ShuffleboardTab,
+    private val limelight1: Limelight,
+    private val limelight2: Limelight
 ) : CommandBase() {
 
-    var desiredPip = 0
+    private var desiredPip = 0
 
-    var throttle = 0.6
-    var prevJoyMoveyThrottle = 0.0
+    private var throttle = 0.6
+    private var prevJoyMoveyThrottle = 0.0
 
-    var currentLimelight = limelight1
+    private var currentLimelight = limelight1
 
-    var currentCommand: CommandBase? = null
+    private var currentCommand: CommandBase? = null
 
-    val throttleShuffle = driverTab.add("Throttle", 0.0).entry
+    private val throttleShuffle: GenericEntry = driverTab.add("Throttle", 0.0).entry
 
     init {
         addRequirements(swerveDriveTrain)
@@ -45,8 +45,6 @@ class TeleopSwerveCommand(
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
         throttleShuffle.setDouble(throttle)
-
-        var fieldOriented = true
 
         if (IO.killCommand) {
             currentCommand?.cancel()
@@ -131,14 +129,8 @@ class TeleopSwerveCommand(
             return
         }
 
-        if (IO.disableFieldOrientation) {
-            fieldOriented = false
-        }
-
         prevJoyMoveyThrottle = IO.moveyThrottle
 
-
-
-        swerveDriveTrain.drive(driveVec, driveTwist, !fieldOriented)
+        swerveDriveTrain.drive(driveVec, driveTwist, !IO.disableFieldOrientation)
     }
 }

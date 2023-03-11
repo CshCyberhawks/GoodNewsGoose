@@ -10,10 +10,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 class AutoLimelightSingleAxis(
     val swerveAuto: SwerveAuto,
     val limelight: Limelight,
-    val targetHeight: Double,
-    val axis: Axis,
-    val pip: Int,
-    val setAngle: Boolean = false
+    private val targetHeight: Double,
+    private val axis: Axis,
+    private val pip: Int,
+    private val setAngle: Boolean = false
 ) : CommandBase() {
     enum class Axis {
         X, Y
@@ -23,9 +23,9 @@ class AutoLimelightSingleAxis(
         addRequirements(swerveAuto.swerveSystem)
     }
 
-    var didSetDesired: Boolean = false
+    private var didSetDesired: Boolean = false
 
-    fun setPos() {
+    private fun setPos() {
         if (didSetDesired) return
         if (limelight.getCurrentPipeline().toInt() != pip) return
         if (axis == Axis.X) {
@@ -48,7 +48,7 @@ class AutoLimelightSingleAxis(
                     0.0
                 )
         }
-        if (setAngle == true) {
+        if (setAngle) {
             swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
         }
         didSetDesired = true

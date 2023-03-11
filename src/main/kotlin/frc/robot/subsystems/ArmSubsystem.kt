@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.MotorConstants
 import frc.robot.util.IO
 
-class ArmSubsystem(private val driver: ShuffleboardTab) : SubsystemBase() {
+class ArmSubsystem(driver: ShuffleboardTab) : SubsystemBase() {
     var desiredTraversalExtended = false
     var desiredArmAngle = 0.0
         set(value) {
@@ -27,7 +27,7 @@ class ArmSubsystem(private val driver: ShuffleboardTab) : SubsystemBase() {
 
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = TalonSRX(MotorConstants.traversalMotor)
-    val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
+    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSolenoid)
     private val grabSolenoid =
         Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 

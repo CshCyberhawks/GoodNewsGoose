@@ -19,7 +19,9 @@ import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.TimedRobot
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -39,27 +41,27 @@ class Robot : TimedRobot() {
         var pipIndex = 0
     }
 
-    val driverTab = Shuffleboard.getTab("Driver")
+    private val driverTab: ShuffleboardTab = Shuffleboard.getTab("Driver")
 
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
+    private val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
-    val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
-    val turnPIDBackLeft = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDBackLeft = PIDController(.012, 0.0, 0.0002)
 
-    val drivePIDBackRight = PIDController(0.01, 0.0, 0.0)
-    val turnPIDBackRight = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDBackRight = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDBackRight = PIDController(.012, 0.0, 0.0002)
 
-    val drivePIDFrontLeft = PIDController(0.01, 0.0, 0.0)
-    val turnPIDFrontLeft = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDFrontLeft = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDFrontLeft = PIDController(.012, 0.0, 0.0002)
 
-    val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
-    val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
-    val limelightBack = Limelight("limelight-back", 0.12, 0.0)
-    val limelightFront = Limelight("limelight-front", 0.12, 0.0)
-    var backLeft: SwerveWheel =
+    private val limelightBack = Limelight("limelight-back", 0.12, 0.0)
+    private val limelightFront = Limelight("limelight-front", 0.12, 0.0)
+    private var backLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
             SparkMaxTurnMotor(
@@ -71,7 +73,7 @@ class Robot : TimedRobot() {
             turnPIDBackLeft,
             swerveConfiguration
         )
-    var backRight: SwerveWheel =
+    private var backRight: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
             SparkMaxTurnMotor(
@@ -83,7 +85,7 @@ class Robot : TimedRobot() {
             turnPIDBackRight,
             swerveConfiguration
         )
-    var frontLeft: SwerveWheel =
+    private var frontLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
             SparkMaxTurnMotor(
@@ -95,7 +97,7 @@ class Robot : TimedRobot() {
             turnPIDFrontLeft,
             swerveConfiguration
         )
-    var frontRight: SwerveWheel =
+    private var frontRight: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
             SparkMaxTurnMotor(
@@ -110,7 +112,7 @@ class Robot : TimedRobot() {
 
     val gyro = Pigeon2Gyro(30)
 
-    val swerveDriveTrain =
+    private val swerveDriveTrain =
         SwerveDriveTrain(
             FourWheelSwerveConfiguration(
                 frontRight,
@@ -122,18 +124,18 @@ class Robot : TimedRobot() {
             gyro
         )
 
-    val swo =
+    private val swo =
         SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), limelightFront, debugLogging = true)
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
-    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
-    val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
+    private val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
+    private val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
 
-    val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
-    val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
-    val twistPID = PIDController(0.1, 0.0, 0.00)
+    private val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
+    private val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
+    private val twistPID = PIDController(0.1, 0.0, 0.00)
 
-    val auto =
+    private val auto =
         SwerveAuto(
             autoPIDX,
             autoPIDY,
@@ -148,7 +150,7 @@ class Robot : TimedRobot() {
             true
         )
 
-    var teleopCommand =
+    private var teleopCommand =
         TeleopSwerveCommand(
             swerveDriveTrain,
             auto,
@@ -162,9 +164,9 @@ class Robot : TimedRobot() {
 //    val armSystem = ArmSubsystem(driverTab)
 
     var autoCommand = TestingAuto(auto, gyro)
-    val autoPathManager = AutoPathManager(auto, gyro)
+    private val autoPathManager = AutoPathManager(auto, gyro)
 
-    val fieldShuffleboard = driverTab.add("Field", swo.field2d)
+    val fieldShuffleboard: ComplexWidget = driverTab.add("Field", swo.field2d)
 
     /**
      * This function is run when the robot is first started up and should be used for any
