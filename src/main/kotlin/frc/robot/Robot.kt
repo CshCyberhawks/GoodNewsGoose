@@ -127,19 +127,20 @@ class Robot : TimedRobot() {
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
     val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
+    val twistTrapConstraints = TrapezoidProfile.Constraints(1.0, .2)
 
     val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
     val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
+    val twistPID = ProfiledPIDController(1.0, 0.0, 0.0, twistTrapConstraints)
 
     val auto =
         SwerveAuto(
             autoPIDX,
             autoPIDY,
-            PIDController(15.0, 0.0, 0.0),
+            twistPID,
             // TrapezoidProfile.Constraints(4.0, 1.5),
-            .5, // TODO: Tune PIDs so this can be smaller
+            10.0, // TODO: Tune PIDs so this can be smaller
             0.2,
-            0.135,
             swo,
             swerveDriveTrain,
             gyro,

@@ -6,6 +6,8 @@ import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Vector3
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import kotlin.math.cos
@@ -73,6 +75,13 @@ class SwerveOdometry(
     }
 
     fun updateField() {
-        field2d.setRobotPose(this.fieldPosition.x, this.fieldPosition.y, gyro.getYawRotation2d())
+        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+            field2d.setRobotPose(this.fieldPosition.y, -this.fieldPosition.x, gyro.getYawRotation2d())
+        } else {
+            // Random constants are offsets for the field origin being bottom right in our code
+            field2d.setRobotPose(16.54 - this.fieldPosition.y, this.fieldPosition.x, gyro.getYawRotation2d().plus(
+                Rotation2d(Math.PI)
+            ))
+        }
     }
 }
