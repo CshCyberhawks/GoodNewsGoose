@@ -10,6 +10,7 @@ import cshcyberhawks.swolib.swerve.SwerveOdometry
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
+import edu.wpi.first.util.WPIUtilJNI
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlin.math.abs
@@ -17,7 +18,8 @@ import kotlin.math.abs
 class SwerveAuto(
     val xPID: ProfiledPIDController,
     val yPID: ProfiledPIDController,
-    val twistPID: ProfiledPIDController,
+    val twistPID: PIDController,
+    val twistTrapConstraints: TrapezoidProfile.Constraints,
     val angleDeadzone: Double,
     val positionDeadzone: Double,
     val swo: SwerveOdometry,
@@ -31,9 +33,18 @@ class SwerveAuto(
             yPID.goal = TrapezoidProfile.State(value.y, 0.0)
             xPID.reset(swo.fieldPosition.x)
             yPID.reset(swo.fieldPosition.y)
-            twistPID.setGoal(field.angle)
+            twistPID.setpoint = value.angle
+            twistPID.reset()
+            desiredTwistTrap = TrapezoidProfile.State(value.angle, 0.0)
+            currentTwistTrap = TrapezoidProfile.State(gyro.getYaw(), 0.0)
+            prevTime = 0.0
             field = value
         }
+
+    var desiredTwistTrap = TrapezoidProfile.State(desiredPosition.angle, 0.0)
+    var currentTwistTrap = TrapezoidProfile.State(gyro.getYaw(), 0.0)
+
+    var prevTime = 0.0
 
     fun setDesiredEndVelocity(velo: Vector2) {
         this.xPID.goal = TrapezoidProfile.State(xPID.goal.position, velo.x)
@@ -53,20 +64,39 @@ class SwerveAuto(
     val yPIDOutputShuffle = autoShuffleboardTab.add("Y PID OUT", 0.0).entry
     val twistPIDOutputShuffle = autoShuffleboardTab.add("Twist PID OUT", 0.0).entry
 
-
     init {
         twistPID.enableContinuousInput(0.0, 360.0)
     }
 
-    private fun calculateTwist(desiredAngle: Double): Double {
+    private fun calculateTwist(): Double {
+        val timeNow = WPIUtilJNI.now() * 1.0e-6
+        val trapTime: Double = if (prevTime == 0.0) 0.0 else timeNow - prevTime
+
         //ryan suggested this
         val pidVal = twistPID.calculate(gyro.getYaw()) / 360
+
+        val trapProfile = TrapezoidProfile(twistTrapConstraints, desiredTwistTrap, currentTwistTrap)
+
+        val trapOutput = trapProfile.calculate(trapTime)
+
+        val twistOutput = if (pidVal < 0) {
+            pidVal - abs(trapOutput.velocity)
+        } else {
+            pidVal + abs(trapOutput.velocity)
+        }
+
+        SmartDashboard.putNumber("Twist PID", pidVal)
+        SmartDashboard.putNumber("Twist Trap", trapOutput.velocity)
+        SmartDashboard.putNumber("Twist Des", desiredPosition.angle)
+        SmartDashboard.putNumber("Twist Out", twistOutput)
 
         if (debugLogging) {
             twistPIDOutputShuffle.setDouble(pidVal)
         }
 
-        return pidVal
+        prevTime = timeNow
+
+        return -twistOutput
     }
 
     private fun calculateTranslation(): Vector2 {
@@ -103,7 +133,7 @@ class SwerveAuto(
         val atDesiredAngle = isAtDesiredAngle()
         SmartDashboard.putBoolean("At Des Angle", atDesiredAngle)
         if (!atDesiredAngle) {
-            twist = calculateTwist(desiredPosition.angle)
+            twist = calculateTwist()
         }
 
         if (debugLogging) {

@@ -127,17 +127,18 @@ class Robot : TimedRobot() {
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
     val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
-    val twistTrapConstraints = TrapezoidProfile.Constraints(1.0, .2)
+    val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
 
     val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
     val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
-    val twistPID = ProfiledPIDController(1.0, 0.0, 0.0, twistTrapConstraints)
+    val twistPID = PIDController(0.1, 0.0, 0.00)
 
     val auto =
         SwerveAuto(
             autoPIDX,
             autoPIDY,
             twistPID,
+            twistTrapConstraints,
             // TrapezoidProfile.Constraints(4.0, 1.5),
             10.0, // TODO: Tune PIDs so this can be smaller
             0.2,
@@ -225,13 +226,13 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-//        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
+        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 //        armSystem.brakeSolenoid.set(true)
 
-        autoCommand = TestingAuto(auto, gyro)
-        autoCommand.schedule()
+//        autoCommand = TestingAuto(auto, gyro)
+//        autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
-//        autoPathManager.paths["TestPath"]!!.schedule()
+        autoPathManager.paths["ComplexPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */

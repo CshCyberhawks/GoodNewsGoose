@@ -28,11 +28,11 @@ class AutoPath(
     init {
         if (DriverStation.getAlliance() == Alliance.Blue) {
             this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
-                FieldPosition(it.point.y, -it.point.x, it.point.angle)
+                FieldPosition(-it.point.y, it.point.x, AngleCalculations.wrapAroundAngles(it.point.angle))
             }
         } else {
             this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
-                FieldPosition(it.point.y, it.point.x, it.point.angle)
+                FieldPosition(it.point.y, it.point.x, AngleCalculations.wrapAroundAngles(it.point.angle))
             }
         }
 
