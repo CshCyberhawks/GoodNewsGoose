@@ -125,7 +125,7 @@ class Robot : TimedRobot() {
         )
 
     private val swo =
-        SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), limelightFront, debugLogging = true)
+        SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), arrayOf(limelightFront), debugLogging = true)
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
     private val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
@@ -231,7 +231,7 @@ class Robot : TimedRobot() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 //        armSystem.brakeSolenoid.set(true)
 
-       autoCommand = TestingAuto(auto, gyro)
+       autoCommand = TestingAuto(auto, gyro, limelightFront)
        autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
         // autoPathManager.paths["ComplexPath"]!!.schedule()
