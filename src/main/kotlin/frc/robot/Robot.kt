@@ -163,7 +163,7 @@ class Robot : TimedRobot() {
 
 //    val armSystem = ArmSubsystem(driverTab)
 
-    var autoCommand = TestingAuto(auto, gyro)
+    var autoCommand = TestingAuto(auto, gyro, limelightFront)
     private val autoPathManager = AutoPathManager(auto, gyro)
 
     val fieldShuffleboard: ComplexWidget = driverTab.add("Field", swo.field2d)
@@ -231,10 +231,10 @@ class Robot : TimedRobot() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 //        armSystem.brakeSolenoid.set(true)
 
-//        autoCommand = TestingAuto(auto, gyro)
-//        autoCommand.schedule()
+       autoCommand = TestingAuto(auto, gyro)
+       autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
-        autoPathManager.paths["ComplexPath"]!!.schedule()
+        // autoPathManager.paths["ComplexPath"]!!.schedule()
     }
 
     /** This function is called periodically during autonomous. */
