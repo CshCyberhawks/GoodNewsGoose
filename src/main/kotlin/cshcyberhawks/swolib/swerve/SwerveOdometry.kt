@@ -2,13 +2,11 @@ package cshcyberhawks.swolib.swerve
 
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.limelight.Limelight
-import cshcyberhawks.swolib.math.MiscCalculations
-import cshcyberhawks.swolib.math.Polar
-import cshcyberhawks.swolib.math.Vector2
-import cshcyberhawks.swolib.math.Vector3
+import cshcyberhawks.swolib.math.*
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
@@ -20,14 +18,13 @@ class SwerveOdometry(
     private var gyro: GenericGyro,
     private val swoToMeters: Double,
     startingPosition: Vector3 = Vector3(0.0, 0.0, 0.0),
-    private val limelight: Limelight? = null,
+    private val limelightList: Array<Limelight> = arrayOf(),
     private val debugLogging: Boolean = false
 ) {
     var fieldPosition = Vector3() + startingPosition
     private var lastTime = MiscCalculations.getCurrentTime()
 
     val field2d = Field2d()
-
 
     private val odometryShuffleTab: ShuffleboardTab = Shuffleboard.getTab("Odometry")
     private val xPosition: GenericEntry = odometryShuffleTab.add("X Position", 0.0).withPosition(0, 0).withSize(2, 1).entry
@@ -60,12 +57,30 @@ class SwerveOdometry(
     fun updatePosition() {
         fieldPosition += getVelocity() * (MiscCalculations.getCurrentTime() - lastTime)
 
-//        if (limelight != null) {
-//            val limelightPosition = limelight.getBotPose()
-//            if (limelightPosition != null) {
-//                fieldPosition = (limelightPosition + startingPosition)
-//            }
-//        }
+        for (limelight in limelightList) {
+            val limelightPosition = limelight.getBotPosition()
+            if (!limelightPosition.isEmpty) {
+                val position = limelightPosition.get()
+                val vectorPosition = if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+                    Vector3(position.y, -position.x, position.z)
+                } else {
+                    Vector3(position.y - 16.54, position.x, position.z)
+                }
+                fieldPosition = vectorPosition
+            }
+
+            val limelightRotation = limelight.getBotYaw()
+            if (!limelightRotation.isEmpty) {
+                val rotation = AngleCalculations.wrapAroundAngles(if (DriverStation.getAlliance() == Alliance.Red) {
+                    limelightRotation.get() + 180
+                } else {
+                    limelightRotation.get()
+                })
+
+                gyro.setYawOffset(rotation)
+            }
+        }
+
 
         if (debugLogging) {
             xPosition.setDouble(fieldPosition.x)
