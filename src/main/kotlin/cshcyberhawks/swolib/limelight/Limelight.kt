@@ -23,7 +23,8 @@ class Limelight(
     pipeline: Int = 0,
     streamMode: StreamMode = StreamMode.Standard,
     snapshotMode: SnapshotMode = SnapshotMode.Reset,
-    crop: Array<Number> = arrayOf(0, 0, 0, 0)
+    crop: Array<Number> = arrayOf(0, 0, 0, 0),
+    private val fiducialPipline: Int = 0
 ) {
     private val limelight: NetworkTable
     private val tab: ShuffleboardTab
@@ -101,7 +102,7 @@ class Limelight(
 
     fun getVerticalLength(): Double = limelight.getEntry("tvert").getDouble(0.0)
 
-    fun getCurrentPipeline(): Double = limelight.getEntry("getpipe").getDouble(0.0)
+    fun getCurrentPipeline(): Int = limelight.getEntry("getpipe").getDouble(0.0).toInt()
 
     private fun getTarget3D(): Array<Number> =
         limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
@@ -138,13 +139,22 @@ class Limelight(
         }
         return arrayOf(pose.x, pose.y, pose.rotation.z)
     }
-    fun getBotPose(): Vector3 {
+    fun getBotPosition(): Optional<Vector3> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        if (data.isEmpty()) {
-            return Vector3(0.0, 0.0, 0.0)
+        if (data.isEmpty() || getCurrentPipeline() != fiducialPipline) {
+            return Optional.empty()
         }
-        return Vector3(data[0], data[1], data[2])
+        return Optional.of(Vector3(data[0], data[1], data[2]))
     }
+
+    fun getBotYaw(): Optional<Double> {
+        val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
+        if (data.isEmpty() || getCurrentPipeline() != fiducialPipline) {
+            return Optional.empty()
+        }
+        return Optional.of(data[5])
+    }
+
     private fun getBotDebug(): Array<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
         if (data.isEmpty()) {
