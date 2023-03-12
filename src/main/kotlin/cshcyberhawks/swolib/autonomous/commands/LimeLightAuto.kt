@@ -5,18 +5,35 @@ import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.FieldPosition
 import edu.wpi.first.wpilibj2.command.CommandBase
 
-class LimeLightAuto(val swerveAuto: SwerveAuto, val limelight: Limelight, private val targetHeight: Double) : CommandBase() {
+class LimeLightAuto(
+        val swerveAuto: SwerveAuto,
+        val limelight: Limelight,
+        private val targetHeight: Double,
+        private val pip: Int = 0
+) : CommandBase() {
     init {
         addRequirements(swerveAuto.swerveSystem)
     }
 
     override fun initialize() {
+        if (limelight.getCurrentPipeline() == pip) {
+            setPosition()
+        }
+    }
+
+    fun setPosition() {
         swerveAuto.desiredPosition =
-            FieldPosition(limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro), 0.0)
+                FieldPosition(
+                        limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro),
+                        0.0
+                )
         swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
     }
 
     override fun execute() {
+        if (limelight.getCurrentPipeline() == pip) {
+            setPosition()
+        }
         swerveAuto.move()
     }
 

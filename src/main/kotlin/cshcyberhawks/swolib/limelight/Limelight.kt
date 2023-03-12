@@ -15,34 +15,34 @@ import java.util.*
 import kotlin.math.tan
 
 class Limelight(
-    name: String,
-    private val cameraHeight: Double,
-    private val cameraAngle: Double,
-    ledMode: LedMode = LedMode.Pipeline,
-    cameraMode: CameraMode = CameraMode.VisionProcessor,
-    pipeline: Int = 0,
-    streamMode: StreamMode = StreamMode.Standard,
-    snapshotMode: SnapshotMode = SnapshotMode.Reset,
-    crop: Array<Number> = arrayOf(0, 0, 0, 0)
+        name: String,
+        private val cameraHeight: Double,
+        private val cameraAngle: Double,
+        ledMode: LedMode = LedMode.Pipeline,
+        cameraMode: CameraMode = CameraMode.VisionProcessor,
+        pipeline: Int = 0,
+        streamMode: StreamMode = StreamMode.Standard,
+        snapshotMode: SnapshotMode = SnapshotMode.Reset,
+        crop: Array<Number> = arrayOf(0, 0, 0, 0)
 ) {
     private val limelight: NetworkTable
     private val tab: ShuffleboardTab
     private val camName: String = name
     val feed: HttpCamera
 
-//    companion object {
-//        public var viewTab: ShuffleboardTab = Shuffleboard.getTab("Limelight View")
-//        private var currentFeed: HttpCamera? = null
-//        private var server = CameraServer.addSwitchedCamera("LimeLight Feed")
-//        public var widget = viewTab.add("LLFeed", server.getSource())
-//
-//        fun openCamera(ll: Limelight, sizeX: Int = 3, sizeY: Int = 3) {
-//            val feed = ll.feed
-//            if (feed == currentFeed) return
-//            server.setSource(feed)
-//            currentFeed = feed
-//        }
-//    }
+    //    companion object {
+    //        public var viewTab: ShuffleboardTab = Shuffleboard.getTab("Limelight View")
+    //        private var currentFeed: HttpCamera? = null
+    //        private var server = CameraServer.addSwitchedCamera("LimeLight Feed")
+    //        public var widget = viewTab.add("LLFeed", server.getSource())
+    //
+    //        fun openCamera(ll: Limelight, sizeX: Int = 3, sizeY: Int = 3) {
+    //            val feed = ll.feed
+    //            if (feed == currentFeed) return
+    //            server.setSource(feed)
+    //            currentFeed = feed
+    //        }
+    //    }
 
     init {
         if (pipeline < 0 || pipeline > 9) error("Invalid pipeline value")
@@ -101,10 +101,10 @@ class Limelight(
 
     fun getVerticalLength(): Double = limelight.getEntry("tvert").getDouble(0.0)
 
-    fun getCurrentPipeline(): Double = limelight.getEntry("getpipe").getDouble(0.0)
+    fun getCurrentPipeline(): Int = limelight.getEntry("getpipe").getDouble(0.0).toInt()
 
     private fun getTarget3D(): Array<Number> =
-        limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
+            limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
 
     private fun getTargetID(): Double = limelight.getEntry("tid").getDouble(0.0)
 
@@ -155,21 +155,21 @@ class Limelight(
     fun getDetectorClass(): Double = limelight.getEntry("tclass").getDouble(0.0)
 
     fun getColorUnderCrosshair(): Array<Number> =
-        limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
+            limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
 
     /** @return Distance from target (meters). */
     private fun findTargetDistance(ballHeight: Double): Double =
-        if (hasTarget())
-            (cameraHeight - ballHeight) *
-                    tan(Math.toRadians(getVerticalOffset() + cameraAngle))
-        else -1.0
+            if (hasTarget())
+                    (cameraHeight - ballHeight) *
+                            tan(Math.toRadians(getVerticalOffset() + cameraAngle))
+            else -1.0
 
     fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
 
     fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Vector2 {
         val distance: Double = findTargetDistance(ballHeight) // .639
         val angle: Double =
-            AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
+                AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
 
         var ret = Vector2.fromPolar(Polar(angle, distance))
         ret.y = -ret.y
