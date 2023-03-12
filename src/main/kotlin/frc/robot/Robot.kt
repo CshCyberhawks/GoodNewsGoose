@@ -231,7 +231,7 @@ class Robot : TimedRobot() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
 //        armSystem.brakeSolenoid.set(true)
 
-       autoCommand = TestingAuto(auto, gyro)
+       autoCommand = TestingAuto(auto, gyro, limelightFront)
        autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
         // autoPathManager.paths["ComplexPath"]!!.schedule()

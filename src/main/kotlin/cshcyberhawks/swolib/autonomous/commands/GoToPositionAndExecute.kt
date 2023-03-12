@@ -5,6 +5,7 @@ import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.math.Vector2
 import edu.wpi.first.wpilibj2.command.CommandBase
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 
 class GoToPositionAndExecute(
     val swerveAuto: SwerveAuto,
@@ -35,6 +36,7 @@ class GoToPositionAndExecute(
     }
 
     override fun isFinished(): Boolean {
+        SmartDashboard.putBoolean("ExecuteCommand if finished", command.isFinished())
         return when (finishCondition) {
             FinishCondition.POSITION -> swerveAuto.isFinishedMoving()
             FinishCondition.COMMAND -> command.isFinished
