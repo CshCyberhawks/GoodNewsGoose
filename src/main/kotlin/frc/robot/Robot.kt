@@ -47,7 +47,7 @@ class Robot : TimedRobot() {
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
     private val swerveConfiguration: SwerveModuleConfiguration =
-            SwerveModuleConfiguration(4.0, 0.0505, 7.0)
+        SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
     private val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
     private val turnPIDBackLeft = PIDController(.012, 0.0, 0.0002)
@@ -62,80 +62,81 @@ class Robot : TimedRobot() {
     private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
     private val limelightBack = Limelight("limelight-back", 0.12, 0.0, fiducialPipeline = 0)
-    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
+
+    //    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
     private var backLeft: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.backLeftTurnMotor,
-                            MotorConstants.backLeftEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]
-                    ),
-                    drivePIDBackLeft,
-                    turnPIDBackLeft,
-                    swerveConfiguration
-            )
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.backLeftTurnMotor,
+                MotorConstants.backLeftEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]
+            ),
+            drivePIDBackLeft,
+            turnPIDBackLeft,
+            swerveConfiguration
+        )
     private var backRight: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.backRightTurnMotor,
-                            MotorConstants.backRightEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]
-                    ),
-                    drivePIDBackRight,
-                    turnPIDBackRight,
-                    swerveConfiguration
-            )
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.backRightTurnMotor,
+                MotorConstants.backRightEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]
+            ),
+            drivePIDBackRight,
+            turnPIDBackRight,
+            swerveConfiguration
+        )
     private var frontLeft: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.frontLeftTurnMotor,
-                            MotorConstants.frontLeftEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]
-                    ),
-                    drivePIDFrontLeft,
-                    turnPIDFrontLeft,
-                    swerveConfiguration
-            )
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.frontLeftTurnMotor,
+                MotorConstants.frontLeftEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]
+            ),
+            drivePIDFrontLeft,
+            turnPIDFrontLeft,
+            swerveConfiguration
+        )
     private var frontRight: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.frontRightTurnMotor,
-                            MotorConstants.frontRightEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]
-                    ),
-                    drivePIDFrontRight,
-                    turnPIDFrontRight,
-                    swerveConfiguration
-            )
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.frontRightTurnMotor,
+                MotorConstants.frontRightEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]
+            ),
+            drivePIDFrontRight,
+            turnPIDFrontRight,
+            swerveConfiguration
+        )
 
     val gyro = Pigeon2Gyro(30)
 
     private val swerveDriveTrain =
-            SwerveDriveTrain(
-                    FourWheelSwerveConfiguration(
-                            frontRight,
-                            frontLeft,
-                            backRight,
-                            backLeft,
-                            angleConfiguration =
-                                    FourWheelAngleConfiguration(135.0, -135.0, 45.0, -45.0)
-                    ),
-                    gyro
-            )
+        SwerveDriveTrain(
+            FourWheelSwerveConfiguration(
+                frontRight,
+                frontLeft,
+                backRight,
+                backLeft,
+                angleConfiguration =
+                FourWheelAngleConfiguration(135.0, -135.0, 45.0, -45.0)
+            ),
+            gyro
+        )
 
     private val swo =
-            SwerveOdometry(
-                    swerveDriveTrain,
-                    gyro,
-                    1.0,
-                    Vector3(0.0, 0.0, 0.0),
-                    arrayOf(limelightBack),
-                    debugLogging = true
-            )
+        SwerveOdometry(
+            swerveDriveTrain,
+            gyro,
+            1.0,
+            Vector3(0.0, 0.0, 0.0),
+            arrayOf(limelightBack),
+            debugLogging = true
+        )
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
     private val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
@@ -146,29 +147,28 @@ class Robot : TimedRobot() {
     private val twistPID = PIDController(0.1, 0.0, 0.00)
 
     private val auto =
-            SwerveAuto(
-                    autoPIDX,
-                    autoPIDY,
-                    twistPID,
-                    twistTrapConstraints,
-                    // TrapezoidProfile.Constraints(4.0, 1.5),
-                    10.0, // TODO: Tune PIDs so this can be smaller
-                    0.2,
-                    swo,
-                    swerveDriveTrain,
-                    gyro,
-                    true
-            )
+        SwerveAuto(
+            autoPIDX,
+            autoPIDY,
+            twistPID,
+            twistTrapConstraints,
+            // TrapezoidProfile.Constraints(4.0, 1.5),
+            10.0, // TODO: Tune PIDs so this can be smaller
+            0.2,
+            swo,
+            swerveDriveTrain,
+            gyro,
+            true
+        )
 
     private var teleopCommand =
-            TeleopSwerveCommand(
-                    swerveDriveTrain,
-                    auto,
-                    gyro,
-                    driverTab,
-                    limelightFront,
-                    limelightBack
-            )
+        TeleopSwerveCommand(
+            swerveDriveTrain,
+            auto,
+            gyro,
+            driverTab,
+            arrayOf(limelightBack)
+        )
 
     //    val armSystem = ArmSubsystem(driverTab)
 
@@ -188,13 +188,12 @@ class Robot : TimedRobot() {
         // autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
 
-        for (i in 5800..5808) {
-            PortForwarder.add(i, "limelight.local", i)
-        }
+//        for (i in 5800..5808) {
+//            PortForwarder.add(i, "limelight.local", i)
+//        }
 
-
-        limelightBack.setPipeline(0)
-        limelightFront.setPipeline(0)
+        limelightBack.pipeline = 0
+//        limelightFront.pipeline = 0
 
         driverTab.add("LL", limelightBack.feed)
     }
@@ -235,7 +234,7 @@ class Robot : TimedRobot() {
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
 
-        autoCommand = TestingAuto(auto, gyro, limelightFront)
+        autoCommand = TestingAuto(auto, gyro, limelightBack)
         autoCommand.schedule()
         // autoPathManager.paths["Path"]!!.schedule()
         // autoPathManager.paths["ComplexPath"]!!.schedule()
@@ -276,12 +275,12 @@ class Robot : TimedRobot() {
     /** This function is called periodically during test mode. */
     override fun testPeriodic() {
         val encoderValues =
-                arrayOf(
-                        backLeft.getRawEncoder(),
-                        frontLeft.getRawEncoder(),
-                        frontRight.getRawEncoder(),
-                        backRight.getRawEncoder()
-                )
+            arrayOf(
+                backLeft.getRawEncoder(),
+                frontLeft.getRawEncoder(),
+                frontRight.getRawEncoder(),
+                backRight.getRawEncoder()
+            )
 
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
         //        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(),

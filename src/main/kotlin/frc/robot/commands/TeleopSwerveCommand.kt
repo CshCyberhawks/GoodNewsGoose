@@ -18,8 +18,7 @@ class TeleopSwerveCommand(
     val swerveAuto: SwerveAuto,
     var gyro: GenericGyro,
     driverTab: ShuffleboardTab,
-    private val limelight1: Limelight,
-    private val limelight2: Limelight
+    private val limelightArray: Array<Limelight>
 ) : CommandBase() {
 
     private var desiredPip = 0
@@ -27,7 +26,8 @@ class TeleopSwerveCommand(
     private var throttle = 0.6
     private var prevJoyMoveyThrottle = 0.0
 
-    private var currentLimelight = limelight1
+    private var currentLimelight = limelightArray[0]
+    private var currentLimelightIndex = 0
 
     private var currentCommand: CommandBase? = null
 
@@ -91,11 +91,12 @@ class TeleopSwerveCommand(
 
         MathUtil.clamp(throttle, 0.0, 1.0)
 
-        var driveVec = Vector2(IO.moveX * throttle, -IO.moveY * throttle)
+        val driveVec = Vector2(IO.moveX * throttle, -IO.moveY * throttle)
         var driveTwist = IO.moveTwist * throttle
 
         if (IO.toggleLimelight) {
-            currentLimelight = if (currentLimelight == limelight1) limelight2 else limelight1
+            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
+            currentLimelight = limelightArray[currentLimelightIndex]
         }
 
 //        Limelight.openCamera(currentLimelight)
@@ -103,7 +104,7 @@ class TeleopSwerveCommand(
         if (IO.limelightAngleLock) {
             driveTwist =
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
-                        32
+                    32
         } else if (IO.limelightTranslate) {
             currentCommand = TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPip)
             return

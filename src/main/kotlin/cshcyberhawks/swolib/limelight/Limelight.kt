@@ -16,21 +16,28 @@ import java.util.*
 import kotlin.math.tan
 
 class Limelight(
-        name: String,
-        private val cameraHeight: Double,
-        private val cameraAngle: Double,
-        ledMode: LedMode = LedMode.Pipeline,
-        cameraMode: CameraMode = CameraMode.VisionProcessor,
-        pipeline: Int = 0,
-        streamMode: StreamMode = StreamMode.Standard,
-        snapshotMode: SnapshotMode = SnapshotMode.Reset,
-        crop: Array<Number> = arrayOf(0, 0, 0, 0),
-        private val fiducialPipeline: Int = 0
+    name: String,
+    private val cameraHeight: Double,
+    private val cameraAngle: Double,
+    ledMode: LedMode = LedMode.Pipeline,
+    cameraMode: CameraMode = CameraMode.VisionProcessor,
+    pipeline: Int = 0,
+    streamMode: StreamMode = StreamMode.Standard,
+    snapshotMode: SnapshotMode = SnapshotMode.Reset,
+    crop: Array<Number> = arrayOf(0, 0, 0, 0),
+    private val fiducialPipeline: Int = 0
 ) {
     private val limelight: NetworkTable
     private val tab: ShuffleboardTab
     private val camName: String = name
     val feed: HttpCamera
+
+    var pipeline: Int
+        get() = limelight.getEntry("getpipe").getDouble(0.0).toInt()
+        set(value) {
+            if (value < 0 || value > 9) error("Invalid pipeline value")
+            else limelight.getEntry("pipeline").setNumber(value)
+        }
 
     //    companion object {
     //        public var viewTab: ShuffleboardTab = Shuffleboard.getTab("Limelight View")
@@ -64,21 +71,22 @@ class Limelight(
         tab.add("$name Vertical Offset", this.getVerticalOffset())
         tab.add("$name Area", this.getArea())
         tab.add("$name Rotation", this.getRotation())
-        tab.add("$name Current Pipeline", this.getCurrentPipeline())
+        tab.add("$name Current Pipeline", pipeline)
         tab.add("$name Target 3D", this.getTarget3D())
         tab.add("$name Target ID", this.getTargetID())
         tab.add("$name Cam Pose", this.getCamDebug())
         tab.add("$name Bot Pose", this.getBotDebug())
 
-        if (name == "limelight-front") {
-            feed = HttpCamera("Limelight Feed-Front", "http://10.28.75.11:5800")
+        feed = if (name == "limelight-front") {
+            HttpCamera("Limelight Feed-Front", "http://10.28.75.11:5800")
+        } else /* (name == "limelight-back") */ {
+            HttpCamera("Limelight Feed-Back", "http://10.28.75.12:5800")
         }
-        else /* (name == "limelight-back") */ {
-            feed = HttpCamera("Limelight Feed-Back", "http://10.28.75.12:5800")
-        } 
-        tab.add("LLFeed $name", feed).withPosition(0, 0).withSize(8, 4)
-        PortForwarder.add(5800, "limelight.local", 5800)
+
+//        tab.add("LLFeed $name", feed).withPosition(0, 0).withSize(8, 4)
+//        PortForwarder.add(5800, "limelight.local", 5800)
     }
+
     /** @return Whether the limelight has any valid targets. */
     private fun hasTarget(): Boolean = limelight.getEntry("tv").getDouble(0.0) == 1.0
 
@@ -103,10 +111,8 @@ class Limelight(
 
     fun getVerticalLength(): Double = limelight.getEntry("tvert").getDouble(0.0)
 
-    fun getCurrentPipeline(): Int = limelight.getEntry("getpipe").getDouble(0.0).toInt()
-
-    private fun getTarget3D(): Array<Number> =
-            limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
+    fun getTarget3D(): Array<Number> =
+        limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
 
     private fun getTargetID(): Double = limelight.getEntry("tid").getDouble(0.0)
 
@@ -127,6 +133,7 @@ class Limelight(
             return Optional.empty()
         }
     }
+
     private fun getCamDebug(): Array<Double> {
         val data = limelight.getEntry("campose").getDoubleArray(arrayOf())
         var pose: Pose3d? = null
@@ -140,10 +147,11 @@ class Limelight(
         }
         return arrayOf(pose.x, pose.y, pose.rotation.z)
     }
+
     fun getBotPosition(): Optional<Vector3> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
         println("data: " + data)
-        if (data.isEmpty() || getCurrentPipeline() != fiducialPipeline) {
+        if (data.isEmpty() || pipeline != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(Vector3(data[0], data[1], data[2]))
@@ -151,7 +159,7 @@ class Limelight(
 
     fun getBotYaw(): Optional<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        if (data.isEmpty() || getCurrentPipeline() != fiducialPipeline) {
+        if (data.isEmpty() || pipeline != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(data[5])
@@ -164,33 +172,30 @@ class Limelight(
         }
         return arrayOf(data[0], data[1], data[2])
     }
+
     fun getDetectorClass(): Double = limelight.getEntry("tclass").getDouble(0.0)
 
     fun getColorUnderCrosshair(): Array<Number> =
-            limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
+        limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
 
     /** @return Distance from target (meters). */
     private fun findTargetDistance(ballHeight: Double): Double =
-            if (hasTarget())
-                    (cameraHeight - ballHeight) *
-                            tan(Math.toRadians(getVerticalOffset() + cameraAngle))
-            else -1.0
+        if (hasTarget())
+            (cameraHeight - ballHeight) *
+                tan(Math.toRadians(getVerticalOffset() + cameraAngle))
+        else -1.0
 
     fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
 
     fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Vector2 {
         val distance: Double = findTargetDistance(ballHeight) // .639
         val angle: Double =
-                AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
+            AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
 
         var ret = Vector2.fromPolar(Polar(angle, distance))
         ret.y = -ret.y
         ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
 
         return ret
-    }
-    fun setPipeline(pipeline: Int) {
-        if (pipeline < 0 || pipeline > 9) error("Invalid pipeline value")
-        else limelight.getEntry("pipeline").setNumber(pipeline)
     }
 }

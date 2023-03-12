@@ -27,7 +27,7 @@ class AutoLimelightSingleAxis(
 
     private fun setPos() {
         if (didSetDesired) return
-        if (limelight.getCurrentPipeline().toInt() != pip) return
+        if (limelight.pipeline != pip) return
         if (axis == Axis.X) {
             swerveAuto.desiredPosition =
                 FieldPosition(
