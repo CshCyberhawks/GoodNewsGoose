@@ -15,16 +15,16 @@ import java.util.*
 import kotlin.math.tan
 
 class Limelight(
-    name: String,
-    private val cameraHeight: Double,
-    private val cameraAngle: Double,
-    ledMode: LedMode = LedMode.Pipeline,
-    cameraMode: CameraMode = CameraMode.VisionProcessor,
-    pipeline: Int = 0,
-    streamMode: StreamMode = StreamMode.Standard,
-    snapshotMode: SnapshotMode = SnapshotMode.Reset,
-    crop: Array<Number> = arrayOf(0, 0, 0, 0),
-    private val fiducialPipline: Int = 0
+        name: String,
+        private val cameraHeight: Double,
+        private val cameraAngle: Double,
+        ledMode: LedMode = LedMode.Pipeline,
+        cameraMode: CameraMode = CameraMode.VisionProcessor,
+        pipeline: Int = 0,
+        streamMode: StreamMode = StreamMode.Standard,
+        snapshotMode: SnapshotMode = SnapshotMode.Reset,
+        crop: Array<Number> = arrayOf(0, 0, 0, 0),
+        private val fiducialPipline: Int = 0
 ) {
     private val limelight: NetworkTable
     private val tab: ShuffleboardTab
@@ -73,8 +73,16 @@ class Limelight(
         if (camName == "limelight-front") {
             ip = "http://10.28.75.11:5800"
         } else /* (name == "limelight-back") */ {
-            ip = "http://10.28.75.13:5800"
+            ip = "http://10.28.75.12:5800"
         }
+
+        // if (camName == "limelight-front") {
+        //     ip = "http://172.172.0.1:5800"
+        // } else /* (name == "limelight-back") */ {
+        //     ip = "http://172.172.0.1:5800"
+        // }
+
+        println("ip: " + ip)
 
         feed = HttpCamera(camName, ip)
     }

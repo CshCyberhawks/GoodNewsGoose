@@ -22,7 +22,7 @@ class TestingAuto(val swerveAuto: SwerveAuto, val gyro: GenericGyro, val limelig
                 GoToPosition(swerveAuto, FieldPosition(0.0, 2.0, 0.0)),
                 GoToPositionAndExecute(swerveAuto, FieldPosition(0.0, 0.0, 0.0), TimedFinish(5.0)),
                 GoToPosition(swerveAuto, FieldPosition(0.0, 2.0, 0.0)),
-                // LimeLightAuto(swerveAuto, limelight, .3)
+                LimeLightAuto(swerveAuto, limelight, .3)
                 // GoToPosition(swerveAuto, FieldPosition(0.0, 0.0, 0.0)),
                 // GoToPosition(swerveAuto, FieldPosition(0.0, 0.0, 0.0)),
                 // GoToPosition(swerveAuto, FieldPosition(-1.0, 2.0, 90.0)),
