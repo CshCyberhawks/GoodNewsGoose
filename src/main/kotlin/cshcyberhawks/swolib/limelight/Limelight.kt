@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.net.PortForwarder
 import java.util.*
 import kotlin.math.tan
 
@@ -24,7 +25,7 @@ class Limelight(
         streamMode: StreamMode = StreamMode.Standard,
         snapshotMode: SnapshotMode = SnapshotMode.Reset,
         crop: Array<Number> = arrayOf(0, 0, 0, 0),
-        private val fiducialPipline: Int = 0
+        private val fiducialPipeline: Int = 0
 ) {
     private val limelight: NetworkTable
     private val tab: ShuffleboardTab
@@ -69,22 +70,14 @@ class Limelight(
         tab.add("$name Cam Pose", this.getCamDebug())
         tab.add("$name Bot Pose", this.getBotDebug())
 
-        val ip: String
-        if (camName == "limelight-front") {
-            ip = "http://10.28.75.11:5800"
-        } else /* (name == "limelight-back") */ {
-            ip = "http://10.28.75.12:5800"
+        if (name == "limelight-front") {
+            feed = HttpCamera("Limelight Feed-Front", "http://10.28.75.11:5800")
         }
-
-        // if (camName == "limelight-front") {
-        //     ip = "http://172.172.0.1:5800"
-        // } else /* (name == "limelight-back") */ {
-        //     ip = "http://172.172.0.1:5800"
-        // }
-
-        println("ip: " + ip)
-
-        feed = HttpCamera(camName, ip)
+        else /* (name == "limelight-back") */ {
+            feed = HttpCamera("Limelight Feed-Back", "http://10.28.75.12:5800")
+        } 
+        tab.add("LLFeed $name", feed).withPosition(0, 0).withSize(8, 4)
+        PortForwarder.add(5800, "limelight.local", 5800)
     }
     /** @return Whether the limelight has any valid targets. */
     private fun hasTarget(): Boolean = limelight.getEntry("tv").getDouble(0.0) == 1.0
@@ -149,7 +142,8 @@ class Limelight(
     }
     fun getBotPosition(): Optional<Vector3> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        if (data.isEmpty() || getCurrentPipeline() != fiducialPipline) {
+        println("data: " + data)
+        if (data.isEmpty() || getCurrentPipeline() != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(Vector3(data[0], data[1], data[2]))
@@ -157,7 +151,7 @@ class Limelight(
 
     fun getBotYaw(): Optional<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        if (data.isEmpty() || getCurrentPipeline() != fiducialPipline) {
+        if (data.isEmpty() || getCurrentPipeline() != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(data[5])

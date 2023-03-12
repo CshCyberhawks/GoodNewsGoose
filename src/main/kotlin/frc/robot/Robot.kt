@@ -13,10 +13,11 @@ import cshcyberhawks.swolib.swerve.SwerveWheel
 import cshcyberhawks.swolib.swerve.configurations.FourWheelAngleConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
+import edu.wpi.first.cameraserver.CameraServer
+import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
-import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
@@ -24,10 +25,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.net.PortForwarder
 import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
-import edu.wpi.first.cameraserver.CameraServer
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -60,8 +61,8 @@ class Robot : TimedRobot() {
     private val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
-    private val limelightBack = Limelight("limelight-back", 0.12, 0.0)
-    private val limelightFront = Limelight("limelight-front", 0.12, 0.0)
+    private val limelightBack = Limelight("limelight-back", 0.12, 0.0, fiducialPipeline = 0)
+    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
     private var backLeft: SwerveWheel =
             SwerveWheel(
                     TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -174,6 +175,8 @@ class Robot : TimedRobot() {
     var autoCommand = TestingAuto(auto, gyro, limelightBack)
     private val autoPathManager = AutoPathManager(auto, gyro)
 
+    lateinit var llCam: HttpCamera
+
     val fieldShuffleboard: ComplexWidget = driverTab.add("Field", swo.field2d)
 
     /**
@@ -185,21 +188,15 @@ class Robot : TimedRobot() {
         // autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
 
-        //        PortForwarder.add(5800, "limelight.local", 5800)
         for (i in 5800..5808) {
             PortForwarder.add(i, "limelight.local", i)
         }
 
-        // val sink = CameraServer.getVideo()
-        // val source = sink.source
-
-        // CameraServer.addCamera(limelightBack.feed)
-        driverTab.add("BackLL", limelightBack.feed)
-        // driverTab.add("Camera", source)
-        // driverTab.add("FrontLL", limelightFront.feed)
 
         limelightBack.setPipeline(0)
         limelightFront.setPipeline(0)
+
+        driverTab.add("LL", limelightBack.feed)
     }
 
     /**
