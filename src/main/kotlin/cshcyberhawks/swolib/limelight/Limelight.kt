@@ -150,8 +150,7 @@ class Limelight(
 
     fun getBotPosition(): Optional<Vector3> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        println("data: " + data)
-        if (data.isEmpty() || pipeline != fiducialPipeline) {
+        if (!hasTarget() || data[0] == 0.000 || pipeline != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(Vector3(data[0], data[1], data[2]))
@@ -159,7 +158,7 @@ class Limelight(
 
     fun getBotYaw(): Optional<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        if (data.isEmpty() || pipeline != fiducialPipeline) {
+        if (!hasTarget() || data[0] == 0.000 || pipeline != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(data[5])

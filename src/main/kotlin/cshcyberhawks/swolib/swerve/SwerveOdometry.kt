@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.robot.util.IO
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -30,6 +32,8 @@ class SwerveOdometry(
     private val xPosition: GenericEntry = odometryShuffleTab.add("X Position", 0.0).withPosition(0, 0).withSize(2, 1).entry
     private val yPosition: GenericEntry = odometryShuffleTab.add("Y Position", 0.0).withPosition(2, 0).withSize(2, 1).entry
 
+    private var lastYawLLTime = 0.0
+
     fun getVelocity(): Vector3 {
         var total = Vector2()
 
@@ -49,7 +53,7 @@ class SwerveOdometry(
         val y = total.y * cos(Math.toRadians(gyro.getRoll())) / swoToMeters
         val z =
             (total.x * sin(Math.toRadians(gyro.getPitch())) +
-                    total.y * sin(Math.toRadians(gyro.getRoll()))) / swoToMeters
+                total.y * sin(Math.toRadians(gyro.getRoll()))) / swoToMeters
 //        return Vector3(x, y, z)
         return Vector3(total.x, total.y, 0.0)
     }
@@ -62,23 +66,42 @@ class SwerveOdometry(
             if (!limelightPosition.isEmpty) {
                 val position = limelightPosition.get()
                 val vectorPosition = if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
-                    Vector3(position.y, -position.x, position.z)
+                    Vector3(-position.x, -position.y, position.z)
                 } else {
-                    Vector3(position.y - 16.54, position.x, position.z)
+                    Vector3(-(position.x) - 16.54, -position.y, position.z)
                 }
                 fieldPosition = vectorPosition
             }
 
-            val limelightRotation = limelight.getBotYaw()
-            if (!limelightRotation.isEmpty) {
-                val rotation = AngleCalculations.wrapAroundAngles(if (DriverStation.getAlliance() == Alliance.Red) {
-                    limelightRotation.get() + 180
-                } else {
-                    limelightRotation.get()
-                })
+            if (IO.resetFieldLimelight) {
+                val limelightRotation = limelight.getBotYaw()
+                if (!limelightRotation.isEmpty && MiscCalculations.getCurrentTime() - lastYawLLTime > 0.3) {
+                    SmartDashboard.putNumber("ll rotation", limelightRotation.get())
+                    val rotation = AngleCalculations.wrapAroundAngles(if (DriverStation.getAlliance() == Alliance.Red) {
+                        limelightRotation.get()
+                    } else {
+                        limelightRotation.get() + 180
+                    })
 
-                gyro.setYawOffset(rotation)
+
+                    lastYawLLTime = MiscCalculations.getCurrentTime()
+                    gyro.setYawOffset(rotation)
+                }
             }
+//
+//            val limelightRotation = limelight.getBotYaw()
+//            if (!limelightRotation.isEmpty && MiscCalculations.getCurrentTime() - lastYawLLTime > 0.3) {
+//                SmartDashboard.putNumber("ll rotation", limelightRotation.get())
+//                val rotation = AngleCalculations.wrapAroundAngles(if (DriverStation.getAlliance() == Alliance.Red) {
+//                    limelightRotation.get()
+//                } else {
+//                    limelightRotation.get() + 180
+//                })
+//
+//
+//                lastYawLLTime = MiscCalculations.getCurrentTime()
+//                gyro.setYawOffset(rotation)
+//            }
         }
 
 
@@ -93,7 +116,7 @@ class SwerveOdometry(
 
     private fun updateField() {
         if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
-            field2d.setRobotPose(this.fieldPosition.y, -this.fieldPosition.x, gyro.getYawRotation2d())
+            field2d.setRobotPose(this.fieldPosition.x, this.fieldPosition.y, gyro.getYawRotation2d())
         } else {
             // Random constants are offsets for the field origin being bottom right in our code
             field2d.setRobotPose(16.54 - this.fieldPosition.y, this.fieldPosition.x, gyro.getYawRotation2d().plus(

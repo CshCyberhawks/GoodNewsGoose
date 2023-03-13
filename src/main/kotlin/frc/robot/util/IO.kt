@@ -29,15 +29,18 @@ object IO {
         get() = rightJoy.getRawButtonPressed(2)
 
     val moveX
-        get() = MiscCalculations.calculateDeadzone(rightJoy.x, .05)
+        get() = MiscCalculations.calculateDeadzone(rightJoy.x, .08)
 
     val moveY
-        get() = MiscCalculations.calculateDeadzone(rightJoy.y, .05)
+        get() = MiscCalculations.calculateDeadzone(rightJoy.y, .08)
 
     val moveTwist
         get() = if (hosas) {
-            MiscCalculations.calculateDeadzone(leftJoy.x, .05)
-        } else MiscCalculations.calculateDeadzone(rightJoy.twist, .05)
+            MiscCalculations.calculateDeadzone(leftJoy.x, .08)
+        } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
+
+    val resetFieldLimelight
+        get() = leftJoy.getRawButtonPressed(1)
 
 
     private var lastToggleTraversal = false
@@ -74,16 +77,17 @@ object IO {
 
     val limelightAngleLock: Boolean
         get() {
-            val current = leftJoy.getRawButton(4)
-            val toggled = current && !limelightAngleLockLast
-            limelightAngleLockLast = current
-            return toggled
+//            val current = leftJoy.getRawButton(4)
+//            val toggled = current && !limelightAngleLockLast
+//            limelightAngleLockLast = current
+//            return toggled
+            return rightJoy.getRawButton(4)
         }
 
     private var limelightTranslateLast = false
     val limelightTranslate: Boolean
         get() {
-            val current = leftJoy.getRawButton(5)
+            val current = rightJoy.getRawButton(5)
             val toggled = current && !limelightTranslateLast
             limelightTranslateLast = current
             return toggled
@@ -92,7 +96,7 @@ object IO {
     private var limelightSingleAxisXLast = false
     val limelightTranslateSingleAxisX: Boolean
         get() {
-            val current = leftJoy.getRawButton(6)
+            val current = rightJoy.getRawButton(6)
             val toggled = current && !limelightSingleAxisXLast
             limelightSingleAxisXLast = current
             return toggled
@@ -101,7 +105,7 @@ object IO {
     private var limelightSingleAxisYLast = false
     val limelightTranslateSingleAxisY: Boolean
         get() {
-            val current = leftJoy.getRawButton(7)
+            val current = rightJoy.getRawButton(7)
             val toggled = current && !limelightSingleAxisYLast
             limelightSingleAxisYLast = current
             return toggled

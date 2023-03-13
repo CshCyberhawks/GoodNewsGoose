@@ -21,7 +21,7 @@ class TeleopSwerveCommand(
     private val limelightArray: Array<Limelight>
 ) : CommandBase() {
 
-    private var desiredPip = 0
+    private var desiredPip = 2
 
     private var throttle = 0.6
     private var prevJoyMoveyThrottle = 0.0
@@ -32,6 +32,9 @@ class TeleopSwerveCommand(
     private var currentCommand: CommandBase? = null
 
     private val throttleShuffle: GenericEntry = driverTab.add("Throttle", 0.0).entry
+    private val pipShuffle: GenericEntry = driverTab.add("Desired PIP", 0).entry
+    private val currentLimelightShuffle: GenericEntry = driverTab.add("Current Limelight IDX", 0).entry
+
 
     init {
         addRequirements(swerveDriveTrain)
@@ -45,6 +48,9 @@ class TeleopSwerveCommand(
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
         throttleShuffle.setDouble(throttle)
+        pipShuffle.setInteger(desiredPip.toLong())
+        currentLimelightShuffle.setInteger(currentLimelightIndex.toLong())
+
 
         if (IO.killCommand) {
             currentCommand?.cancel()
@@ -52,18 +58,21 @@ class TeleopSwerveCommand(
         }
 
         if (currentCommand != null && currentCommand?.isFinished == false) {
+            if (currentCommand?.isScheduled != true) {
+                currentCommand?.schedule()
+            }
             return
         }
 
-        if (IO.pip0) {
-            desiredPip = 0
-        } else if (IO.pip1) {
-            desiredPip = 1
-        } else if (IO.pip2) {
-            desiredPip = 2
-        } else if (IO.pip3) {
-            desiredPip = 3
-        }
+//        if (IO.pip0) {
+//            desiredPip = 0
+//        } else if (IO.pip1) {
+//            desiredPip = 1
+//        } else if (IO.pip2) {
+//            desiredPip = 2
+//        } else if (IO.pip3) {
+//            desiredPip = 3
+//        }
 
         if (IO.gyroReset) {
             gyro.setYawOffset()
@@ -104,7 +113,7 @@ class TeleopSwerveCommand(
         if (IO.limelightAngleLock) {
             driveTwist =
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
-                    32
+                    50
         } else if (IO.limelightTranslate) {
             currentCommand = TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPip)
             return
@@ -132,6 +141,6 @@ class TeleopSwerveCommand(
 
         prevJoyMoveyThrottle = IO.moveyThrottle
 
-        swerveDriveTrain.drive(driveVec, driveTwist, !IO.disableFieldOrientation)
+        swerveDriveTrain.drive(driveVec, driveTwist, IO.disableFieldOrientation)
     }
 }
