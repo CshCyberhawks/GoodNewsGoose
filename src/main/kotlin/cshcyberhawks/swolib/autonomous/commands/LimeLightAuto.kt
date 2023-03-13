@@ -9,29 +9,34 @@ class LimeLightAuto(
     val swerveAuto: SwerveAuto,
     val limelight: Limelight,
     private val targetHeight: Double,
-    private val pip: Int = 0
+    private val pipe: Int = 0
 ) : CommandBase() {
     init {
         addRequirements(swerveAuto.swerveSystem)
     }
 
     override fun initialize() {
-        if (limelight.pipeline == pip) {
+        if (limelight.pipeline == pipe) {
             setPosition()
         }
     }
 
     fun setPosition() {
+        val position = limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro)
+        if (position.isEmpty) {
+            return
+        }
+
         swerveAuto.desiredPosition =
             FieldPosition(
-                limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro),
+                position.get(),
                 0.0
             )
         swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
     }
 
     override fun execute() {
-        if (limelight.pipeline == pip) {
+        if (limelight.pipeline == pipe) {
             setPosition()
         }
         swerveAuto.move()

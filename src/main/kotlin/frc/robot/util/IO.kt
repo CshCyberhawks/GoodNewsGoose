@@ -120,18 +120,21 @@ object IO {
             return toggled
         }
 
+    val resetSwo
+        get() = rightJoy.getRawButton(11)
+
     val disableFieldOrientation
         get() = rightJoy.getRawButton(1)
 
-    val pip0
+    val pipe0
         get() = leftJoy.getRawButton(5)
 
-    val pip1
+    val pipe1
         get() = leftJoy.getRawButton(6)
 
-    val pip2
+    val pipe2
         get() = leftJoy.getRawButton(7)
 
-    val pip3
+    val pipe3
         get() = leftJoy.getRawButton(10)
 }

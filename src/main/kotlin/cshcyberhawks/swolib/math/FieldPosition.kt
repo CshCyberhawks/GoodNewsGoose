@@ -6,7 +6,7 @@ package cshcyberhawks.swolib.math
  * @param position The position on the field in meters
  * @param angle The angle on the field
  */
-class FieldPosition(private var position: Vector2, var angle: Double) {
+class FieldPosition(private var position: Vector2 = Vector2(), var angle: Double = 0.0) {
     constructor(x: Double, y: Double, angle: Double) : this(Vector2(x, y), angle)
 
     var x

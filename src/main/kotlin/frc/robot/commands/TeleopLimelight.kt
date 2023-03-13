@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 
 class TeleopLimelight(
-        val limelight: Limelight,
-        private val swerveDriveTrain: SwerveDriveTrain,
-        private val pip: Int
+    val limelight: Limelight,
+    private val swerveDriveTrain: SwerveDriveTrain,
+    private val pipe: Int
 ) : CommandBase() {
 
     override fun initialize() {
@@ -28,7 +28,7 @@ class TeleopLimelight(
 
     override fun execute() {
         val inputTwist =
-                MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset(), .5) / 32
+            MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset(), .5) / 32
 
         // if (Robot.pipIndex == pip) {
         swerveDriveTrain.drive(Vector2(0.0, .3), inputTwist, true)

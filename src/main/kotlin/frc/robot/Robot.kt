@@ -61,7 +61,7 @@ class Robot : TimedRobot() {
     private val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
-    private val limelightBack = Limelight("limelight-back", 0.12, 0.0, fiducialPipeline = 2)
+    private val limelightBack = Limelight("limelight-back", 0.134, 0.0, fiducialPipeline = 2)
 
     //    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
     private var backLeft: SwerveWheel =
@@ -219,6 +219,13 @@ class Robot : TimedRobot() {
 //        pipIndex = (pipIndex + 1) % 3
 //        limelightBack.pipeline = pipIndex
 //                limelightFront.setPipeline(pipIndex)
+
+        val conePos = limelightBack.getPosition(swo, 0.165, gyro)
+        if (!conePos.isEmpty) {
+            SmartDashboard.putNumber("Limelight Pos X", conePos.get().x)
+            SmartDashboard.putNumber("Limelight Vert Offset", limelightBack.getVerticalOffset())
+            SmartDashboard.putNumber("Limelight Pos Y", conePos.get().y)
+        }
 
         CommandScheduler.getInstance().run()
     }

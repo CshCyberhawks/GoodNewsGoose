@@ -9,12 +9,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 
 class AutoLimelightSingleAxis(
-        val swerveAuto: SwerveAuto,
-        val limelight: Limelight,
-        private val targetHeight: Double,
-        private val axis: Axis,
-        private val pip: Int,
-        private val setAngle: Boolean = false
+    val swerveAuto: SwerveAuto,
+    val limelight: Limelight,
+    private val targetHeight: Double,
+    private val axis: Axis,
+    private val pipe: Int,
+    private val setAngle: Boolean = false
 ) : CommandBase() {
     enum class Axis {
         X,
@@ -28,42 +28,42 @@ class AutoLimelightSingleAxis(
             return
         }
 
+        val position = limelight.getPosition(
+            swerveAuto.swo,
+            targetHeight,
+            swerveAuto.gyro
+        )
+
+        if (position.isEmpty) {
+            return
+        }
+
         // // if (limelight.pipeline != pip) return
         if (axis == Axis.X) {
             command =
-                    GoToPosition(
-                            swerveAuto,
-                            FieldPosition(
-                                    Vector2(
-                                            limelight.getPosition(
-                                                            swerveAuto.swo,
-                                                            targetHeight,
-                                                            swerveAuto.gyro
-                                                    )
-                                                    .x,
-                                            swerveAuto.swo.fieldPosition.y
-                                    ),
-                                    0.0
-                            )
+                GoToPosition(
+                    swerveAuto,
+                    FieldPosition(
+                        Vector2(
+                            position.get().x,
+                            swerveAuto.swo.fieldPosition.y
+                        ),
+                        0.0
                     )
+                )
         }
         if (axis == Axis.Y) {
             command =
-                    GoToPosition(
-                            swerveAuto,
-                            FieldPosition(
-                                    Vector2(
-                                            swerveAuto.swo.fieldPosition.x,
-                                            limelight.getPosition(
-                                                            swerveAuto.swo,
-                                                            targetHeight,
-                                                            swerveAuto.gyro
-                                                    )
-                                                    .y
-                                    ),
-                                    0.0
-                            )
+                GoToPosition(
+                    swerveAuto,
+                    FieldPosition(
+                        Vector2(
+                            swerveAuto.swo.fieldPosition.x,
+                            position.get().y
+                        ),
+                        0.0
                     )
+                )
         }
         if (setAngle) {
             swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
@@ -80,11 +80,12 @@ class AutoLimelightSingleAxis(
     override fun execute() {}
 
     override fun isFinished(): Boolean {
-        SmartDashboard.putBoolean("single axis", command?.isFinished() == true && command != null)
-        return command?.isFinished() == true && command != null
+        SmartDashboard.putBoolean("single axis", swerveAuto.isFinishedMoving() && command != null)
+        return swerveAuto.isFinishedMoving() && command != null
     }
 
     override fun end(int: Boolean) {
         swerveAuto.kill()
+        println("done")
     }
 }

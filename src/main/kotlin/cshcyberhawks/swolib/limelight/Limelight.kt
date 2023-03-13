@@ -12,13 +12,14 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.net.PortForwarder
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import java.util.*
 import kotlin.math.tan
 
 class Limelight(
     name: String,
     private val cameraHeight: Double,
-    private val cameraAngle: Double,
+    private val cameraAngle: Double = 0.0,
     ledMode: LedMode = LedMode.Pipeline,
     cameraMode: CameraMode = CameraMode.VisionProcessor,
     pipeline: Int = 0,
@@ -94,7 +95,7 @@ class Limelight(
     fun getHorizontalOffset(): Double = limelight.getEntry("tx").getDouble(0.0)
 
     /** @return Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees) */
-    private fun getVerticalOffset(): Double = limelight.getEntry("ty").getDouble(0.0)
+    fun getVerticalOffset(): Double = limelight.getEntry("ty").getDouble(0.0)
 
     /** @return Target Area (0% of image to 100% of image) */
     private fun getArea(): Double = limelight.getEntry("ta").getDouble(0.0)
@@ -178,23 +179,27 @@ class Limelight(
         limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
 
     /** @return Distance from target (meters). */
-    private fun findTargetDistance(ballHeight: Double): Double =
+    private fun findTargetDistance(ballHeight: Double): Optional<Double> =
         if (hasTarget())
-            (cameraHeight - ballHeight) *
-                tan(Math.toRadians(getVerticalOffset() + cameraAngle))
-        else -1.0
+            Optional.of((cameraHeight - ballHeight) /
+                tan(Math.toRadians(getVerticalOffset() + cameraAngle)))
+        else Optional.empty()
 
     fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
 
-    fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Vector2 {
-        val distance: Double = findTargetDistance(ballHeight) // .639
+    fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Optional<Vector2> {
+        val distance = findTargetDistance(ballHeight) // .639
+        if (distance.isEmpty) {
+            return Optional.empty()
+        }
+        SmartDashboard.putNumber("Limelight Distance", distance.get())
         val angle: Double =
             AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
 
-        var ret = Vector2.fromPolar(Polar(angle, distance))
-        ret.y = -ret.y
+        var ret = Vector2.fromPolar(Polar(angle, distance.get()))
         ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
 
-        return ret
+
+        return Optional.of(Vector2(ret.y, ret.x))
     }
 }
