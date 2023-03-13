@@ -14,14 +14,14 @@ import frc.robot.constants.MiscConstants
 import frc.robot.util.IO
 
 class TeleopSwerveCommand(
-    private var swerveDriveTrain: SwerveDriveTrain,
-    val swerveAuto: SwerveAuto,
-    var gyro: GenericGyro,
-    driverTab: ShuffleboardTab,
-    private val limelightArray: Array<Limelight>
+        private var swerveDriveTrain: SwerveDriveTrain,
+        val swerveAuto: SwerveAuto,
+        var gyro: GenericGyro,
+        driverTab: ShuffleboardTab,
+        private val limelightArray: Array<Limelight>
 ) : CommandBase() {
 
-    private var desiredPip = 2
+    private var desiredPip = 0
 
     private var throttle = 0.6
     private var prevJoyMoveyThrottle = 0.0
@@ -33,8 +33,8 @@ class TeleopSwerveCommand(
 
     private val throttleShuffle: GenericEntry = driverTab.add("Throttle", 0.0).entry
     private val pipShuffle: GenericEntry = driverTab.add("Desired PIP", 0).entry
-    private val currentLimelightShuffle: GenericEntry = driverTab.add("Current Limelight IDX", 0).entry
-
+    private val currentLimelightShuffle: GenericEntry =
+            driverTab.add("Current Limelight IDX", 0).entry
 
     init {
         addRequirements(swerveDriveTrain)
@@ -45,34 +45,38 @@ class TeleopSwerveCommand(
         //        Gyro.setOffset()
     }
 
+    private fun setCurrentCommand(command: CommandBase) {
+        this.currentCommand = command
+        this.currentCommand?.schedule()
+    }
+
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
         throttleShuffle.setDouble(throttle)
         pipShuffle.setInteger(desiredPip.toLong())
         currentLimelightShuffle.setInteger(currentLimelightIndex.toLong())
 
-
         if (IO.killCommand) {
             currentCommand?.cancel()
             currentCommand = null
         }
 
-        if (currentCommand != null && currentCommand?.isFinished == false) {
-            if (currentCommand?.isScheduled != true) {
-                currentCommand?.schedule()
-            }
+        if (currentCommand != null && currentCommand?.isFinished() == false) {
             return
+        } else if (currentCommand != null && currentCommand?.isFinished() == true) {
+            currentCommand?.cancel()
+            currentCommand = null
         }
 
-//        if (IO.pip0) {
-//            desiredPip = 0
-//        } else if (IO.pip1) {
-//            desiredPip = 1
-//        } else if (IO.pip2) {
-//            desiredPip = 2
-//        } else if (IO.pip3) {
-//            desiredPip = 3
-//        }
+        //        if (IO.pip0) {
+        //            desiredPip = 0
+        //        } else if (IO.pip1) {
+        //            desiredPip = 1
+        //        } else if (IO.pip2) {
+        //            desiredPip = 2
+        //        } else if (IO.pip3) {
+        //            desiredPip = 3
+        //        }
 
         if (IO.gyroReset) {
             gyro.setYawOffset()
@@ -108,34 +112,36 @@ class TeleopSwerveCommand(
             currentLimelight = limelightArray[currentLimelightIndex]
         }
 
-//        Limelight.openCamera(currentLimelight)
-
         if (IO.limelightAngleLock) {
             driveTwist =
-                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
-                    50
+                    MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
+                            50
         } else if (IO.limelightTranslate) {
-            currentCommand = TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPip)
+            println("set current command")
+            setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPip))
             return
         } else if (IO.limelightTranslateSingleAxisX) {
-            currentCommand =
-                AutoLimelightSingleAxis(
-                    swerveAuto,
-                    currentLimelight,
-                    1.0,
-                    AutoLimelightSingleAxis.Axis.X,
-                    desiredPip
-                )
+            println("set current command to axis X")
+            setCurrentCommand(
+                    AutoLimelightSingleAxis(
+                            swerveAuto,
+                            currentLimelight,
+                            1.0,
+                            AutoLimelightSingleAxis.Axis.X,
+                            desiredPip
+                    )
+            )
             return
         } else if (IO.limelightTranslateSingleAxisY) {
-            currentCommand =
-                AutoLimelightSingleAxis(
-                    swerveAuto,
-                    currentLimelight,
-                    1.0,
-                    AutoLimelightSingleAxis.Axis.Y,
-                    desiredPip
-                )
+            setCurrentCommand(
+                    AutoLimelightSingleAxis(
+                            swerveAuto,
+                            currentLimelight,
+                            1.0,
+                            AutoLimelightSingleAxis.Axis.Y,
+                            desiredPip
+                    )
+            )
             return
         }
 

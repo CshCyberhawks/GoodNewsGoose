@@ -18,16 +18,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlin.math.abs
 
 class SwerveAuto(
-    private val xPID: ProfiledPIDController,
-    private val yPID: ProfiledPIDController,
-    private val twistPID: PIDController,
-    private val twistTrapConstraints: TrapezoidProfile.Constraints,
-    private val angleDeadzone: Double,
-    private val positionDeadzone: Double,
-    val swo: SwerveOdometry,
-    val swerveSystem: SwerveDriveTrain,
-    val gyro: GenericGyro,
-    private val debugLogging: Boolean = false
+        private val xPID: ProfiledPIDController,
+        private val yPID: ProfiledPIDController,
+        private val twistPID: PIDController,
+        private val twistTrapConstraints: TrapezoidProfile.Constraints,
+        private val angleDeadzone: Double,
+        private val positionDeadzone: Double,
+        val swo: SwerveOdometry,
+        val swerveSystem: SwerveDriveTrain,
+        val gyro: GenericGyro,
+        private val debugLogging: Boolean = false
 ) {
     var desiredPosition: FieldPosition = FieldPosition(0.0, 0.0, 0.0)
         set(value) {
@@ -55,16 +55,18 @@ class SwerveAuto(
 
     private val autoShuffleboardTab: ShuffleboardTab = Shuffleboard.getTab("Auto")
 
-    //make all the shuffleboard items entries
-//    val xPIDShuffleboard = autoShuffleboardTab.add("X PID", xPID)
-//    val yPIDShuffleboard = autoShuffleboardTab.add("Y PID", yPID)
-//    val twistPIDShuffleboard = autoShuffleboardTab.add("Twist PID", twistPID)
+    // make all the shuffleboard items entries
+    //    val xPIDShuffleboard = autoShuffleboardTab.add("X PID", xPID)
+    //    val yPIDShuffleboard = autoShuffleboardTab.add("Y PID", yPID)
+    //    val twistPIDShuffleboard = autoShuffleboardTab.add("Twist PID", twistPID)
 
-    private val translationTwistShuffleboard: GenericEntry = autoShuffleboardTab.add("Translation Twist", 0.0).entry
+    private val translationTwistShuffleboard: GenericEntry =
+            autoShuffleboardTab.add("Translation Twist", 0.0).entry
 
     private val xPIDOutputShuffle: GenericEntry = autoShuffleboardTab.add("X PID OUT", 0.0).entry
     private val yPIDOutputShuffle = autoShuffleboardTab.add("Y PID OUT", 0.0).entry
-    private val twistPIDOutputShuffle: GenericEntry = autoShuffleboardTab.add("Twist PID OUT", 0.0).entry
+    private val twistPIDOutputShuffle: GenericEntry =
+            autoShuffleboardTab.add("Twist PID OUT", 0.0).entry
 
     init {
         twistPID.enableContinuousInput(0.0, 360.0)
@@ -74,18 +76,19 @@ class SwerveAuto(
         val timeNow = WPIUtilJNI.now() * 1.0e-6
         val trapTime: Double = if (prevTime == 0.0) 0.0 else timeNow - prevTime
 
-        //ryan suggested this
+        // ryan suggested this
         val pidVal = twistPID.calculate(gyro.getYaw()) / 360
 
         val trapProfile = TrapezoidProfile(twistTrapConstraints, desiredTwistTrap, currentTwistTrap)
 
         val trapOutput = trapProfile.calculate(trapTime)
 
-        val twistOutput = if (pidVal < 0) {
-            pidVal - abs(trapOutput.velocity)
-        } else {
-            pidVal + abs(trapOutput.velocity)
-        }
+        val twistOutput =
+                if (pidVal < 0) {
+                    pidVal - abs(trapOutput.velocity)
+                } else {
+                    pidVal + abs(trapOutput.velocity)
+                }
 
         SmartDashboard.putNumber("Twist PID", pidVal)
         SmartDashboard.putNumber("Twist Trap", trapOutput.velocity)
@@ -102,14 +105,8 @@ class SwerveAuto(
     }
 
     private fun calculateTranslation(): Vector2 {
-        val xPIDOutput =
-            xPID.calculate(
-                swo.fieldPosition.x
-            )
-        val yPIDOutput =
-            yPID.calculate(
-                swo.fieldPosition.y
-            )
+        val xPIDOutput = xPID.calculate(swo.fieldPosition.x)
+        val yPIDOutput = yPID.calculate(swo.fieldPosition.y)
 
         SmartDashboard.putNumber("X PID", xPIDOutput)
         SmartDashboard.putNumber("Y PID", yPIDOutput)
@@ -126,6 +123,7 @@ class SwerveAuto(
     fun move() {
         var translation: Vector2 = Vector2(0.0, 0.0)
         var twist: Double = 0.0
+        println("move called")
 
         SmartDashboard.putBoolean("At Des Pos", isAtDesiredPosition())
         if (!isAtDesiredPosition()) {
@@ -146,26 +144,30 @@ class SwerveAuto(
     }
 
     private fun isAtDesiredAngle(): Boolean {
-        return AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) < angleDeadzone || AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) > 360 - angleDeadzone
+        return AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) <
+                angleDeadzone ||
+                AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) >
+                        360 - angleDeadzone
     }
 
     private fun isAtDesiredPosition(): Boolean {
         return (MiscCalculations.calculateDeadzone(
-            desiredPosition.x - swo.fieldPosition.x,
-            positionDeadzone
+                desiredPosition.x - swo.fieldPosition.x,
+                positionDeadzone
         ) == 0.0 &&
                 MiscCalculations.calculateDeadzone(
-                    desiredPosition.y - swo.fieldPosition.y,
-                    positionDeadzone
+                        desiredPosition.y - swo.fieldPosition.y,
+                        positionDeadzone
                 ) == 0.0)
     }
 
     fun setDesiredAngleRelative(desiredAngle: Double) {
-        desiredPosition = FieldPosition(
-            desiredPosition.x,
-            desiredPosition.y,
-            AngleCalculations.wrapAroundAngles(gyro.getYaw() + desiredAngle)
-        )
+        desiredPosition =
+                FieldPosition(
+                        desiredPosition.x,
+                        desiredPosition.y,
+                        AngleCalculations.wrapAroundAngles(gyro.getYaw() + desiredAngle)
+                )
     }
 
     fun isFinishedMoving(): Boolean {

@@ -1,70 +1,87 @@
 package frc.robot.commands
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
+import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.math.Vector2
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 
-
 class AutoLimelightSingleAxis(
-    val swerveAuto: SwerveAuto,
-    val limelight: Limelight,
-    private val targetHeight: Double,
-    private val axis: Axis,
-    private val pip: Int,
-    private val setAngle: Boolean = false
+        val swerveAuto: SwerveAuto,
+        val limelight: Limelight,
+        private val targetHeight: Double,
+        private val axis: Axis,
+        private val pip: Int,
+        private val setAngle: Boolean = false
 ) : CommandBase() {
     enum class Axis {
-        X, Y
+        X,
+        Y
     }
 
-    init {
-        addRequirements(swerveAuto.swerveSystem)
-    }
-
-    private var didSetDesired: Boolean = false
+    private var command: CommandBase? = null
 
     private fun setPos() {
-        if (didSetDesired) return
-        if (limelight.pipeline != pip) return
+        if (command != null) {
+            return
+        }
+
+        // // if (limelight.pipeline != pip) return
         if (axis == Axis.X) {
-            swerveAuto.desiredPosition =
-                FieldPosition(
-                    Vector2(
-                        limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro).x,
-                        swerveAuto.swo.fieldPosition.y
-                    ),
-                    0.0
-                )
+            command =
+                    GoToPosition(
+                            swerveAuto,
+                            FieldPosition(
+                                    Vector2(
+                                            limelight.getPosition(
+                                                            swerveAuto.swo,
+                                                            targetHeight,
+                                                            swerveAuto.gyro
+                                                    )
+                                                    .x,
+                                            swerveAuto.swo.fieldPosition.y
+                                    ),
+                                    0.0
+                            )
+                    )
         }
         if (axis == Axis.Y) {
-            swerveAuto.desiredPosition =
-                FieldPosition(
-                    Vector2(
-                        swerveAuto.swo.fieldPosition.x,
-                        limelight.getPosition(swerveAuto.swo, targetHeight, swerveAuto.gyro).y
-                    ),
-                    0.0
-                )
+            command =
+                    GoToPosition(
+                            swerveAuto,
+                            FieldPosition(
+                                    Vector2(
+                                            swerveAuto.swo.fieldPosition.x,
+                                            limelight.getPosition(
+                                                            swerveAuto.swo,
+                                                            targetHeight,
+                                                            swerveAuto.gyro
+                                                    )
+                                                    .y
+                                    ),
+                                    0.0
+                            )
+                    )
         }
         if (setAngle) {
             swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
         }
-        didSetDesired = true
+        command?.schedule()
+        println("set desired")
     }
 
     override fun initialize() {
-
-    }
-
-    override fun execute() {
         setPos()
-        swerveAuto.move()
+        println("init")
     }
+
+    override fun execute() {}
 
     override fun isFinished(): Boolean {
-        return swerveAuto.isFinishedMoving()
+        SmartDashboard.putBoolean("single axis", command?.isFinished() == true && command != null)
+        return command?.isFinished() == true && command != null
     }
 
     override fun end(int: Boolean) {

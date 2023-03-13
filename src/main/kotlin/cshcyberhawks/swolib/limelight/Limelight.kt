@@ -80,7 +80,7 @@ class Limelight(
         feed = if (name == "limelight-front") {
             HttpCamera("Limelight Feed-Front", "http://10.28.75.11:5800")
         } else /* (name == "limelight-back") */ {
-            HttpCamera("Limelight Feed-Back", "http://10.28.75.12:5800")
+            HttpCamera("Limelight Feed-Back", "http://10.28.75.74:5800")
         }
 
 //        tab.add("LLFeed $name", feed).withPosition(0, 0).withSize(8, 4)
