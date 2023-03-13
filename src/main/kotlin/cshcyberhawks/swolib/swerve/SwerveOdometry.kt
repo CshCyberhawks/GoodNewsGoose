@@ -1,5 +1,6 @@
 package cshcyberhawks.swolib.swerve
 
+import cshcyberhawks.swolib.field2d.Field2d
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.*
@@ -9,7 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
-import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.util.IO
 import kotlin.math.cos
