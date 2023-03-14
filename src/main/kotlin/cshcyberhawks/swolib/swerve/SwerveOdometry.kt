@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.util.IO
+import java.util.Optional
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -21,12 +22,11 @@ class SwerveOdometry(
     private val swoToMeters: Double,
     startingPosition: Vector3 = Vector3(0.0, 0.0, 0.0),
     private val limelightList: Array<Limelight> = arrayOf(),
-    private val debugLogging: Boolean = false
+    private val debugLogging: Boolean = false,
+    private val field2d: Optional<Field2d> = Optional.empty()
 ) {
     var fieldPosition = Vector3() + startingPosition
     private var lastTime = MiscCalculations.getCurrentTime()
-
-    val field2d = Field2d()
 
     private val odometryShuffleTab: ShuffleboardTab = Shuffleboard.getTab("Odometry")
     private val xPosition: GenericEntry = odometryShuffleTab.add("X Position", 0.0).withPosition(0, 0).withSize(2, 1).entry
@@ -115,13 +115,17 @@ class SwerveOdometry(
     }
 
     private fun updateField() {
-        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
-            field2d.setRobotPose(this.fieldPosition.x, this.fieldPosition.y, gyro.getYawRotation2d())
-        } else {
-            // Random constants are offsets for the field origin being bottom right in our code
-            field2d.setRobotPose(16.54 - this.fieldPosition.y, this.fieldPosition.x, gyro.getYawRotation2d().plus(
-                Rotation2d(Math.PI)
-            ))
+        if (!field2d.isEmpty) {
+            if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+                field2d.get().setRobotPose(this.fieldPosition.x, this.fieldPosition.y, gyro.getYawRotation2d())
+            } else {
+                // Random constants are offsets for the field origin being bottom right in our code
+                field2d.get().setRobotPose(
+                    16.54 - this.fieldPosition.y, this.fieldPosition.x, gyro.getYawRotation2d().plus(
+                        Rotation2d(Math.PI)
+                    )
+                )
+            }
         }
     }
 }

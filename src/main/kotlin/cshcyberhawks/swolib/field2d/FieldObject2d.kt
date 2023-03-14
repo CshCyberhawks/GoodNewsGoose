@@ -9,9 +9,13 @@ import edu.wpi.first.math.trajectory.Trajectory
 import edu.wpi.first.networktables.DoubleArrayEntry
 
 /** Game field object on a Field2d.  */
-class FieldObject2d(var name: String) : AutoCloseable {
+class FieldObject2d(var name: String, initialPosition: Pose2d = Pose2d()) : AutoCloseable {
     var entry: DoubleArrayEntry? = null
     private val poseList: MutableList<Pose2d> = ArrayList()
+
+    init {
+        setPoses(initialPosition)
+    }
 
     override fun close() {
         if (entry != null) {

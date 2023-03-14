@@ -9,7 +9,7 @@ import edu.wpi.first.util.sendable.SendableRegistry
 
 class Field2d : NTSendable, AutoCloseable {
     private var table: NetworkTable? = null
-    private val objectList: MutableList<FieldObject2d> = ArrayList()
+    val objectList: MutableList<FieldObject2d> = ArrayList()
 
     /** Constructor.  */
     init {
