@@ -1,5 +1,7 @@
 package cshcyberhawks.swolib.autonomous
 
+import cshcyberhawks.swolib.field2d.Field2d
+import cshcyberhawks.swolib.field2d.FieldObject2d
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.FieldPosition
@@ -9,12 +11,16 @@ import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.util.WPIUtilJNI
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import java.util.Optional
 import kotlin.math.abs
 
 class SwerveAuto(
@@ -27,7 +33,8 @@ class SwerveAuto(
     val swo: SwerveOdometry,
     val swerveSystem: SwerveDriveTrain,
     val gyro: GenericGyro,
-    private val debugLogging: Boolean = false
+    private val debugLogging: Boolean = false,
+    private val field2d: Optional<Field2d> = Optional.empty()
 ) {
     var desiredPosition: FieldPosition = FieldPosition(0.0, 0.0, 0.0)
         set(value) {
@@ -41,6 +48,10 @@ class SwerveAuto(
             currentTwistTrap = TrapezoidProfile.State(gyro.getYaw(), 0.0)
             SmartDashboard.putNumber("Desired X", value.x)
             SmartDashboard.putNumber("Desired Y", value.y)
+            if (!field2d.isEmpty) {
+                val changedPos = Field2d.toWPILIBFieldPosition(FieldPosition(value.x, value.y, value.angle))
+                field2d.get().getObject("DesiredPosition").pose = Pose2d(Translation2d(changedPos.x, changedPos.y), Rotation2d(changedPos.angleRadians))
+            }
             xDesPosShuffle.setDouble(value.x)
             yDesPosShuffle.setDouble(value.y)
             prevTime = 0.0
@@ -79,6 +90,10 @@ class SwerveAuto(
 
     init {
         twistPID.enableContinuousInput(0.0, 360.0)
+
+//        if (!field2d.isEmpty) {
+//            field2d.get().objectList.add(FieldObject2d("Desired Position"))
+//        }
     }
 
     private fun calculateTwist(): Double {

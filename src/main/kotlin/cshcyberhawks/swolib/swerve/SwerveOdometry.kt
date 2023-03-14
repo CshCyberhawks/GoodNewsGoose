@@ -116,16 +116,8 @@ class SwerveOdometry(
 
     private fun updateField() {
         if (!field2d.isEmpty) {
-            if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
-                field2d.get().setRobotPose(this.fieldPosition.x, this.fieldPosition.y, gyro.getYawRotation2d())
-            } else {
-                // Random constants are offsets for the field origin being bottom right in our code
-                field2d.get().setRobotPose(
-                    16.54 - this.fieldPosition.y, this.fieldPosition.x, gyro.getYawRotation2d().plus(
-                        Rotation2d(Math.PI)
-                    )
-                )
-            }
+            val changedPosition = Field2d.toWPILIBFieldPosition(FieldPosition(fieldPosition.x, fieldPosition.y, gyro.getYaw()))
+            field2d.get().setRobotPose(changedPosition.x, changedPosition.y, Rotation2d(changedPosition.angleRadians))
         }
     }
 }
