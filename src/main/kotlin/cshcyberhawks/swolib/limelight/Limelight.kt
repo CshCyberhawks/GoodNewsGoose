@@ -3,6 +3,8 @@ package cshcyberhawks.swolib.limelight
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.*
 import cshcyberhawks.swolib.swerve.SwerveOdometry
+import edu.wpi.first.apriltag.AprilTag
+import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
@@ -14,12 +16,17 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import java.util.*
+import kotlin.math.atan
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.tan
 
 class Limelight(
     name: String,
     private val cameraHeight: Double,
     private val cameraAngle: Double = 0.0,
+    private val cameraDistance: Double = 0.0,
+    private val aprilTagHeight: Double = 0.0,
     ledMode: LedMode = LedMode.Pipeline,
     cameraMode: CameraMode = CameraMode.VisionProcessor,
     pipeline: Int = 0,
@@ -77,7 +84,6 @@ class Limelight(
         putToTab("$name Horizontal Offset", this.getHorizontalOffset())
         putToTab("$name Vertical Offset", this.getVerticalOffset())
         putToTab("$name Area", this.getArea())
-        putToTab("$name Rotation", this.getRotation())
         tab.add("$name Current Pipeline", pipeline)
         tab.add("$name Target 3D", this.getTarget3D())
         tab.add("$name Cam Pose", this.getCamDebug())
@@ -110,11 +116,6 @@ class Limelight(
     
     /** @return Target Area (0% of image to 100% of image) */
     private fun getArea(): Optional<Double> {
-        val out = limelight.getEntry("ta").getDouble(Double.NaN)
-        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
-    }
-
-    private fun getRotation(): Optional<Double> {
         val out = limelight.getEntry("ta").getDouble(Double.NaN)
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }
@@ -197,6 +198,17 @@ class Limelight(
             return Optional.empty()
         }
         return Optional.of(data[5])
+    }
+
+    fun getBotYawClose(): Optional<Double> {
+        val limelightRotation = getHorizontalOffset()
+        val targetDistance = findTargetDistance(aprilTagHeight)
+        return if(limelightRotation.isPresent())
+            Optional.of(
+                atan(
+                    (targetDistance.get() * sin(-limelightRotation.get())) /
+                            (cameraDistance + targetDistance.get() * cos(-limelightRotation.get()))))
+        else Optional.empty()
     }
 
     private fun getBotDebug(): Array<Double> {
