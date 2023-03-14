@@ -92,30 +92,57 @@ class Limelight(
     private fun hasTarget(): Boolean = limelight.getEntry("tv").getDouble(0.0) == 1.0
 
     /** @return Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees). */
-    fun getHorizontalOffset(): Double = limelight.getEntry("tx").getDouble(0.0)
+    fun getHorizontalOffset(): Optional<Double> =
+        if (limelight.getEntry("tx").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tx").getDouble(Double.NaN))
+        else Optional.empty()
 
     /** @return Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees) */
-    fun getVerticalOffset(): Double = limelight.getEntry("ty").getDouble(0.0)
+    fun getVerticalOffset(): Optional<Double> =
+        if (limelight.getEntry("ty").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("ty").getDouble(Double.NaN))
+        else Optional.empty()
 
     /** @return Target Area (0% of image to 100% of image) */
-    private fun getArea(): Double = limelight.getEntry("ta").getDouble(0.0)
+    private fun getArea(): Optional<Double> =
+        if (limelight.getEntry("ta").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("ta")
+            .getDouble(Double.NaN))
+        else Optional.empty()
 
-    private fun getRotation(): Double = limelight.getEntry("ts").getDouble(0.0)
+    private fun getRotation(): Optional<Double> =
+        if (limelight.getEntry("ts").getDouble(0.0) != Double.NaN) Optional
+        .of(limelight.getEntry("ts").getDouble(0.0))
+    else Optional.empty()
 
-    fun getLatency(): Double = limelight.getEntry("tl").getDouble(0.0)
+    fun getLatency(): Optional<Double> =
+        if (limelight.getEntry("tl").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tl")
+            .getDouble(Double.NaN))
+        else Optional.empty()
 
-    fun getShortest(): Double = limelight.getEntry("tshort").getDouble(0.0)
+    fun getShortest(): Optional<Double> =
+        if (limelight.getEntry("tshort").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tshort").getDouble(Double.NaN))
+        else Optional.empty()
 
-    fun getLongest(): Double = limelight.getEntry("tlong").getDouble(0.0)
+    fun getLongest(): Optional<Double> =
+        if (limelight.getEntry("tlong").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tlong")
+            .getDouble(Double.NaN))
+        else Optional.empty()
 
-    fun getHorizontalLength(): Double = limelight.getEntry("thor").getDouble(0.0)
+    fun getHorizontalLength():Optional<Double> =
+        if (limelight.getEntry("thor").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("thor")
+            .getDouble(Double.NaN))
+        else Optional.empty()
 
-    fun getVerticalLength(): Double = limelight.getEntry("tvert").getDouble(0.0)
+    fun getVerticalLength(): Optional<Double> =
+        if (limelight.getEntry("tvert").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tvert")
+            .getDouble(Double.NaN))
+        else Optional.empty()
 
     fun getTarget3D(): Array<Number> =
         limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
 
-    private fun getTargetID(): Double = limelight.getEntry("tid").getDouble(0.0)
+    private fun getTargetID(): Optional<Double> =
+        if (limelight.getEntry("tid").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tid")
+            .getDouble(Double.NaN))
+        else Optional.empty()
 
     fun getJSON(): ByteArray = limelight.getEntry("json").getRaw(byteArrayOf())
 
@@ -182,7 +209,7 @@ class Limelight(
     private fun findTargetDistance(ballHeight: Double): Optional<Double> =
         if (hasTarget())
             Optional.of((cameraHeight - ballHeight) /
-                tan(Math.toRadians(getVerticalOffset() + cameraAngle)))
+                tan(Math.toRadians(getVerticalOffset().get() + cameraAngle)))
         else Optional.empty()
 
     fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
@@ -194,7 +221,7 @@ class Limelight(
         }
         SmartDashboard.putNumber("Limelight Distance", distance.get())
         val angle: Double =
-            AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
+            AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
 
         var ret = Vector2.fromPolar(Polar(angle, distance.get()))
         ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
