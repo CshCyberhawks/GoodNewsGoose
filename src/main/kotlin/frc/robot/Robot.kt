@@ -235,7 +235,7 @@ class Robot : TimedRobot() {
         val conePos = limelightBack.getPosition(swo, 0.165, gyro)
         if (!conePos.isEmpty) {
             SmartDashboard.putNumber("Limelight Pos X", conePos.get().x)
-            SmartDashboard.putNumber("Limelight Vert Offset", limelightBack.getVerticalOffset())
+            SmartDashboard.putNumber("Limelight Vert Offset", limelightBack.getVerticalOffset().get())
             SmartDashboard.putNumber("Limelight Pos Y", conePos.get().y)
         }
 

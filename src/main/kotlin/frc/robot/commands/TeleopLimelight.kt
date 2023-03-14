@@ -28,7 +28,7 @@ class TeleopLimelight(
 
     override fun execute() {
         val inputTwist =
-            MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset(), .5) / 32
+            MiscCalculations.calculateDeadzone(limelight.getHorizontalOffset().get(), .5) / 32
 
         // if (Robot.pipIndex == pip) {
         swerveDriveTrain.drive(Vector2(0.0, .3), inputTwist, true)

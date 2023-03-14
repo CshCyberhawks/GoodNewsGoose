@@ -119,7 +119,7 @@ class TeleopSwerveCommand(
 
         if (IO.limelightAngleLock) {
             driveTwist =
-                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
+                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
                     50
         } else if (IO.limelightTranslateSingleAxisX) {
             swerveDriveTrain.drive(Vector2(currentLimelight.getHorizontalOffset() / 100, 0.0), 0.0, true)

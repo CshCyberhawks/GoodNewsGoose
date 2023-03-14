@@ -32,7 +32,7 @@ class LimeLightAuto(
                 position.get(),
                 0.0
             )
-        swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
+        swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset().get())
     }
 
     override fun execute() {
