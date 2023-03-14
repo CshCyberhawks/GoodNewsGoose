@@ -122,7 +122,7 @@ class TeleopSwerveCommand(
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
                     50
         } else if (IO.limelightTranslateSingleAxisX) {
-            swerveDriveTrain.drive(Vector2(currentLimelight.getHorizontalOffset() / 100, 0.0), 0.0, true)
+            swerveDriveTrain.drive(Vector2(currentLimelight.getHorizontalOffset().get() / 100, 0.0), 0.0, true)
             return
         }
         else if (IO.limelightTranslate) {

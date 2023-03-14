@@ -92,57 +92,58 @@ class Limelight(
     private fun hasTarget(): Boolean = limelight.getEntry("tv").getDouble(0.0) == 1.0
 
     /** @return Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees). */
-    fun getHorizontalOffset(): Optional<Double> =
-        if (limelight.getEntry("tx").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tx").getDouble(Double.NaN))
-        else Optional.empty()
-
+    fun getHorizontalOffset(): Optional<Double> {
+        val out = limelight.getEntry("tx").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
     /** @return Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees) */
-    fun getVerticalOffset(): Optional<Double> =
-        if (limelight.getEntry("ty").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("ty").getDouble(Double.NaN))
-        else Optional.empty()
-
+    fun getVerticalOffset(): Optional<Double> {
+        val out = limelight.getEntry("ty").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
+    
     /** @return Target Area (0% of image to 100% of image) */
-    private fun getArea(): Optional<Double> =
-        if (limelight.getEntry("ta").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("ta")
-            .getDouble(Double.NaN))
-        else Optional.empty()
+    private fun getArea(): Optional<Double> {
+        val out = limelight.getEntry("ta").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    private fun getRotation(): Optional<Double> =
-        if (limelight.getEntry("ts").getDouble(0.0) != Double.NaN) Optional
-        .of(limelight.getEntry("ts").getDouble(0.0))
-    else Optional.empty()
+    private fun getRotation(): Optional<Double> {
+        val out = limelight.getEntry("ta").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    fun getLatency(): Optional<Double> =
-        if (limelight.getEntry("tl").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tl")
-            .getDouble(Double.NaN))
-        else Optional.empty()
+    fun getLatency(): Optional<Double> {
+        val out = limelight.getEntry("tl").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    fun getShortest(): Optional<Double> =
-        if (limelight.getEntry("tshort").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tshort").getDouble(Double.NaN))
-        else Optional.empty()
+    fun getShortest(): Optional<Double> {
+        val out = limelight.getEntry("tshort").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    fun getLongest(): Optional<Double> =
-        if (limelight.getEntry("tlong").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tlong")
-            .getDouble(Double.NaN))
-        else Optional.empty()
+    fun getLongest(): Optional<Double> {
+        val out = limelight.getEntry("tlong").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    fun getHorizontalLength():Optional<Double> =
-        if (limelight.getEntry("thor").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("thor")
-            .getDouble(Double.NaN))
-        else Optional.empty()
+    fun getHorizontalLength():Optional<Double> {
+        val out = limelight.getEntry("thor").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    fun getVerticalLength(): Optional<Double> =
-        if (limelight.getEntry("tvert").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tvert")
-            .getDouble(Double.NaN))
-        else Optional.empty()
+    fun getVerticalLength(): Optional<Double> {
+        val out = limelight.getEntry("tvert").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
-    fun getTarget3D(): Array<Number> =
-        limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
+    fun getTarget3D(): Array<Number> = limelight.getEntry("camtran").getNumberArray(arrayOf<Number>())
 
-    private fun getTargetID(): Optional<Double> =
-        if (limelight.getEntry("tid").getDouble(Double.NaN) != Double.NaN) Optional.of(limelight.getEntry("tid")
-            .getDouble(Double.NaN))
-        else Optional.empty()
+    private fun getTargetID(): Optional<Double> {
+        val out = limelight.getEntry("tid").getDouble(Double.NaN)
+        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
+    }
 
     fun getJSON(): ByteArray = limelight.getEntry("json").getRaw(byteArrayOf())
 
@@ -206,20 +207,11 @@ class Limelight(
         limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
 
     /** @return Distance from target (meters). */
-<<<<<<< HEAD
-    private fun findTargetDistance(ballHeight: Double): Optional<Double> =
-        if (hasTarget())
-            Optional.of((cameraHeight - ballHeight) /
-                tan(Math.toRadians(getVerticalOffset().get() + cameraAngle)))
-=======
     private fun findTargetDistance(ballHeight: Double): Optional<Double> {
-        SmartDashboard.putNumber("vert offset", getVerticalOffset())
-        return if (hasTarget())
-            Optional.of(
-                (Math.abs(cameraHeight - ballHeight)) /
-                        tan(Math.toRadians(getVerticalOffset() + cameraAngle))
-            )
->>>>>>> a801052e05ab0741340d91bfcfaef2191d1313fb
+        val voffset = getVerticalOffset()
+        return if (voffset.isEmpty()) Optional.empty() 
+        else if (hasTarget()) Optional.of((Math.abs(cameraHeight - ballHeight)) / 
+                tan(Math.toRadians(voffset.get() + cameraAngle)))
         else Optional.empty()
     }
 
