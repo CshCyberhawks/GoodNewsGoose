@@ -44,6 +44,6 @@ class NavXGyro(private val port: SPI.Port) : GenericGyro {
     }
 
     override fun getYawRotation2d(): Rotation2d {
-        TODO("Not yet implemented")
+        return gyro.rotation2d
     }
 }

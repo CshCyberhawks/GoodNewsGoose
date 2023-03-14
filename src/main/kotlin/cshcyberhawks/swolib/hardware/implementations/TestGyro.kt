@@ -19,7 +19,5 @@ class TestGyro(
 
     override fun setYawOffset(currentPos: Double) {}
 
-    override fun getYawRotation2d(): Rotation2d {
-        TODO("Not yet implemented")
-    }
+    override fun getYawRotation2d(): Rotation2d = Rotation2d(Math.toRadians(retYaw))
 }
