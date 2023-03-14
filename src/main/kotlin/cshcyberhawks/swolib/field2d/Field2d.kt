@@ -1,20 +1,31 @@
 package cshcyberhawks.swolib.field2d
 
+import cshcyberhawks.swolib.math.FieldPosition
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.networktables.NTSendable
 import edu.wpi.first.networktables.NTSendableBuilder
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.util.sendable.SendableRegistry
+import edu.wpi.first.wpilibj.DriverStation
 
 class Field2d : NTSendable, AutoCloseable {
+    companion object {
+        fun toWPILIBFieldPosition(pos: FieldPosition): FieldPosition {
+            return if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+                FieldPosition(pos.y, -pos.x, pos.angle)
+            } else {
+                FieldPosition(16.54 - pos.y, pos.x, pos.angle + 180)
+            }
+        }
+    }
+
     private var table: NetworkTable? = null
     val objectList: MutableList<FieldObject2d> = ArrayList()
 
     /** Constructor.  */
     init {
         val obj = FieldObject2d("Robot")
-        obj.pose = Pose2d()
         objectList.add(obj)
         SendableRegistry.add(this, "Field")
     }

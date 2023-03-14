@@ -167,7 +167,8 @@ class Robot : TimedRobot() {
             swo,
             swerveDriveTrain,
             gyro,
-            true
+            true,
+            Optional.of(field2d)
         )
 
     private var teleopCommand =

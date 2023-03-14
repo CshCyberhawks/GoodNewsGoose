@@ -20,6 +20,8 @@ class FieldPosition(private var position: Vector2 = Vector2(), var angle: Double
             position.y = value
         }
 
+    val angleRadians
+        get() = Math.toRadians(angle)
     override fun equals(other: Any?): Boolean {
         return position == other && angle == other
     }
