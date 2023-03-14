@@ -66,7 +66,7 @@ class AutoLimelightSingleAxis(
                 )
         }
         if (setAngle) {
-            swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset())
+            swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset().get())
         }
         command?.schedule()
         println("set desired")

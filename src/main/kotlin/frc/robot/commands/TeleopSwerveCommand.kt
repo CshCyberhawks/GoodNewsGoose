@@ -118,7 +118,7 @@ class TeleopSwerveCommand(
 
         if (IO.limelightAngleLock) {
             driveTwist =
-                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
+                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
                     50
         } else if (IO.limelightTranslate) {
             println("set current command")
