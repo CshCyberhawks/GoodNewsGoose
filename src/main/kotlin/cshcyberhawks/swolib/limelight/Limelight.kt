@@ -47,7 +47,6 @@ class Limelight(
             if (value < 0 || value > 9) error("Invalid pipeline value")
             else limelight.getEntry("pipeline").setNumber(value)
         }
-
     //    companion object {
     //        public var viewTab: ShuffleboardTab = Shuffleboard.getTab("Limelight View")
     //        private var currentFeed: HttpCamera? = null
@@ -200,6 +199,8 @@ class Limelight(
         return Optional.of(data[5])
     }
 
+    /** @return uses targetDistance() to "more accurately" estimate bot yaw
+     * (accounts for camera distance from bot center)*/
     fun getBotYawClose(): Optional<Double> {
         val limelightRotation = getHorizontalOffset()
         val targetDistance = findTargetDistance(aprilTagHeight)

@@ -84,9 +84,9 @@ class TeleopSwerveCommand(
         }
 
         if(IO.limelightGyroCorrect) {
-            /**assumes limelight is at center of robot**/
+            /**assumes limelight is at center of robot*/
             val offset = currentLimelight.getHorizontalOffset()
-            /**"better"**/
+            /**"better"*/
 //            val offset = currentLimelight.getBotYawClose()
             if (offset.isPresent) {
                 gyro.setYawOffset(-offset.get())
