@@ -93,14 +93,8 @@ object IO {
             return toggled
         }
 
-    private var limelightSingleAxisXLast = false
     val limelightTranslateSingleAxisX: Boolean
-        get() {
-            val current = rightJoy.getRawButton(6)
-            val toggled = current && !limelightSingleAxisXLast
-            limelightSingleAxisXLast = current
-            return toggled
-        }
+        get() = rightJoy.getRawButton(6)
 
     private var limelightSingleAxisYLast = false
     val limelightTranslateSingleAxisY: Boolean

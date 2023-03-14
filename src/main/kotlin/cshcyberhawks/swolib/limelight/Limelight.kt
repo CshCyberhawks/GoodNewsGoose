@@ -29,7 +29,8 @@ class Limelight(
     private val fiducialPipeline: Int = 0
 ) {
     private val limelight: NetworkTable
-    private val tab: ShuffleboardTab
+    private val tab: ShuffleboardTab = Shuffleboard.getTab("Limelight: $name")
+
     private val camName: String = name
     val feed: HttpCamera
 
@@ -66,7 +67,6 @@ class Limelight(
         limelight.getEntry("snapshot").setNumber(snapshotMode.ordinal)
         limelight.getEntry("crop").setNumberArray(crop)
 
-        tab = Shuffleboard.getTab("Limelight: $name")
         tab.add("$name Has Target", this.hasTarget())
         tab.add("$name Horizontal Offset", this.getHorizontalOffset())
         tab.add("$name Vertical Offset", this.getVerticalOffset())
@@ -179,11 +179,15 @@ class Limelight(
         limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
 
     /** @return Distance from target (meters). */
-    private fun findTargetDistance(ballHeight: Double): Optional<Double> =
-        if (hasTarget())
-            Optional.of((cameraHeight - ballHeight) /
-                tan(Math.toRadians(getVerticalOffset() + cameraAngle)))
+    private fun findTargetDistance(ballHeight: Double): Optional<Double> {
+        SmartDashboard.putNumber("vert offset", getVerticalOffset())
+        return if (hasTarget())
+            Optional.of(
+                (Math.abs(cameraHeight - ballHeight)) /
+                        tan(Math.toRadians(getVerticalOffset() + cameraAngle))
+            )
         else Optional.empty()
+    }
 
     fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
 
@@ -197,8 +201,12 @@ class Limelight(
             AngleCalculations.wrapAroundAngles(getHorizontalOffset() + gyro.getYaw()) // 357
 
         var ret = Vector2.fromPolar(Polar(angle, distance.get()))
-        ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
 
+        SmartDashboard.putNumber("ll relative x", ret.x)
+        SmartDashboard.putNumber("ll relative y", ret.y)
+
+
+        ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
 
         return Optional.of(Vector2(ret.y, ret.x))
     }

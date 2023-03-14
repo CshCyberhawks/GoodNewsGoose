@@ -41,6 +41,8 @@ class SwerveAuto(
             currentTwistTrap = TrapezoidProfile.State(gyro.getYaw(), 0.0)
             SmartDashboard.putNumber("Desired X", value.x)
             SmartDashboard.putNumber("Desired Y", value.y)
+            xDesPosShuffle.setDouble(value.x)
+            yDesPosShuffle.setDouble(value.y)
             prevTime = 0.0
             field = value
         }
@@ -69,6 +71,11 @@ class SwerveAuto(
     private val yPIDOutputShuffle = autoShuffleboardTab.add("Y PID OUT", 0.0).entry
     private val twistPIDOutputShuffle: GenericEntry =
         autoShuffleboardTab.add("Twist PID OUT", 0.0).entry
+
+    private val xDesPosShuffle = autoShuffleboardTab.add("Desired Pos X", 0.0).entry
+    private val yDesPosShuffle = autoShuffleboardTab.add("Desired Pos Y", 0.0).entry
+
+
 
     init {
         twistPID.enableContinuousInput(0.0, 360.0)

@@ -52,7 +52,7 @@ class AutoLimelightSingleAxis(
                     )
                 )
         }
-        if (axis == Axis.Y) {
+        else if (axis == Axis.Y) {
             command =
                 GoToPosition(
                     swerveAuto,

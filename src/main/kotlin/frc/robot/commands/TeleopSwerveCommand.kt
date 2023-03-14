@@ -10,6 +10,7 @@ import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.MiscConstants
 import frc.robot.util.IO
@@ -120,22 +121,26 @@ class TeleopSwerveCommand(
             driveTwist =
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset(), .5) /
                     50
-        } else if (IO.limelightTranslate) {
+        } else if (IO.limelightTranslateSingleAxisX) {
+            swerveDriveTrain.drive(Vector2(currentLimelight.getHorizontalOffset() / 100, 0.0), 0.0, true)
+            return
+        }
+        else if (IO.limelightTranslate) {
             println("set current command")
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
-        } else if (IO.limelightTranslateSingleAxisX) {
-            println("set current command to axis X")
-            setCurrentCommand(
-                AutoLimelightSingleAxis(
-                    swerveAuto,
-                    currentLimelight,
-                    0.31,
-                    AutoLimelightSingleAxis.Axis.X,
-                    desiredPipe
-                )
-            )
-            return
+//        } else if (IO.limelightTranslateSingleAxisX) {
+//            println("set current command to axis X")
+//            setCurrentCommand(
+//                AutoLimelightSingleAxis(
+//                    swerveAuto,
+//                    currentLimelight,
+//                    0.31,
+//                    AutoLimelightSingleAxis.Axis.X,
+//                    desiredPipe
+//                )
+//            )
+//            return
         } else if (IO.limelightTranslateSingleAxisY) {
             setCurrentCommand(
                 AutoLimelightSingleAxis(
