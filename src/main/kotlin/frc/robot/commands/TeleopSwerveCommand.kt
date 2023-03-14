@@ -83,6 +83,12 @@ class TeleopSwerveCommand(
             swerveAuto.swo.fieldPosition = Vector3()
         }
 
+        if(IO.limelightGyroCorrect) {
+            val offset = currentLimelight.getHorizontalOffset()
+            if (offset.isPresent)
+                gyro.setYawOffset(-offset.get())
+        }
+
         if (IO.gyroReset) {
             gyro.setYawOffset()
         }

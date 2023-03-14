@@ -225,9 +225,7 @@ class Limelight(
 
     fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Optional<Vector2> {
         val distance = findTargetDistance(ballHeight) // .639
-        if (distance.isEmpty) {
-            return Optional.empty()
-        }
+        if (distance.isEmpty) return Optional.empty()
         SmartDashboard.putNumber("Limelight Distance", distance.get())
         val angle: Double =
             AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
@@ -236,7 +234,6 @@ class Limelight(
 
         SmartDashboard.putNumber("ll relative x", ret.x)
         SmartDashboard.putNumber("ll relative y", ret.y)
-
 
         ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
 
