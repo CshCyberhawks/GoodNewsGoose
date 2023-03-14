@@ -2,6 +2,8 @@ package frc.robot
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
+import cshcyberhawks.swolib.field2d.Field2d
+import cshcyberhawks.swolib.field2d.FieldObject2d
 import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
@@ -17,6 +19,9 @@ import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget
@@ -29,6 +34,7 @@ import edu.wpi.first.net.PortForwarder
 import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
+import java.util.*
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -128,6 +134,8 @@ class Robot : TimedRobot() {
             gyro
         )
 
+    private val field2d = Field2d()
+
     private val swo =
         SwerveOdometry(
             swerveDriveTrain,
@@ -135,7 +143,8 @@ class Robot : TimedRobot() {
             1.0,
             Vector3(0.0, 0.0, 0.0),
             arrayOf(limelightBack),
-            debugLogging = true
+            debugLogging = true,
+            field2d = Optional.of(field2d)
         )
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
@@ -177,7 +186,7 @@ class Robot : TimedRobot() {
 
     lateinit var llCam: HttpCamera
 
-    val fieldShuffleboard: ComplexWidget = driverTab.add("Field", swo.field2d)
+
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -194,6 +203,8 @@ class Robot : TimedRobot() {
 
         limelightBack.pipeline = 0
 //        limelightFront.pipeline = 0
+
+        driverTab.add("Field", field2d)
 
         // driverTab.add("LL", limelightBack.feed)
     }
