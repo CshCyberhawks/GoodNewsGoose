@@ -8,16 +8,11 @@ class TimedFinish(val time: Double = 1.0) : CommandBase() {
 
     override fun initialize() {
         startTime = WPIUtilJNI.now() * 1.0e-6
-        println("TimedFinish initialized")
     }
 
-    override fun execute() {
-        println("TimedFinish executing")
-    }
+    override fun execute() {}
 
-    override fun end(interrupted: Boolean) {
-        println("TimedFinish ended")
-    }
+    override fun end(interrupted: Boolean) {}
 
     override fun isFinished(): Boolean {
         SmartDashboard.putNumber("Time now", WPIUtilJNI.now() * 1.0e-6)

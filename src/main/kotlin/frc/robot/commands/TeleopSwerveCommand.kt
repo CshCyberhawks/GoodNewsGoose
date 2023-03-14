@@ -122,11 +122,13 @@ class TeleopSwerveCommand(
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
                     50
         } else if (IO.limelightTranslateSingleAxisX) {
-            swerveDriveTrain.drive(Vector2(currentLimelight.getHorizontalOffset().get() / 100, 0.0), 0.0, true)
-            return
+            val limelightOffset = currentLimelight.getHorizontalOffset()
+            if (!limelightOffset.isEmpty) {
+                swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0, true)
+                return
+            }
         }
         else if (IO.limelightTranslate) {
-            println("set current command")
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
 //        } else if (IO.limelightTranslateSingleAxisX) {

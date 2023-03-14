@@ -55,6 +55,12 @@ class Limelight(
     //        }
     //    }
 
+    fun putToTab(name: String, data: Optional<Double>) {
+        if (!data.isEmpty) {
+            tab.add(name, data.get())
+        }
+    }
+
     init {
         if (pipeline < 0 || pipeline > 9) error("Invalid pipeline value")
         else if (crop.size != 4) error("Invalid crop array")
@@ -68,14 +74,14 @@ class Limelight(
         limelight.getEntry("crop").setNumberArray(crop)
 
         tab.add("$name Has Target", this.hasTarget())
-        tab.add("$name Horizontal Offset", this.getHorizontalOffset())
-        tab.add("$name Vertical Offset", this.getVerticalOffset())
-        tab.add("$name Area", this.getArea())
-        tab.add("$name Rotation", this.getRotation())
+        putToTab("$name Horizontal Offset", this.getHorizontalOffset())
+        putToTab("$name Vertical Offset", this.getVerticalOffset())
+        putToTab("$name Area", this.getArea())
+        putToTab("$name Rotation", this.getRotation())
         tab.add("$name Current Pipeline", pipeline)
         tab.add("$name Target 3D", this.getTarget3D())
-        tab.add("$name Target ID", this.getTargetID())
         tab.add("$name Cam Pose", this.getCamDebug())
+        putToTab("$name Target ID", this.getTargetID())
         tab.add("$name Bot Pose", this.getBotDebug())
 
         feed = if (name == "limelight-front") {

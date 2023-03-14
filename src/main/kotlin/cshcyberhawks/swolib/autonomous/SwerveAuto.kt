@@ -147,7 +147,6 @@ class SwerveAuto(
     fun move() {
         var translation: Vector2 = Vector2(0.0, 0.0)
         var twist: Double = 0.0
-        println("move called")
 
         SmartDashboard.putBoolean("At Des Pos", isAtDesiredPosition())
         if (!isAtDesiredPosition()) {

@@ -69,12 +69,10 @@ class AutoLimelightSingleAxis(
             swerveAuto.setDesiredAngleRelative(limelight.getHorizontalOffset().get())
         }
         command?.schedule()
-        println("set desired")
     }
 
     override fun initialize() {
         setPos()
-        println("init")
     }
 
     override fun execute() {}
@@ -86,6 +84,5 @@ class AutoLimelightSingleAxis(
 
     override fun end(int: Boolean) {
         swerveAuto.kill()
-        println("done")
     }
 }
