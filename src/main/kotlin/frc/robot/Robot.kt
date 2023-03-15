@@ -129,7 +129,7 @@ class Robot : TimedRobot() {
                 backRight,
                 backLeft,
                 angleConfiguration =
-                FourWheelAngleConfiguration(138.4, -138.4, 41.6, -41.6)
+                FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4)
             ),
             gyro
         )
