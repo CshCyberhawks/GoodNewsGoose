@@ -49,7 +49,10 @@ object IO {
             return limelightGyroCorrectToggled
         }
 
-
+    val limelightChangeRot: Boolean
+        get() {
+            return xbox.aButtonPressed
+        }
     private var lastToggleTraversal = false
     val toggleTraversal: Boolean
         get() {
