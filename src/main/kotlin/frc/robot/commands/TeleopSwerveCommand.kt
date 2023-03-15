@@ -122,7 +122,7 @@ class TeleopSwerveCommand(
             throttle = IO.moveyThrottle
         }
 
-        MathUtil.clamp(throttle, 0.0, 1.0)
+        throttle = MathUtil.clamp(throttle, 0.0, 1.0)
 
         val driveVec = Vector2(IO.moveX * throttle, -IO.moveY * throttle)
         var driveTwist = IO.moveTwist * throttle

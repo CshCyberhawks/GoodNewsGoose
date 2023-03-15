@@ -54,8 +54,8 @@ class SwerveOdometry(
         val z =
             (total.x * sin(Math.toRadians(gyro.getPitch())) +
                 total.y * sin(Math.toRadians(gyro.getRoll()))) / swoToMeters
-//        return Vector3(x, y, z)
-        return Vector3(total.x, total.y, 0.0)
+        return Vector3(x, y, z)
+//        return Vector3(total.x, total.y, 0.0)
     }
 
     fun updatePosition() {
