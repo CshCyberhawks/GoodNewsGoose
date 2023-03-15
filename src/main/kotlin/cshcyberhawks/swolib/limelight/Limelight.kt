@@ -8,6 +8,8 @@ import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveOdometry
+import edu.wpi.first.apriltag.AprilTag
+import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
@@ -18,13 +20,17 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import java.util.*
-import kotlin.math.abs
+import kotlin.math.atan
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.tan
 
 class Limelight(
     name: String,
     private val cameraHeight: Double,
     private val cameraAngle: Double = 0.0,
+    private val cameraDistance: Double = 0.0,
+    private val aprilTagHeight: Double = 0.0,
     ledMode: LedMode = LedMode.Pipeline,
     cameraMode: CameraMode = CameraMode.VisionProcessor,
     pipeline: Int = 0,
@@ -45,7 +51,6 @@ class Limelight(
             if (value < 0 || value > 9) error("Invalid pipeline value")
             else limelight.getEntry("pipeline").setNumber(value)
         }
-
     //    companion object {
     //        public var viewTab: ShuffleboardTab = Shuffleboard.getTab("Limelight View")
     //        private var currentFeed: HttpCamera? = null
@@ -82,7 +87,6 @@ class Limelight(
         putToTab("$name Horizontal Offset", this.getHorizontalOffset())
         putToTab("$name Vertical Offset", this.getVerticalOffset())
         putToTab("$name Area", this.getArea())
-        putToTab("$name Rotation", this.getRotation())
         tab.add("$name Current Pipeline", pipeline)
         tab.add("$name Target 3D", this.getTarget3D())
         tab.add("$name Cam Pose", this.getCamDebug())
@@ -115,11 +119,6 @@ class Limelight(
     
     /** @return Target Area (0% of image to 100% of image) */
     private fun getArea(): Optional<Double> {
-        val out = limelight.getEntry("ta").getDouble(Double.NaN)
-        return if (!out.isNaN()) Optional.of(out) else Optional.empty()
-    }
-
-    private fun getRotation(): Optional<Double> {
         val out = limelight.getEntry("ta").getDouble(Double.NaN)
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }
@@ -204,6 +203,19 @@ class Limelight(
         return Optional.of(data[5])
     }
 
+    /** @return uses targetDistance() to "more accurately" estimate bot yaw
+     * (accounts for camera distance from bot center)*/
+    fun getBotYawClose(): Optional<Double> {
+        val limelightRotation = getHorizontalOffset()
+        val targetDistance = findTargetDistance(aprilTagHeight)
+        return if(limelightRotation.isPresent())
+            Optional.of(
+                atan(
+                    (targetDistance.get() * sin(-limelightRotation.get())) /
+                            (cameraDistance + targetDistance.get() * cos(-limelightRotation.get()))))
+        else Optional.empty()
+    }
+
     private fun getBotDebug(): Array<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
         if (data.isEmpty()) {
@@ -241,7 +253,6 @@ class Limelight(
         SmartDashboard.putNumber("Limelight Distance", distance)
         val angle: Double =
             AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
-
 
         return Optional.of(Vector2.fromPolar(Polar(angle, distance)) + Vector2(swo.fieldPosition.x, swo.fieldPosition.y))
     }

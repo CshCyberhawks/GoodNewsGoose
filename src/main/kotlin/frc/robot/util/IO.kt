@@ -42,7 +42,17 @@ object IO {
     val resetFieldLimelight
         get() = leftJoy.getRawButtonPressed(1)
 
+    private var limelightGyroCorrectToggled = false
+    val limelightGyroCorrect: Boolean
+        get() {
+            limelightGyroCorrectToggled = xbox.bButtonPressed.xor(limelightGyroCorrectToggled)
+            return limelightGyroCorrectToggled
+        }
 
+    val limelightChangeRot: Boolean
+        get() {
+            return xbox.aButtonPressed
+        }
     private var lastToggleTraversal = false
     val toggleTraversal: Boolean
         get() {
