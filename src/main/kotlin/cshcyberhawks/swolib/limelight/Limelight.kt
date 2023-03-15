@@ -1,7 +1,12 @@
 package cshcyberhawks.swolib.limelight
 
+import com.sun.tools.javac.jvm.ByteCodes.ret
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
-import cshcyberhawks.swolib.math.*
+import cshcyberhawks.swolib.math.AngleCalculations
+import cshcyberhawks.swolib.math.FieldPosition
+import cshcyberhawks.swolib.math.Polar
+import cshcyberhawks.swolib.math.Vector2
+import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.geometry.Pose3d
@@ -11,9 +16,9 @@ import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
-import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.tan
 
 class Limelight(
@@ -202,44 +207,42 @@ class Limelight(
     private fun getBotDebug(): Array<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
         if (data.isEmpty()) {
-            return arrayOf(0.0, 0.0, 0.0)
+            return arrayOf()
         }
         return arrayOf(data[0], data[1], data[2])
     }
 
-    fun getDetectorClass(): Double = limelight.getEntry("tclass").getDouble(0.0)
+    fun getDetectorClass(): Optional<Double> {
+        val out = limelight.getEntry("tclass").getDouble(Double.NaN)
+        return if (out.isNaN()) Optional.empty() else Optional.of(out)
+    }
 
     fun getColorUnderCrosshair(): Array<Number> =
         limelight.getEntry("tc").getNumberArray(arrayOf<Number>())
 
     /** @return Distance from target (meters). */
     private fun findTargetDistance(ballHeight: Double): Optional<Double> {
-        val voffset = getVerticalOffset()
-        return if (voffset.isEmpty()) Optional.empty() 
-        else if (hasTarget()) Optional.of((Math.abs(cameraHeight - ballHeight)) / 
-                tan(Math.toRadians(voffset.get() + cameraAngle)))
-        else Optional.empty()
+        val vOffset = getVerticalOffset()
+        return if (vOffset.isEmpty || !hasTarget()) Optional.empty() else Optional.of(
+            (abs(cameraHeight - ballHeight)) / tan(
+                Math.toRadians(vOffset.get() + cameraAngle)
+            )
+        )
     }
 
-    fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf(-1))
+    fun getColor(): Array<Number> = limelight.getEntry("tc").getNumberArray(arrayOf())
 
     fun getPosition(swo: SwerveOdometry, ballHeight: Double, gyro: GenericGyro): Optional<Vector2> {
-        val distance = findTargetDistance(ballHeight) // .639
-        if (distance.isEmpty) {
+        val optDistance = findTargetDistance(ballHeight) // .639
+        if (optDistance.isEmpty) {
             return Optional.empty()
         }
-        SmartDashboard.putNumber("Limelight Distance", distance.get())
+        val distance = optDistance.get()
+        SmartDashboard.putNumber("Limelight Distance", distance)
         val angle: Double =
             AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
 
-        var ret = Vector2.fromPolar(Polar(angle, distance.get()))
 
-        SmartDashboard.putNumber("ll relative x", ret.x)
-        SmartDashboard.putNumber("ll relative y", ret.y)
-
-
-        ret += Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
-
-        return Optional.of(Vector2(ret.y, ret.x))
+        return Optional.of(Vector2.fromPolar(Polar(angle, distance)) + Vector2(swo.fieldPosition.x, swo.fieldPosition.y))
     }
 }
