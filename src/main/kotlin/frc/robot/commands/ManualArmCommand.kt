@@ -24,6 +24,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
     override fun execute() {
         subsystem.desiredTilt = ControllerIO.toggleTilt
         subsystem.desiredArmAngle += ControllerIO.controlArmAngle
+        subsystem.desiredTraversalVelocity = ControllerIO.traversalManualControl
     }
 
     // Called once the command ends or is interrupted.

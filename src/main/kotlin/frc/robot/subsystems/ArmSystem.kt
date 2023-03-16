@@ -20,6 +20,7 @@ class ArmSystem() : SubsystemBase() {
 
     private val tiltSolenoids: Array<Solenoid> = arrayOf(Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid1), Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid2))
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
+    private val traversalMotor = CANSparkMax(MotorConstants.traversalMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
     private val traversalExtendedSwitch = DigitalInput(0)
@@ -27,6 +28,8 @@ class ArmSystem() : SubsystemBase() {
 
     private val armAngleDegrees
         get() = armAngleEncoder.get() * 360 % 360
+    private var traversalPosition = TraversalPosition.EXTENDED
+    private var lastKnownTraversalPosition = TraversalPosition.EXTENDED
 
     private val armAnglePID = ProfiledPIDController(0.01, 0.0, 0.0, TrapezoidProfile.Constraints(90.0, 10.0))
 
@@ -37,17 +40,32 @@ class ArmSystem() : SubsystemBase() {
             armAnglePID.reset(armAngleDegrees)
             field = value
         }
+    var desiredTraversalVelocity = 0.0
 
     init {
         armAngleEncoder.distancePerRotation = 360.0
     }
 
     override fun periodic() {
+        // traversalPosition = if (traversalExtendedSwitch.get()) {
+        //     TraversalPosition.EXTENDED
+        // } else if (traversalRetractedSwitch.get()) {
+        //     TraversalPosition.RETRACTED
+        // } else {
+        //     TraversalPosition.UNKNOWN
+        // }
+
+        // if (traversalPosition != TraversalPosition.UNKNOWN) {
+        //     lastKnownTraversalPosition = traversalPosition
+        // }
+
         for (solenoid in tiltSolenoids) {
             solenoid.set(desiredTilt)
         }
 
         armAngleMotor.set(armAnglePID.calculate(armAngleDegrees))
+        traversalMotor.set(desiredTraversalVelocity)
+        desiredTraversalVelocity = 0.0
     }
 
     override fun simulationPeriodic() {
