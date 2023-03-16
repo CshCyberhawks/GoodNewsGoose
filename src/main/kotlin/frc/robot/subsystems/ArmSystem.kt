@@ -21,6 +21,7 @@ class ArmSystem() : SubsystemBase() {
     private val tiltSolenoids: Array<Solenoid> = arrayOf(Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid1), Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid2))
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = CANSparkMax(MotorConstants.traversalMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
+    private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
     private val traversalExtendedSwitch = DigitalInput(0)
@@ -41,6 +42,7 @@ class ArmSystem() : SubsystemBase() {
             field = value
         }
     var desiredTraversalVelocity = 0.0
+    var desiredClawOpen = false
 
     init {
         armAngleEncoder.distancePerRotation = 360.0
@@ -64,6 +66,7 @@ class ArmSystem() : SubsystemBase() {
         }
 
         armAngleMotor.set(armAnglePID.calculate(armAngleDegrees))
+        clawSolenoid.set(desiredClawOpen)
         traversalMotor.set(desiredTraversalVelocity)
         desiredTraversalVelocity = 0.0
     }

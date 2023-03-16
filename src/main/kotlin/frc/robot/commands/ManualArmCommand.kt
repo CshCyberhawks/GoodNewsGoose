@@ -25,6 +25,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         subsystem.desiredTilt = ControllerIO.toggleTilt
         subsystem.desiredArmAngle += ControllerIO.controlArmAngle
         subsystem.desiredTraversalVelocity = ControllerIO.traversalManualControl
+        subsystem.desiredClawOpen = ControllerIO.toggleGrabber
     }
 
     // Called once the command ends or is interrupted.

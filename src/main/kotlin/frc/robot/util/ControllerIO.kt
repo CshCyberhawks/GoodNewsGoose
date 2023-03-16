@@ -6,8 +6,15 @@ import edu.wpi.first.wpilibj.XboxController
 object ControllerIO {
     private val xbox = XboxController(2)
 
+
+    private var lastToggleGrabber = false
     val toggleGrabber: Boolean
-        get() = xbox.rightBumper
+        get() {
+            val current = xbox.rightBumper
+            val toggled = current && !lastToggleGrabber
+            lastToggleGrabber = current
+            return toggled
+        }
 
     val toggleBrake: Boolean
         get() = xbox.leftBumper
@@ -25,5 +32,5 @@ object ControllerIO {
         get() = MiscCalculations.calculateDeadzone(-xbox.leftY, 0.1)
 
     val traversalManualControl
-        get() =MiscCalculations.calculateDeadzone(xbox.rightY, 0.1)
+        get() = MiscCalculations.calculateDeadzone(xbox.rightY, 0.1)
 }
