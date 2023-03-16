@@ -45,7 +45,8 @@ object IO {
     private var limelightGyroCorrectToggled = false
     val limelightGyroCorrect: Boolean
         get() {
-            limelightGyroCorrectToggled = xbox.bButtonPressed.xor(limelightGyroCorrectToggled)
+            limelightGyroCorrectToggled = xbox.bButtonPressed
+            println(limelightGyroCorrectToggled)
             return limelightGyroCorrectToggled
         }
 
