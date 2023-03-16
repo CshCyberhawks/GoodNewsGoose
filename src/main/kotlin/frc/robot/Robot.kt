@@ -13,6 +13,7 @@ import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
 import cshcyberhawks.swolib.swerve.configurations.FourWheelAngleConfiguration
+import cshcyberhawks.swolib.swerve.configurations.FourWheelSpeedConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.cameraserver.CameraServer
@@ -129,7 +130,8 @@ class Robot : TimedRobot() {
                 backRight,
                 backLeft,
                 angleConfiguration =
-                FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4)
+                FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4),
+                speedConfiguration = FourWheelSpeedConfiguration(.75, .75, .75, .75)
             ),
             gyro
         )
