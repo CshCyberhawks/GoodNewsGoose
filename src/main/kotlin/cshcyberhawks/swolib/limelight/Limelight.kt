@@ -206,9 +206,10 @@ class Limelight(
         val targetDistance = findTargetDistance(aprilTagHeight)
         return if(limelightRotation.isPresent())
             Optional.of(
-                atan(
-                    (targetDistance.get() * sin(-limelightRotation.get())) /
-                            (cameraDistance + targetDistance.get() * cos(-limelightRotation.get()))))
+                atan2(
+                    (targetDistance.get() * sin(-limelightRotation.get())),
+                            (cameraDistance + targetDistance.get() * cos(-limelightRotation.get())))
+            )
         else Optional.empty()
     }
 
