@@ -159,32 +159,10 @@ class Limelight(
 
     fun getCamPose(): Optional<FieldPosition> {
         val data = limelight.getEntry("campose").getDoubleArray(arrayOf())
-        var pose: Pose3d? = null
-        if (data.isNotEmpty()) {
-            val translation = Translation3d(data[0], data[1], data[2])
-            val rotation = Rotation3d(data[3], data[4], data[5])
-            pose = Pose3d(translation, rotation)
-        }
-        if (pose != null) {
-            val fieldPosition = FieldPosition(pose.x, pose.y, pose.rotation.z)
-            return Optional.of(fieldPosition)
-        } else {
+        if (data.isEmpty()) {
             return Optional.empty()
         }
-    }
-
-    private fun getCamDebug(): Array<Double> {
-        val data = limelight.getEntry("campose").getDoubleArray(arrayOf())
-        var pose: Pose3d? = null
-        if (data.isNotEmpty()) {
-            val translation = Translation3d(data[0], data[1], data[2])
-            val rotation = Rotation3d(data[3], data[4], data[5])
-            pose = Pose3d(translation, rotation)
-        }
-        if (pose == null) {
-            return arrayOf(0.0, 0.0, 0.0)
-        }
-        return arrayOf(pose.x, pose.y, pose.rotation.z)
+        return Optional.of(FieldPosition(data[0], data[1], data[5]))
     }
 
     fun getBotPosition(): Optional<Vector3> {
