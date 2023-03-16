@@ -89,7 +89,7 @@ class Limelight(
         putToTab("$name Area", this.getArea())
         tab.add("$name Current Pipeline", pipeline)
         tab.add("$name Target 3D", this.getTarget3D())
-        tab.add("$name Cam Pose", this.getCamDebug())
+//        tab.add("$name Cam Pose", this.getCamDebug())
         putToTab("$name Target ID", this.getTargetID())
         tab.add("$name Bot Pose", this.getBotDebug())
 
