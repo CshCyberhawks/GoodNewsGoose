@@ -18,8 +18,12 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import java.util.*
-import kotlin.math.*
+import java.util.Optional
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.tan
 
 class Limelight(
     name: String,
@@ -204,7 +208,7 @@ class Limelight(
     fun getBotYawClose(): Optional<Double> {
         val limelightRotation = getHorizontalOffset()
         val targetDistance = findTargetDistance(aprilTagHeight)
-        return if(limelightRotation.isPresent())
+        return if (limelightRotation.isPresent)
             Optional.of(
                 atan2(
                     (targetDistance.get() * sin(-limelightRotation.get())),
