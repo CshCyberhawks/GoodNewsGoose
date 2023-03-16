@@ -10,10 +10,9 @@ import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.MiscConstants
-import frc.robot.util.IO
+import frc.robot.util.JoyIO
 
 class TeleopSwerveCommand(
     private var swerveDriveTrain: SwerveDriveTrain,
@@ -58,7 +57,7 @@ class TeleopSwerveCommand(
         pipShuffle.setInteger(desiredPipe.toLong())
         currentLimelightShuffle.setInteger(currentLimelightIndex.toLong())
 
-        if (IO.killCommand) {
+        if (JoyIO.killCommand) {
             currentCommand?.cancel()
             currentCommand = null
         }
@@ -79,11 +78,11 @@ class TeleopSwerveCommand(
         //        } else if (IO.pip3) {
         //            desiredPip = 3
         //        }
-        if (IO.resetSwo) {
+        if (JoyIO.resetSwo) {
             swerveAuto.swo.fieldPosition = Vector3()
         }
 
-        if(IO.limelightGyroCorrect) {
+        if(JoyIO.limelightGyroCorrect) {
             /**assumes limelight is at center of robot*/
             val offset = currentLimelight.getHorizontalOffset()
            /**"better"*/
@@ -92,58 +91,58 @@ class TeleopSwerveCommand(
                 gyro.setYawOffset(-offset.get())
             }
         }
-        if (IO.limelightChangeRot) {
+        if (JoyIO.limelightChangeRot) {
             val offset = currentLimelight.getHorizontalOffset()
             if (offset.isPresent) {
                 gyro.setYawOffset(-offset.get() + 90.0)
             }
         }
-        if (IO.gyroReset) {
+        if (JoyIO.gyroReset) {
             gyro.setYawOffset()
         }
 
-        if (IO.fastThrottle) {
+        if (JoyIO.fastThrottle) {
             throttle = 0.9
         }
 
-        if (IO.normalThrottle) {
+        if (JoyIO.normalThrottle) {
             throttle = 0.4
         }
 
-        val quickThrottle = IO.quickThrottle
+        val quickThrottle = JoyIO.quickThrottle
         if (quickThrottle in 135..225) {
             throttle -= MiscConstants.quickThrottleChange
         } else if (quickThrottle == 315 || quickThrottle == 45 || quickThrottle == 0) {
             throttle += MiscConstants.quickThrottleChange
         }
 
-        if (MiscCalculations.calculateDeadzone(IO.moveyThrottle - prevJoyMoveyThrottle, .005) != 0.0
+        if (MiscCalculations.calculateDeadzone(JoyIO.moveyThrottle - prevJoyMoveyThrottle, .005) != 0.0
         ) {
-            throttle = IO.moveyThrottle
+            throttle = JoyIO.moveyThrottle
         }
 
         throttle = MathUtil.clamp(throttle, 0.0, 1.0)
 
-        val driveVec = Vector2(IO.moveX * throttle, -IO.moveY * throttle)
-        var driveTwist = IO.moveTwist * throttle
+        val driveVec = Vector2(JoyIO.moveX * throttle, -JoyIO.moveY * throttle)
+        var driveTwist = JoyIO.moveTwist * throttle
 
-        if (IO.toggleLimelight) {
+        if (JoyIO.toggleLimelight) {
             currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
             currentLimelight = limelightArray[currentLimelightIndex]
         }
 
-        if (IO.limelightAngleLock) {
+        if (JoyIO.limelightAngleLock) {
             driveTwist =
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
                     50
-        } else if (IO.limelightTranslateSingleAxisX) {
+        } else if (JoyIO.limelightTranslateSingleAxisX) {
             val limelightOffset = currentLimelight.getHorizontalOffset()
             if (!limelightOffset.isEmpty) {
                 swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0, true)
                 return
             }
         }
-        else if (IO.limelightTranslate) {
+        else if (JoyIO.limelightTranslate) {
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
 //        } else if (IO.limelightTranslateSingleAxisX) {
@@ -158,7 +157,7 @@ class TeleopSwerveCommand(
 //                )
 //            )
 //            return
-        } else if (IO.limelightTranslateSingleAxisY) {
+        } else if (JoyIO.limelightTranslateSingleAxisY) {
             setCurrentCommand(
                 AutoLimelightSingleAxis(
                     swerveAuto,
@@ -171,8 +170,8 @@ class TeleopSwerveCommand(
             return
         }
 
-        prevJoyMoveyThrottle = IO.moveyThrottle
+        prevJoyMoveyThrottle = JoyIO.moveyThrottle
 
-        swerveDriveTrain.drive(driveVec, driveTwist, IO.disableFieldOrientation)
+        swerveDriveTrain.drive(driveVec, driveTwist, JoyIO.disableFieldOrientation)
     }
 }

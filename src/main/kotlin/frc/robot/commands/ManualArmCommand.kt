@@ -1,12 +1,17 @@
 package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
-import frc.robot.subsystems.ArmSubsystem
+import frc.robot.subsystems.ArmSystem
+import frc.robot.subsystems.ExampleSubsystem
+import frc.robot.util.ControllerIO
 
 /**
  * @property subsystem
  */
-class ManualArmCommand(private val subsystem: ArmSubsystem) : CommandBase() {
+class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
+    /**
+     * Creates a new ExampleCommand.
+     */
     init {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem)
@@ -17,13 +22,8 @@ class ManualArmCommand(private val subsystem: ArmSubsystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-//        subsystem.desiredArmAngle += IO.controlArmAngle
-//        subsystem.desiredArmAngle %= 360
-
-//        SmartDashboard.putBoolean("IO Toggle", IO.toggleTraversal)
-//        if (IO.toggleTraversal) {
-//            subsystem.desiredTraversalExtended = !subsystem.desiredTraversalExtended
-//        }
+        subsystem.desiredTilt = ControllerIO.toggleTilt
+        subsystem.desiredArmAngle += ControllerIO.controlArmAngle
     }
 
     // Called once the command ends or is interrupted.

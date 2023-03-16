@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import frc.robot.util.IO
+import frc.robot.util.JoyIO
 import java.util.Optional
 import kotlin.math.cos
 import kotlin.math.sin
@@ -73,7 +73,7 @@ class SwerveOdometry(
                 fieldPosition = vectorPosition
             }
 
-            if (IO.resetFieldLimelight) {
+            if (JoyIO.resetFieldLimelight) {
                 val limelightRotation = limelight.getBotYaw()
                 if (!limelightRotation.isEmpty && MiscCalculations.getCurrentTime() - lastYawLLTime > 0.3) {
                     SmartDashboard.putNumber("ll rotation", limelightRotation.get())
