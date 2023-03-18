@@ -42,4 +42,10 @@ object ControllerIO {
             toggleExtensionLast = current
             return toggled
         }
+
+    val clawMotorControl
+        get() = 0.0
+
+    val clawSolenoidControl
+        get() = false
 }

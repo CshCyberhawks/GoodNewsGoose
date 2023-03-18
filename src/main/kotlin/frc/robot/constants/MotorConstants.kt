@@ -32,4 +32,7 @@ object MotorConstants {
 
     const val gyroPort = 30
     const val pcm = 31
+
+    const val clawSolenoid = 40
+    const val clawMotor = 41
 }
