@@ -2,7 +2,6 @@ package frc.robot.util
 
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.Joystick
-import edu.wpi.first.wpilibj.XboxController
 import frc.robot.constants.DriverPreferences
 
 object JoyIO {
@@ -18,7 +17,7 @@ object JoyIO {
     val fastThrottle
         get() = leftJoy.getRawButtonPressed(4)
 
-    val moveyThrottle
+    val moveYThrottle
         get() = if (DriverPreferences.hosas) {
             MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
         } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)

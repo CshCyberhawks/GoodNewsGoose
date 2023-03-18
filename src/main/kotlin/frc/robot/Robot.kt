@@ -25,9 +25,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import frc.robot.commands.ManualArmCommand
 import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
+import frc.robot.subsystems.ArmSystem
 import java.util.*
 
 /**
@@ -166,7 +168,7 @@ class Robot : TimedRobot() {
             Optional.of(field2d)
         )
 
-    private var teleopCommand =
+    private var teleopSwerveCommand =
         TeleopSwerveCommand(
             swerveDriveTrain,
             auto,
@@ -175,10 +177,13 @@ class Robot : TimedRobot() {
             arrayOf(limelightBack)
         )
 
-    //    val armSystem = ArmSubsystem(driverTab)
-
     var autoCommand = TestingAuto(auto, gyro, limelightBack)
     private val autoPathManager = AutoPathManager(auto, gyro)
+
+    private val armSystem = ArmSystem()
+
+    private var teleopArmCommand = ManualArmCommand(armSystem)
+
 
     lateinit var llCam: HttpCamera
 
@@ -267,9 +272,8 @@ class Robot : TimedRobot() {
         autonomousCommand?.cancel()
         gyro.setYawOffset()
 
-        //        val armCommand = ManualArmCommand(armSystem)
-        //        armCommand.schedule()
-        teleopCommand.schedule()
+        teleopArmCommand.schedule()
+        teleopSwerveCommand.schedule()
     }
 
     /** This function is called periodically during operator control. */

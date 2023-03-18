@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.XboxController
 object ControllerIO {
     private val xbox = XboxController(2)
 
-
     private var lastToggleGrabber = false
     val toggleGrabber: Boolean
         get() {
@@ -33,4 +32,14 @@ object ControllerIO {
 
     val traversalManualControl
         get() = MiscCalculations.calculateDeadzone(xbox.rightY, 0.1)
+
+    private var toggleTraversalLast = false
+
+    val traversalToggle: Boolean
+        get() {
+            val current = xbox.xButton
+            val toggled = current && !toggleTraversalLast
+            toggleTraversalLast = current
+            return toggled
+        }
 }

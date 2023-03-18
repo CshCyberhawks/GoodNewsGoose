@@ -11,7 +11,7 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj2.command.CommandBase
-import frc.robot.constants.MiscConstants
+import frc.robot.constants.DriverPreferences
 import frc.robot.util.JoyIO
 
 class TeleopSwerveCommand(
@@ -111,14 +111,14 @@ class TeleopSwerveCommand(
 
         val quickThrottle = JoyIO.quickThrottle
         if (quickThrottle in 135..225) {
-            throttle -= MiscConstants.quickThrottleChange
-        } else if (quickThrottle == 315 || quickThrottle == 45 || quickThrottle == 0) {
-            throttle += MiscConstants.quickThrottleChange
+            throttle -= DriverPreferences.quickThrottleChange
+        } else if (quickThrottle !in 46..314) {
+            throttle += DriverPreferences.quickThrottleChange
         }
 
-        if (MiscCalculations.calculateDeadzone(JoyIO.moveyThrottle - prevJoyMoveyThrottle, .005) != 0.0
+        if (MiscCalculations.calculateDeadzone(JoyIO.moveYThrottle - prevJoyMoveyThrottle, .005) != 0.0
         ) {
-            throttle = JoyIO.moveyThrottle
+            throttle = JoyIO.moveYThrottle
         }
 
         throttle = MathUtil.clamp(throttle, 0.0, 1.0)
@@ -141,8 +141,7 @@ class TeleopSwerveCommand(
                 swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0, true)
                 return
             }
-        }
-        else if (JoyIO.limelightTranslate) {
+        } else if (JoyIO.limelightTranslate) {
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
 //        } else if (IO.limelightTranslateSingleAxisX) {
@@ -170,7 +169,7 @@ class TeleopSwerveCommand(
             return
         }
 
-        prevJoyMoveyThrottle = JoyIO.moveyThrottle
+        prevJoyMoveyThrottle = JoyIO.moveYThrottle
 
         swerveDriveTrain.drive(driveVec, driveTwist, JoyIO.disableFieldOrientation)
     }
