@@ -23,12 +23,13 @@ object MotorConstants {
 
     const val armAngleMotor = 20
     const val traversalMotor = 21
-    const val tiltSolenoid1 = 0
-    const val tiltSolenoid2 = 1
-    const val grabberSolenoid = 2
-    const val armAngleEncoder = 0
+    const val tiltSolenoid = 1
+    const val grabberSolenoid = 0
+    const val armAngleEncoder = 1
+    const val traversalEncoder = 0
     const val traversalExtendedSwitch = 1
     const val traversalRetractedSwitch = 2
 
+    const val gyroPort = 30
     const val pcm = 31
 }

@@ -120,7 +120,7 @@ class Robot : TimedRobot() {
             swerveConfiguration
         )
 
-    val gyro = Pigeon2Gyro(30)
+    val gyro = Pigeon2Gyro(MotorConstants.gyroPort)
 
     private val swerveDriveTrain =
         SwerveDriveTrain(
@@ -188,7 +188,6 @@ class Robot : TimedRobot() {
     private val autoPathManager = AutoPathManager(auto, gyro)
 
     lateinit var llCam: HttpCamera
-
 
 
     /**

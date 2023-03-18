@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.DutyCycleEncoder
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.MotorConstants
 
@@ -18,7 +19,7 @@ class ArmSystem() : SubsystemBase() {
         UNKNOWN
     }
 
-    private val tiltSolenoids: Array<Solenoid> = arrayOf(Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid1), Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid2))
+    private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = CANSparkMax(MotorConstants.traversalMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
@@ -61,14 +62,15 @@ class ArmSystem() : SubsystemBase() {
         //     lastKnownTraversalPosition = traversalPosition
         // }
 
-        for (solenoid in tiltSolenoids) {
-            solenoid.set(desiredTilt)
-        }
-
-        armAngleMotor.set(armAnglePID.calculate(armAngleDegrees))
-        clawSolenoid.set(desiredClawOpen)
-        traversalMotor.set(desiredTraversalVelocity)
-        desiredTraversalVelocity = 0.0
+        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
+//        for (solenoid in tiltSolenoids) {
+//            solenoid.set(desiredTilt)
+//        }
+//
+//        armAngleMotor.set(armAnglePID.calculate(armAngleDegrees))
+//        clawSolenoid.set(desiredClawOpen)
+//        traversalMotor.set(desiredTraversalVelocity)
+//        desiredTraversalVelocity = 0.0
     }
 
     override fun simulationPeriodic() {
