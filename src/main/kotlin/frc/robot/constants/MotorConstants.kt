@@ -27,8 +27,8 @@ object MotorConstants {
     const val grabberSolenoid = 0
     const val armAngleEncoder = 1
     const val traversalEncoder = 0
-    const val traversalExtendedSwitch = 1
-    const val traversalRetractedSwitch = 2
+    const val traversalExtendedSwitch = 2
+    const val traversalRetractedSwitch = 3
 
     const val gyroPort = 30
     const val pcm = 31

@@ -26,9 +26,9 @@ import kotlin.math.sin
 import kotlin.math.tan
 
 class Limelight(
-    name: String,
+    public val name: String,
     private val cameraHeight: Double,
-    private val cameraAngle: Double = 0.0,
+    var cameraAngle: Double = 0.0,
     private val cameraDistance: Double = 0.0,
     private val aprilTagHeight: Double = 0.0,
     ledMode: LedMode = LedMode.Pipeline,
@@ -111,12 +111,13 @@ class Limelight(
         val out = limelight.getEntry("tx").getDouble(Double.NaN)
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }
+
     /** @return Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees) */
     fun getVerticalOffset(): Optional<Double> {
         val out = limelight.getEntry("ty").getDouble(Double.NaN)
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }
-    
+
     /** @return Target Area (0% of image to 100% of image) */
     private fun getArea(): Optional<Double> {
         val out = limelight.getEntry("ta").getDouble(Double.NaN)
@@ -138,7 +139,7 @@ class Limelight(
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }
 
-    fun getHorizontalLength():Optional<Double> {
+    fun getHorizontalLength(): Optional<Double> {
         val out = limelight.getEntry("thor").getDouble(Double.NaN)
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }
@@ -190,7 +191,7 @@ class Limelight(
             Optional.of(
                 atan2(
                     (targetDistance.get() * sin(-limelightRotation.get())),
-                            (cameraDistance + targetDistance.get() * cos(-limelightRotation.get())))
+                    (cameraDistance + targetDistance.get() * cos(-limelightRotation.get())))
             )
         else Optional.empty()
     }

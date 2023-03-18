@@ -24,19 +24,24 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-        subsystem.desiredTilt = ControllerIO.toggleTilt
-        subsystem.desiredArmAngle += ControllerIO.controlArmAngle
-        subsystem.desiredTraversalPosition = if (ControllerIO.traversalToggle) {
-            TraversalPosition.EXTENDED
-        } else {
-            TraversalPosition.RETRACTED
+        if (ControllerIO.toggleTilt) {
+            subsystem.desiredTilt = !subsystem.desiredTilt
         }
-        subsystem.desiredClawOpen = ControllerIO.toggleGrabber
-
+        subsystem.desiredArmAngle += ControllerIO.controlArmAngle
+        if (ControllerIO.traversalToggle) {
+            if (subsystem.desiredTraversalPosition == TraversalPosition.EXTENDED) {
+                subsystem.desiredTraversalPosition = TraversalPosition.RETRACTED
+            } else if (subsystem.desiredTraversalPosition == TraversalPosition.RETRACTED) {
+                subsystem.desiredTraversalPosition = TraversalPosition.EXTENDED
+            }
+        }
+        if (ControllerIO.toggleGrabber) {
+            subsystem.desiredClawOpen = !subsystem.desiredClawOpen
+        }
         subsystem.run()
     }
 
-    // Called once the command ends or is interrupted.
+    // Called once the command ends or is interruppted.
     override fun end(interrupted: Boolean) {}
 
     // Returns true when the command should end.

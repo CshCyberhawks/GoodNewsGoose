@@ -63,9 +63,8 @@ class Robot : TimedRobot() {
     private val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
     private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
-    private val limelightBack = Limelight("limelight-back", 0.134, 0.0, fiducialPipeline = 2)
-
-    //    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
+    private val limelightBack = Limelight("limelight-back", 0.134, 0.0, fiducialPipeline = 1)
+    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
     private var backLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -174,7 +173,7 @@ class Robot : TimedRobot() {
             auto,
             gyro,
             driverTab,
-            arrayOf(limelightBack)
+            arrayOf(limelightFront, limelightBack)
         )
 
     var autoCommand = TestingAuto(auto, gyro, limelightBack)
@@ -201,8 +200,8 @@ class Robot : TimedRobot() {
 //            PortForwarder.add(i, "limelight.local", i)
 //        }
 
-        limelightBack.pipeline = 2
-//        limelightFront.pipeline = 0
+        limelightBack.pipeline = 1
+        limelightFront.pipeline = 1
 
         driverTab.add("Field", field2d)
 
@@ -236,6 +235,14 @@ class Robot : TimedRobot() {
             SmartDashboard.putNumber("Limelight Pos X", conePos.get().x)
             SmartDashboard.putNumber("Limelight Vert Offset", limelightBack.getVerticalOffset().get())
             SmartDashboard.putNumber("Limelight Pos Y", conePos.get().y)
+        }
+
+        if (armSystem.desiredTilt) {
+            limelightFront.cameraAngle = 0.0
+            limelightBack.cameraAngle = 0.0
+        } else {
+            limelightFront.cameraAngle = -24.4
+            limelightBack.cameraAngle = 24.4
         }
 
         CommandScheduler.getInstance().run()

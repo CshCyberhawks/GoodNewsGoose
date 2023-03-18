@@ -35,7 +35,7 @@ class TeleopSwerveCommand(
     private val throttleShuffle: GenericEntry = driverTab.add("Throttle", 0.0).entry
     private val pipShuffle: GenericEntry = driverTab.add("Desired PIP", 0).entry
     private val currentLimelightShuffle: GenericEntry =
-        driverTab.add("Current Limelight IDX", 0).entry
+        driverTab.add("Current Limelight Name", "Unknown").entry
 
     init {
         addRequirements(swerveDriveTrain)
@@ -55,7 +55,7 @@ class TeleopSwerveCommand(
     override fun execute() {
         throttleShuffle.setDouble(throttle)
         pipShuffle.setInteger(desiredPipe.toLong())
-        currentLimelightShuffle.setInteger(currentLimelightIndex.toLong())
+        currentLimelightShuffle.setString(currentLimelight.name)
 
         if (JoyIO.killCommand) {
             currentCommand?.cancel()
@@ -69,10 +69,13 @@ class TeleopSwerveCommand(
             currentCommand = null
         }
 
-        //        if (IO.pip0) {
-        //            desiredPip = 0
-        //        } else if (IO.pip1) {
-        //            desiredPip = 1
+        if (JoyIO.pipe0) {
+            desiredPipe = 0
+            currentLimelight.pipeline = desiredPipe
+        } else if (JoyIO.pipe1) {
+            desiredPipe = 1
+            currentLimelight.pipeline = desiredPipe
+        }
         //        } else if (IO.pip2) {
         //            desiredPip = 2
         //        } else if (IO.pip3) {
@@ -82,21 +85,27 @@ class TeleopSwerveCommand(
             swerveAuto.swo.fieldPosition = Vector3()
         }
 
-//         if(JoyIO.limelightGyroCorrect) {
-//             /**assumes limelight is at center of robot*/
-//             val offset = currentLimelight.getHorizontalOffset()
-//            /**"better"*/
-// //            val offset = currentLimelight.getBotYawClose()
-//             if (offset.isPresent) {
-//                 gyro.setYawOffset(-offset.get())
-//             }
-//         }
-//         if (JoyIO.limelightChangeRot) {
-//             val offset = currentLimelight.getHorizontalOffset()
-//             if (offset.isPresent) {
-//                 gyro.setYawOffset(-offset.get() + 90.0)
-//             }
-//         }
+        if (JoyIO.toggleLimelight) {
+            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
+            currentLimelight = limelightArray[currentLimelightIndex]
+            currentLimelight.pipeline = desiredPipe
+        }
+
+        //         if(JoyIO.limelightGyroCorrect) {
+        //             /**assumes limelight is at center of robot*/
+        //             val offset = currentLimelight.getHorizontalOffset()
+        //            /**"better"*/
+        // //            val offset = currentLimelight.getBotYawClose()
+        //             if (offset.isPresent) {
+        //                 gyro.setYawOffset(-offset.get())
+        //             }
+        //         }
+        //         if (JoyIO.limelightChangeRot) {
+        //             val offset = currentLimelight.getHorizontalOffset()
+        //             if (offset.isPresent) {
+        //                 gyro.setYawOffset(-offset.get() + 90.0)
+        //             }
+        //         }
         if (JoyIO.gyroReset) {
             gyro.setYawOffset()
         }
@@ -144,18 +153,18 @@ class TeleopSwerveCommand(
         } else if (JoyIO.limelightTranslate) {
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
-//        } else if (IO.limelightTranslateSingleAxisX) {
-//            println("set current command to axis X")
-//            setCurrentCommand(
-//                AutoLimelightSingleAxis(
-//                    swerveAuto,
-//                    currentLimelight,
-//                    0.31,
-//                    AutoLimelightSingleAxis.Axis.X,
-//                    desiredPipe
-//                )
-//            )
-//            return
+            //        } else if (IO.limelightTranslateSingleAxisX) {
+            //            println("set current command to axis X")
+            //            setCurrentCommand(
+            //                AutoLimelightSingleAxis(
+            //                    swerveAuto,
+            //                    currentLimelight,
+            //                    0.31,
+            //                    AutoLimelightSingleAxis.Axis.X,
+            //                    desiredPipe
+            //                )
+            //            )
+            //            return
         } else if (JoyIO.limelightTranslateSingleAxisY) {
             setCurrentCommand(
                 AutoLimelightSingleAxis(
@@ -174,3 +183,4 @@ class TeleopSwerveCommand(
         swerveDriveTrain.drive(driveVec, driveTwist, JoyIO.disableFieldOrientation)
     }
 }
+
