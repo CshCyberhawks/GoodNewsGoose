@@ -30,16 +30,16 @@ object ControllerIO {
     val controlArmAngle
         get() = MiscCalculations.calculateDeadzone(-xbox.leftY, 0.1)
 
-    val traversalManualControl
+    val extensionManualControl
         get() = MiscCalculations.calculateDeadzone(xbox.rightY, 0.1)
 
-    private var toggleTraversalLast = false
+    private var toggleExtensionLast = false
 
-    val traversalToggle: Boolean
+    val extensionToggle: Boolean
         get() {
             val current = xbox.xButton
-            val toggled = current && !toggleTraversalLast
-            toggleTraversalLast = current
+            val toggled = current && !toggleExtensionLast
+            toggleExtensionLast = current
             return toggled
         }
 }

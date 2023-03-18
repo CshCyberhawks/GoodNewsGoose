@@ -14,9 +14,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.ArmConstants
 import frc.robot.constants.MotorConstants
-import frc.robot.util.ControllerIO
 
-enum class TraversalPosition {
+enum class ExtensionPosition {
     EXTENDED,
     RETRACTED,
     UNKNOWN
@@ -25,29 +24,29 @@ enum class TraversalPosition {
 class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
-    private val traversalMotor = CANSparkMax(MotorConstants.traversalMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
+    private val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
-    private val traversalEncoder = DutyCycleEncoder(MotorConstants.traversalEncoder)
-    private val traversalExtendedSwitch = DigitalInput(MotorConstants.traversalExtendedSwitch)
-    private val traversalRetractedSwitch = DigitalInput(MotorConstants.traversalRetractedSwitch)
+    private val extensionEncoder = DutyCycleEncoder(MotorConstants.extensionEncoder)
+    private val extensionExtendedSwitch = DigitalInput(MotorConstants.extensionExtendedSwitch)
+    private val extensionRetractedSwitch = DigitalInput(MotorConstants.extensionRetractedSwitch)
 
-    private val traversalExtended
-        get() = !traversalExtendedSwitch.get()
+    private val extensionExtended
+        get() = !extensionExtendedSwitch.get()
 
-    private val traversalRetracted
-        get() = !traversalRetractedSwitch.get()
+    private val extensionRetracted
+        get() = !extensionRetractedSwitch.get()
 
     val armAngleDegrees
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360 - ArmConstants.armAngleOffset)
-    private val traversalDistance
-        get() = traversalEncoder.get()
+    private val extensionDistance
+        get() = extensionEncoder.get()
 
-    private var traversalPosition = TraversalPosition.RETRACTED
-    private var lastTraversalPosition = traversalPosition
+    private var extensionPosition = ExtensionPosition.RETRACTED
+    private var lastExtensionPosition = extensionPosition
 
-    private var traversalOut = 0.6
+    private var extensionFF = 0.6
 
     private val armAnglePID = PIDController(10.0, 0.0, 0.0)
 
@@ -58,7 +57,7 @@ class ArmSystem : SubsystemBase() {
 //            armAnglePID.reset(armAngleDegrees)
             field = value
         }
-    var desiredTraversalPosition = TraversalPosition.RETRACTED
+    var desiredExtensionPosition = ExtensionPosition.RETRACTED
     var desiredClawOpen = false
 
     init {
@@ -66,60 +65,55 @@ class ArmSystem : SubsystemBase() {
         armAnglePID.enableContinuousInput(0.0, 360.0)
 
         // This is sketchy
-        traversalEncoder.positionOffset = traversalEncoder.absolutePosition
+        extensionEncoder.positionOffset = extensionEncoder.absolutePosition
     }
 
     fun run() {
         desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 115.0)
 
-        traversalPosition = if (traversalExtended) {
-            TraversalPosition.EXTENDED
-        } else if (traversalRetracted) {
-            TraversalPosition.RETRACTED
+        extensionPosition = if (extensionExtended) {
+            ExtensionPosition.EXTENDED
+        } else if (extensionRetracted) {
+            ExtensionPosition.RETRACTED
         } else {
-            TraversalPosition.UNKNOWN
+            ExtensionPosition.UNKNOWN
         }
 
-        if (traversalPosition != TraversalPosition.UNKNOWN) {
-            lastTraversalPosition = traversalPosition
+        if (extensionPosition != ExtensionPosition.UNKNOWN) {
+            lastExtensionPosition = extensionPosition
         }
 
-        SmartDashboard.putString("Traversal Position", traversalPosition.name)
-        SmartDashboard.putString("Traversal Des Position", desiredTraversalPosition.name)
-        SmartDashboard.putNumber("Traversal Angle", traversalDistance)
+        SmartDashboard.putString("Traversal Position", extensionPosition.name)
+        SmartDashboard.putString("Traversal Des Position", desiredExtensionPosition.name)
+        SmartDashboard.putNumber("Traversal Angle", extensionDistance)
 
         SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
         SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
         val pidVal = -armAnglePID.calculate(armAngleDegrees) / 360
         SmartDashboard.putNumber("Arm PID Output", pidVal)
 
-        SmartDashboard.putBoolean("Traversal Extended", traversalExtendedSwitch.get())
-        SmartDashboard.putBoolean("Traversal Retracted", traversalRetractedSwitch.get())
+        SmartDashboard.putBoolean("Traversal Extended", extensionExtendedSwitch.get())
+        SmartDashboard.putBoolean("Traversal Retracted", extensionRetractedSwitch.get())
 
         armAngleMotor.set(pidVal)
         clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
-        SmartDashboard.putBoolean("Arm Out", traversalPosition == TraversalPosition.EXTENDED)
+        SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
 //        traversalMotor.set(desiredTraversalVelocity)
-        SmartDashboard.putBoolean("At Pos", desiredTraversalPosition == traversalPosition)
-        val traversalManualControl = ControllerIO.traversalManualControl
-//        if (traversalManualControl != 0.0) {
-//        SmartDashboard.putNumber("Traversal Set", traversalManualControl)
-//        traversalMotor.set(traversalManualControl)
-//        } else
-        val traversalSetpoint = if (desiredTraversalPosition != lastTraversalPosition) {
-            if (desiredTraversalPosition == TraversalPosition.EXTENDED && traversalDistance > -1.0) {
-                -traversalOut
-            } else if (desiredTraversalPosition == TraversalPosition.RETRACTED && traversalDistance < 0.1) {
-                traversalOut
+        SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
+        val extensionSetpoint = if (desiredExtensionPosition != lastExtensionPosition) {
+            if (desiredExtensionPosition == ExtensionPosition.EXTENDED && extensionDistance > -1.0) {
+                -extensionFF
+            } else if (desiredExtensionPosition == ExtensionPosition.RETRACTED && extensionDistance < 0.1) {
+                extensionFF
             } else {
                 0.0
             }
         } else {
             0.0
         }
-        SmartDashboard.putNumber("Traversal Set", traversalSetpoint)
-        traversalMotor.set(traversalSetpoint)
+        SmartDashboard.putNumber("Traversal Set", extensionSetpoint)
+        extensionMotor.set(extensionSetpoint)
 //        if (desiredTraversalPosition != traversalPosition) {
 //            SmartDashboard.putNumber("Traversal Set", if (desiredTraversalPosition == TraversalPosition.EXTENDED) {
 //                -traversalOut
@@ -142,7 +136,7 @@ class ArmSystem : SubsystemBase() {
     }
 
     fun isFinished(): Boolean {
-        return desiredTraversalPosition == traversalPosition && MiscCalculations.calculateDeadzone(desiredArmAngle - armAngleDegrees, 3.0) == 0.0
+        return desiredExtensionPosition == extensionPosition && MiscCalculations.calculateDeadzone(desiredArmAngle - armAngleDegrees, 3.0) == 0.0
     }
 
     override fun simulationPeriodic() {

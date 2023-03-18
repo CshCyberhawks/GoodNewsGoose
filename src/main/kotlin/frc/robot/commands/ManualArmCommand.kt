@@ -2,7 +2,7 @@ package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.subsystems.ArmSystem
-import frc.robot.subsystems.TraversalPosition
+import frc.robot.subsystems.ExtensionPosition
 import frc.robot.util.ControllerIO
 
 /**
@@ -28,11 +28,11 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.desiredTilt = !subsystem.desiredTilt
         }
         subsystem.desiredArmAngle += ControllerIO.controlArmAngle
-        if (ControllerIO.traversalToggle) {
-            if (subsystem.desiredTraversalPosition == TraversalPosition.EXTENDED) {
-                subsystem.desiredTraversalPosition = TraversalPosition.RETRACTED
-            } else if (subsystem.desiredTraversalPosition == TraversalPosition.RETRACTED) {
-                subsystem.desiredTraversalPosition = TraversalPosition.EXTENDED
+        if (ControllerIO.extensionToggle) {
+            if (subsystem.desiredExtensionPosition == ExtensionPosition.EXTENDED) {
+                subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
+            } else if (subsystem.desiredExtensionPosition == ExtensionPosition.RETRACTED) {
+                subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
             }
         }
         if (ControllerIO.toggleGrabber) {
