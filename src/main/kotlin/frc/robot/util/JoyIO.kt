@@ -3,13 +3,11 @@ package frc.robot.util
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
+import frc.robot.constants.DriverPreferences
 
-object IO {
+object JoyIO {
     private val rightJoy = Joystick(0)
     private val leftJoy = Joystick(1)
-    private val xbox = XboxController(2)
-
-    private const val hosas = true
 
     val quickThrottle
         get() = leftJoy.pov
@@ -21,7 +19,7 @@ object IO {
         get() = leftJoy.getRawButtonPressed(4)
 
     val moveyThrottle
-        get() = if (hosas) {
+        get() = if (DriverPreferences.hosas) {
             MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
         } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
 
@@ -35,42 +33,23 @@ object IO {
         get() = MiscCalculations.calculateDeadzone(rightJoy.y, .08)
 
     val moveTwist
-        get() = if (hosas) {
+        get() = if (DriverPreferences.hosas) {
             MiscCalculations.calculateDeadzone(leftJoy.x, .08)
         } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
 
     val resetFieldLimelight
         get() = leftJoy.getRawButtonPressed(1)
 
-    val limelightGyroCorrect: Boolean
-        get() {
-            return xbox.bButtonPressed
-        }
 
-    val limelightChangeRot: Boolean
-        get() {
-            return xbox.aButtonPressed
-        }
-    private var lastToggleTraversal = false
-    val toggleTraversal: Boolean
-        get() {
-            val current = xbox.aButton
-            val toggled = current && !lastToggleTraversal
-            lastToggleTraversal = current
-            return toggled
-        }
+//    val limelightGyroCorrect: Boolean
+//        get() {
+//            return xbox.bButtonPressed
+//        }
 
-    val toggleGrabber: Boolean
-        get() = xbox.rightBumper
-
-    val toggleBrake: Boolean
-        get() = xbox.leftBumper
-
-    val controlArmAngle
-        get() = MiscCalculations.calculateDeadzone(-xbox.leftY, 0.1)
-
-    val travManualControl
-        get() = xbox.rightY
+//    val limelightChangeRot: Boolean
+//        get() {
+//            return xbox.aButtonPressed
+//        }
 
     private var killCommandLast = false
     val killCommand: Boolean
