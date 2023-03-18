@@ -2,74 +2,85 @@ package frc.robot.subsystems
 
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
-import edu.wpi.first.math.controller.ProfiledPIDController
-import edu.wpi.first.math.trajectory.TrapezoidProfile
+import cshcyberhawks.swolib.math.AngleCalculations
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.DutyCycleEncoder
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.robot.constants.ArmConstants
 import frc.robot.constants.MotorConstants
 
-class ArmSystem() : SubsystemBase() {
-    private enum class TraversalPosition {
-        EXTENDED,
-        RETRACTED,
-        UNKNOWN
-    }
+enum class TraversalPosition {
+    EXTENDED,
+    RETRACTED,
+    UNKNOWN
+}
 
+class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val traversalMotor = CANSparkMax(MotorConstants.traversalMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
-    private val traversalExtendedSwitch = DigitalInput(0)
-    private val traversalRetractedSwitch = DigitalInput(1)
+    private val traversalExtendedSwitch = DigitalInput(MotorConstants.traversalExtendedSwitch)
+    private val traversalRetractedSwitch = DigitalInput(MotorConstants.traversalRetractedSwitch)
 
-    private val armAngleDegrees
-        get() = armAngleEncoder.get() * 360 % 360
-    private var traversalPosition = TraversalPosition.EXTENDED
-    private var lastKnownTraversalPosition = TraversalPosition.EXTENDED
+    val armAngleDegrees
+        get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360 - ArmConstants.armAngleOffset)
+    private var traversalPosition = TraversalPosition.RETRACTED
 
-    private val armAnglePID = ProfiledPIDController(0.01, 0.0, 0.0, TrapezoidProfile.Constraints(90.0, 10.0))
+    private var traversalOut = -0.25
+
+    private val armAnglePID = PIDController(10.0, 0.0, 0.0)
 
     var desiredTilt = false
-    var desiredArmAngle = 45.0
+    var desiredArmAngle = armAngleDegrees
         set(value) {
-            armAnglePID.goal = TrapezoidProfile.State(value, 0.0)
-            armAnglePID.reset(armAngleDegrees)
+            armAnglePID.setpoint = value
+//            armAnglePID.reset(armAngleDegrees)
             field = value
         }
-    var desiredTraversalVelocity = 0.0
+    var desiredTraversalPosition = TraversalPosition.RETRACTED
     var desiredClawOpen = false
 
     init {
         armAngleEncoder.distancePerRotation = 360.0
+        armAnglePID.enableContinuousInput(0.0, 360.0)
     }
 
-    override fun periodic() {
-        // traversalPosition = if (traversalExtendedSwitch.get()) {
-        //     TraversalPosition.EXTENDED
-        // } else if (traversalRetractedSwitch.get()) {
-        //     TraversalPosition.RETRACTED
-        // } else {
-        //     TraversalPosition.UNKNOWN
-        // }
+    fun run() {
+        if (traversalExtendedSwitch.get()) {
+            traversalPosition = TraversalPosition.EXTENDED
+        } else if (traversalRetractedSwitch.get()) {
+            traversalPosition = TraversalPosition.RETRACTED
+        }
 
         // if (traversalPosition != TraversalPosition.UNKNOWN) {
         //     lastKnownTraversalPosition = traversalPosition
         // }
 
         SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
-//        for (solenoid in tiltSolenoids) {
-//            solenoid.set(desiredTilt)
-//        }
-//
-//        armAngleMotor.set(armAnglePID.calculate(armAngleDegrees))
-//        clawSolenoid.set(desiredClawOpen)
+        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
+        val pidVal = -armAnglePID.calculate(armAngleDegrees) / 360
+        SmartDashboard.putNumber("Arm PID Output", pidVal)
+
+        armAngleMotor.set(pidVal)
+        clawSolenoid.set(desiredClawOpen)
+        tiltSolenoid.set(desiredTilt)
+        SmartDashboard.putBoolean("Arm Out", traversalPosition == TraversalPosition.EXTENDED)
 //        traversalMotor.set(desiredTraversalVelocity)
+        SmartDashboard.putBoolean("At Pos", desiredTraversalPosition == traversalPosition)
+        if (desiredTraversalPosition != traversalPosition) {
+            traversalMotor.set(if (desiredTraversalPosition == TraversalPosition.EXTENDED) {
+                traversalOut
+            } else {
+                -traversalOut
+            })
+        }
 //        desiredTraversalVelocity = 0.0
     }
 
