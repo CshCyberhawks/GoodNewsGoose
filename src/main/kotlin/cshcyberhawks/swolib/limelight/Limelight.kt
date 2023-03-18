@@ -182,19 +182,6 @@ class Limelight(
         return Optional.of(data[5])
     }
 
-    /** @return uses targetDistance() to "more accurately" estimate bot yaw
-     * (accounts for camera distance from bot center)*/
-    fun getBotYawClose(): Optional<Double> {
-        val limelightRotation = getHorizontalOffset()
-        val targetDistance = findTargetDistance(aprilTagHeight)
-        return if (limelightRotation.isPresent)
-            Optional.of(
-                atan2(
-                    (targetDistance.get() * sin(-limelightRotation.get())),
-                    (cameraDistance + targetDistance.get() * cos(-limelightRotation.get())))
-            )
-        else Optional.empty()
-    }
 
     private fun getBotDebug(): Array<Double> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())

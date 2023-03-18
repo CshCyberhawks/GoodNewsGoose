@@ -83,6 +83,13 @@ class SwerveOdometry(
                         limelightRotation.get() + 180
                     })
 
+                    val limeRot = JoyIO.limelightChangeRot
+                    if (limeRot > 0) {
+                        val offset = limelight.getBotYaw()
+                        if (offset.isPresent) {
+                            gyro.setYawOffset(limeRot - offset.get())
+                        }
+                    }
 
                     lastYawLLTime = MiscCalculations.getCurrentTime()
                     gyro.setYawOffset(rotation)

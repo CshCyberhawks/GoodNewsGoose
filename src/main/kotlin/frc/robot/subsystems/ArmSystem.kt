@@ -3,6 +3,7 @@ package frc.robot.subsystems
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import cshcyberhawks.swolib.math.AngleCalculations
+import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
@@ -40,7 +41,7 @@ class ArmSystem : SubsystemBase() {
 
     val armAngleDegrees
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360 - ArmConstants.armAngleOffset)
-    val traversalDistance
+    private val traversalDistance
         get() = traversalEncoder.get()
 
     private var traversalPosition = TraversalPosition.RETRACTED
@@ -138,6 +139,10 @@ class ArmSystem : SubsystemBase() {
 //        SmartDashboard.putNumber("Trav Manual Control", traversalManualControl)
 //        traversalMotor.set(traversalManualControl)
 //        desiredTraversalVelocity = 0.0
+    }
+
+    fun isFinished(): Boolean {
+        return desiredTraversalPosition == traversalPosition && MiscCalculations.calculateDeadzone(desiredArmAngle - armAngleDegrees, 3.0) == 0.0
     }
 
     override fun simulationPeriodic() {
