@@ -45,11 +45,10 @@ object JoyIO {
 //        get() {
 //            return xbox.bButtonPressed
 //        }
-
-//    val limelightChangeRot: Boolean
-//        get() {
-//            return xbox.aButtonPressed
-//        }
+   val limelightChangeRot: Int
+       get() {
+           return rightJoy.pov
+       }
 
     private var killCommandLast = false
     val killCommand: Boolean

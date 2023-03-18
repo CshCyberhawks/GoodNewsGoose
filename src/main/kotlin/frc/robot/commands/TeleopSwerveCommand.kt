@@ -91,12 +91,6 @@ class TeleopSwerveCommand(
 //                 gyro.setYawOffset(-offset.get())
 //             }
 //         }
-//         if (JoyIO.limelightChangeRot) {
-//             val offset = currentLimelight.getHorizontalOffset()
-//             if (offset.isPresent) {
-//                 gyro.setYawOffset(-offset.get() + 90.0)
-//             }
-//         }
         if (JoyIO.gyroReset) {
             gyro.setYawOffset()
         }
@@ -104,11 +98,28 @@ class TeleopSwerveCommand(
         if (JoyIO.fastThrottle) {
             throttle = 0.9
         }
-
+        if (JoyIO.pipe0) {
+            currentLimelight.pipeline = 0
+          }
+        if (JoyIO.pipe1) {
+            currentLimelight.pipeline = 1
+        }
+        if (JoyIO.pipe2) {
+            currentLimelight.pipeline = 2
+        }
+        if (JoyIO.pipe3) {
+            currentLimelight.pipeline = 3
+        }
         if (JoyIO.normalThrottle) {
             throttle = 0.4
         }
-
+        val limeRot = JoyIO.limelightChangeRot 
+        if (limeRot > 0 ) {
+            val offset = currentLimelight.getBotYawClose()
+            if (offset.isPresent) {
+                gyro.setYawOffset(limeRot - offset.get())
+            }
+        }
         val quickThrottle = JoyIO.quickThrottle
         if (quickThrottle in 135..225) {
             throttle -= MiscConstants.quickThrottleChange
