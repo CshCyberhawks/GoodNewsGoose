@@ -105,8 +105,9 @@ class ArmSystem : SubsystemBase() {
         SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
 //        traversalMotor.set(desiredTraversalVelocity)
         SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
-        val extensionSetpoint = if (ControllerIO.extensionManualControl != 0.0) {
+        val extensionSetpoint = if (MiscCalculations.calculateDeadzone(ControllerIO.extensionManualControl, 0.05) != 0.0) {
             // TODO: Less sketchy
+            desiredExtensionPosition = ExtensionPosition.UNKNOWN
             ControllerIO.extensionManualControl
         } else if (desiredExtensionPosition != lastExtensionPosition) {
             when (desiredExtensionPosition) {
