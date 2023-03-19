@@ -15,6 +15,7 @@ import cshcyberhawks.swolib.swerve.configurations.FourWheelAngleConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSpeedConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
+import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
@@ -125,7 +126,7 @@ class Robot : TimedRobot() {
                 backLeft,
                 angleConfiguration =
                 FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4),
-                speedConfiguration = FourWheelSpeedConfiguration(.75, .75, .75, .75)
+                speedConfiguration = FourWheelSpeedConfiguration(.65, .65, .65, .65)
             ),
             gyro
         )
@@ -202,6 +203,8 @@ class Robot : TimedRobot() {
 
         limelightBack.pipeline = 1
         limelightFront.pipeline = 1
+
+        CameraServer.startAutomaticCapture()
 
         driverTab.add("Field", field2d)
 

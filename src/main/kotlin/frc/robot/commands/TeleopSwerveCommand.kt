@@ -69,13 +69,7 @@ class TeleopSwerveCommand(
             currentCommand = null
         }
 
-        if (JoyIO.pipe0) {
-            desiredPipe = 0
-            currentLimelight.pipeline = desiredPipe
-        } else if (JoyIO.pipe1) {
-            desiredPipe = 1
-            currentLimelight.pipeline = desiredPipe
-        }
+
         //        } else if (IO.pip2) {
         //            desiredPip = 2
         //        } else if (IO.pip3) {
@@ -85,11 +79,11 @@ class TeleopSwerveCommand(
             swerveAuto.swo.fieldPosition = Vector3()
         }
 
-        if (JoyIO.toggleLimelight) {
-            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
-            currentLimelight = limelightArray[currentLimelightIndex]
-            currentLimelight.pipeline = desiredPipe
-        }
+//        if (JoyIO.toggleLimelight) {
+//            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
+//            currentLimelight = limelightArray[currentLimelightIndex]
+//            currentLimelight.pipeline = desiredPipe
+//        }
 
         //         if(JoyIO.limelightGyroCorrect) {
         //             /**assumes limelight is at center of robot*/
@@ -113,17 +107,9 @@ class TeleopSwerveCommand(
         if (JoyIO.fastThrottle) {
             throttle = 0.9
         }
-        if (JoyIO.pipe0) {
-            currentLimelight.pipeline = 0
-        }
-        if (JoyIO.pipe1) {
-            currentLimelight.pipeline = 1
-        }
-        if (JoyIO.pipe2) {
-            currentLimelight.pipeline = 2
-        }
-        if (JoyIO.pipe3) {
-            currentLimelight.pipeline = 3
+        if (JoyIO.togglePipe) {
+            desiredPipe = (desiredPipe + 1) % 2
+            currentLimelight.pipeline = desiredPipe
         }
         if (JoyIO.normalThrottle) {
             throttle = 0.4
@@ -132,7 +118,7 @@ class TeleopSwerveCommand(
         val quickThrottle = JoyIO.quickThrottle
         if (quickThrottle in 135..225) {
             throttle -= DriverPreferences.quickThrottleChange
-        } else if (quickThrottle !in 46..314) {
+        } else if (quickThrottle == 45 || quickThrottle == 0 || quickThrottle == 315) {
             throttle += DriverPreferences.quickThrottleChange
         }
 
@@ -149,6 +135,7 @@ class TeleopSwerveCommand(
         if (JoyIO.toggleLimelight) {
             currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
             currentLimelight = limelightArray[currentLimelightIndex]
+            currentLimelight.pipeline = desiredPipe
         }
 
         if (JoyIO.limelightAngleLock) {

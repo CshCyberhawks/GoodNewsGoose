@@ -37,9 +37,27 @@ object ControllerIO {
 
     val extensionToggle: Boolean
         get() {
-            val current = xbox.xButton
+            val current = xbox.leftBumper
             val toggled = current && !toggleExtensionLast
             toggleExtensionLast = current
+            return toggled
+        }
+
+
+    val armAlignObject: Boolean
+        get() = xbox.xButton
+    val armAlignUp
+        get() = xbox.yButton
+
+    val armAlignDown
+        get() = xbox.bButton
+
+    private var lastBrakeToggle = false
+    val brakeToggle: Boolean
+        get() {
+            val current = xbox.backButton
+            val toggled = current && !lastBrakeToggle
+            lastBrakeToggle = current
             return toggled
         }
 

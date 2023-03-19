@@ -40,14 +40,14 @@ object JoyIO {
         get() = leftJoy.getRawButtonPressed(1)
 
 
-//    val limelightGyroCorrect: Boolean
+    //    val limelightGyroCorrect: Boolean
 //        get() {
 //            return xbox.bButtonPressed
 //        }
-   val limelightChangeRot: Int
-       get() {
-           return rightJoy.pov
-       }
+    val limelightChangeRot: Int
+        get() {
+            return rightJoy.pov
+        }
 
     private var killCommandLast = false
     val killCommand: Boolean
@@ -93,7 +93,7 @@ object JoyIO {
     private var toggleLimelightLast = false
     val toggleLimelight: Boolean
         get() {
-            val current = leftJoy.getRawButton(2)
+            val current = leftJoy.getRawButton(4)
             val toggled = current && !toggleLimelightLast
             toggleLimelightLast = current
             return toggled
@@ -105,15 +105,12 @@ object JoyIO {
     val disableFieldOrientation
         get() = rightJoy.getRawButton(1)
 
-    val pipe0
-        get() = leftJoy.getRawButton(5)
-
-    val pipe1
-        get() = leftJoy.getRawButton(6)
-
-    val pipe2
-        get() = leftJoy.getRawButton(7)
-
-    val pipe3
-        get() = leftJoy.getRawButton(10)
+    private var togglePipeLast = false
+    val togglePipe: Boolean
+        get() {
+            val current = leftJoy.getRawButton(3)
+            val toggled = current && !togglePipeLast
+            togglePipeLast = current
+            return toggled
+        }
 }

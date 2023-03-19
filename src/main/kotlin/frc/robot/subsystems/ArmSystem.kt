@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.ArmConstants
 import frc.robot.constants.MotorConstants
+import frc.robot.util.ControllerIO
 
 enum class ExtensionPosition {
     EXTENDED,
@@ -26,6 +27,7 @@ class ArmSystem : SubsystemBase() {
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
+    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSoleniod)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
     private val extensionEncoder = DutyCycleEncoder(MotorConstants.extensionEncoder)
@@ -59,6 +61,7 @@ class ArmSystem : SubsystemBase() {
         }
     var desiredExtensionPosition = ExtensionPosition.RETRACTED
     var desiredClawOpen = false
+    var desiredBrake = false
 
     init {
         armAngleEncoder.distancePerRotation = 360.0
@@ -69,7 +72,7 @@ class ArmSystem : SubsystemBase() {
     }
 
     fun run() {
-        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 115.0)
+        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 130.0)
 
         extensionPosition = if (extensionExtended) {
             ExtensionPosition.EXTENDED
@@ -98,16 +101,18 @@ class ArmSystem : SubsystemBase() {
         armAngleMotor.set(pidVal)
         clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
+        brakeSolenoid.set(desiredBrake)
         SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
 //        traversalMotor.set(desiredTraversalVelocity)
         SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
-        val extensionSetpoint = if (desiredExtensionPosition != lastExtensionPosition) {
-            if (desiredExtensionPosition == ExtensionPosition.EXTENDED && extensionDistance > -1.0) {
-                -extensionFF
-            } else if (desiredExtensionPosition == ExtensionPosition.RETRACTED && extensionDistance < 0.1) {
-                extensionFF
-            } else {
-                0.0
+        val extensionSetpoint = if (ControllerIO.extensionManualControl != 0.0) {
+            // TODO: Less sketchy
+            ControllerIO.extensionManualControl
+        } else if (desiredExtensionPosition != lastExtensionPosition) {
+            when (desiredExtensionPosition) {
+                ExtensionPosition.EXTENDED -> -extensionFF
+                ExtensionPosition.RETRACTED -> extensionFF
+                else -> 0.0
             }
         } else {
             0.0
