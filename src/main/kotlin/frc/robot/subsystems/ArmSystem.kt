@@ -46,7 +46,6 @@ class ArmSystem : SubsystemBase() {
         get() = extensionEncoder.get()
 
     private var extensionPosition = ExtensionPosition.RETRACTED
-    private var lastExtensionPosition = extensionPosition
 
     private var extensionFF = 0.6
 
@@ -82,10 +81,6 @@ class ArmSystem : SubsystemBase() {
             ExtensionPosition.UNKNOWN
         }
 
-        if (extensionPosition != ExtensionPosition.UNKNOWN) {
-            lastExtensionPosition = extensionPosition
-        }
-
         SmartDashboard.putString("Traversal Position", extensionPosition.name)
         SmartDashboard.putString("Traversal Des Position", desiredExtensionPosition.name)
         SmartDashboard.putNumber("Traversal Angle", extensionDistance)
@@ -109,7 +104,7 @@ class ArmSystem : SubsystemBase() {
             // TODO: Less sketchy
             desiredExtensionPosition = ExtensionPosition.UNKNOWN
             ControllerIO.extensionManualControl
-        } else if (desiredExtensionPosition != lastExtensionPosition) {
+        } else if (desiredExtensionPosition != extensionPosition) {
             when (desiredExtensionPosition) {
                 ExtensionPosition.EXTENDED -> -extensionFF
                 ExtensionPosition.RETRACTED -> extensionFF
