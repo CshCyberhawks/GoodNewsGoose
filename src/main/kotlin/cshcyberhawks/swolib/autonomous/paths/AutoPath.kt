@@ -16,12 +16,12 @@ class AutoPath(
     inputFile: File,
     val swerveAuto: SwerveAuto,
     val gyro: GenericGyro,
-    private val commandsIn: HashMap<Int, Pair<CommandBase, AttachedCommandType>> = HashMap()
+    private val commandsList: HashMap<Int, Array<AttachedCommand>> = HashMap()
 ) : CommandBase() {
     private var positions: List<FieldPosition>
 
     private var currentCommand: CommandBase? = null
-    private var attachedCommand: CommandBase? = null
+    private var attachedCommands: MutableList<CommandBase> = mutableListOf()
     private var currentIndex = 1
 
     init {
@@ -44,22 +44,26 @@ class AutoPath(
 
     override fun execute() {
         if ((currentCommand == null || currentCommand?.isFinished == true) && currentIndex < positions.size) {
-            if (attachedCommand != null && attachedCommand?.isFinished == false) {
-                attachedCommand?.cancel()
-                attachedCommand = null
+            for (cmd in attachedCommands) {
+                if (!cmd.isFinished) {
+                    cmd.cancel()
+                }
             }
+            attachedCommands = mutableListOf()
 
-            if (commandsIn.containsKey(currentIndex) && commandsIn[currentIndex] != null) {
-                val (cmd, type) = commandsIn[currentIndex]!!
+            if (commandsList.containsKey(currentIndex) && commandsList[currentIndex] != null) {
+                val cmds = commandsList[currentIndex]!!
 
-                when (type) {
-                    AttachedCommandType.ASYNC -> {
-                        cmd.schedule()
-                    }
+                for (cmd in cmds) {
+                    when (cmd.attachedCommandType) {
+                        AttachedCommandType.ASYNC -> {
+                            cmd.command.schedule()
+                        }
 
-                    AttachedCommandType.SYNC -> {
-                        attachedCommand = cmd
-                        attachedCommand?.schedule()
+                        AttachedCommandType.SYNC -> {
+                            attachedCommands.add(cmd.command)
+                            cmd.command.schedule()
+                        }
                     }
                 }
             }
