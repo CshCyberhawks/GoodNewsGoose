@@ -104,15 +104,9 @@ class TeleopSwerveCommand(
             gyro.setYawOffset()
         }
 
-        if (JoyIO.fastThrottle) {
-            throttle = 0.9
-        }
         if (JoyIO.togglePipe) {
             desiredPipe = (desiredPipe + 1) % 2
             currentLimelight.pipeline = desiredPipe
-        }
-        if (JoyIO.normalThrottle) {
-            throttle = 0.4
         }
 
         val quickThrottle = JoyIO.quickThrottle
