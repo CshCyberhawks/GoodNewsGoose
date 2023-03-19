@@ -22,7 +22,7 @@ class AutoPath(
 
     private var currentCommand: CommandBase? = null
     private var attachedCommands: MutableList<CommandBase> = mutableListOf()
-    private var currentIndex = 1
+    private var currentIndex = 0
 
     init {
         if (DriverStation.getAlliance() == Alliance.Blue) {
@@ -38,8 +38,8 @@ class AutoPath(
     }
 
     override fun initialize() {
-        swerveAuto.swo.fieldPosition =
-            Vector3(positions[0].x, positions[0].y, AngleCalculations.wrapAroundAngles(positions[0].angle + 180))
+//        swerveAuto.swo.fieldPosition =
+//            Vector3(positions[0].x, positions[0].y, AngleCalculations.wrapAroundAngles(positions[0].angle + 180))
     }
 
     override fun execute() {

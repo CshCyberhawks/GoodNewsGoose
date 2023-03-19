@@ -20,6 +20,7 @@ import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
@@ -246,6 +247,25 @@ class Robot : TimedRobot() {
         } else {
             limelightFront.cameraAngle = -24.4
             limelightBack.cameraAngle = 24.4
+        }
+
+        if (!DriverStation.isAutonomousEnabled() && !DriverStation.isTeleopEnabled()) {
+            limelightBack.pipeline = limelightBack.fiducialPipeline
+            limelightFront.pipeline = limelightFront.fiducialPipeline
+
+            val backPosition = limelightBack.getBotPosition()
+            if (!backPosition.isEmpty) {
+                swo.fieldPosition = backPosition.get()
+            }
+
+            val frontPosition = limelightFront.getBotPosition()
+            if (!frontPosition.isEmpty) {
+                swo.fieldPosition = frontPosition.get()
+            }
+
+//            if (!frontPosition.isEmpty || !backPosition.isEmpty) {
+//                // LED Code
+//            }
         }
 
         CommandScheduler.getInstance().run()

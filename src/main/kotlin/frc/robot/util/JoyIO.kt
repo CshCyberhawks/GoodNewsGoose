@@ -11,11 +11,11 @@ object JoyIO {
     val quickThrottle
         get() = leftJoy.pov
 
-    val normalThrottle
-        get() = leftJoy.getRawButtonPressed(3)
-
-    val fastThrottle
-        get() = leftJoy.getRawButtonPressed(4)
+//    val normalThrottle
+//        get() = leftJoy.getRawButtonPressed(3)
+//
+//    val fastThrottle
+//        get() = leftJoy.getRawButtonPressed(4)
 
     val moveYThrottle
         get() = if (DriverPreferences.hosas) {
@@ -72,7 +72,7 @@ object JoyIO {
     private var limelightTranslateLast = false
     val limelightTranslate: Boolean
         get() {
-            val current = rightJoy.getRawButton(5)
+            val current = rightJoy.getRawButton(3)
             val toggled = current && !limelightTranslateLast
             limelightTranslateLast = current
             return toggled
@@ -93,7 +93,7 @@ object JoyIO {
     private var toggleLimelightLast = false
     val toggleLimelight: Boolean
         get() {
-            val current = leftJoy.getRawButton(4)
+            val current = leftJoy.getRawButton(3)
             val toggled = current && !toggleLimelightLast
             toggleLimelightLast = current
             return toggled
@@ -108,7 +108,7 @@ object JoyIO {
     private var togglePipeLast = false
     val togglePipe: Boolean
         get() {
-            val current = leftJoy.getRawButton(3)
+            val current = leftJoy.getRawButton(4)
             val toggled = current && !togglePipeLast
             togglePipeLast = current
             return toggled

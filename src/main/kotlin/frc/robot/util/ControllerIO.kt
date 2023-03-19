@@ -9,14 +9,11 @@ object ControllerIO {
     private var lastToggleGrabber = false
     val toggleGrabber: Boolean
         get() {
-            val current = xbox.rightBumper
+            val current = xbox.xButton
             val toggled = current && !lastToggleGrabber
             lastToggleGrabber = current
             return toggled
         }
-
-    val toggleBrake: Boolean
-        get() = xbox.leftBumper
 
     private var toggleTiltLast = false
     val toggleTilt: Boolean
@@ -33,31 +30,26 @@ object ControllerIO {
     val extensionManualControl
         get() = MiscCalculations.calculateDeadzone(xbox.rightY, 0.1)
 
-    private var toggleExtensionLast = false
+    val extensionExtended
+        get() = xbox.rightBumper
 
-    val extensionToggle: Boolean
-        get() {
-            val current = xbox.leftBumper
-            val toggled = current && !toggleExtensionLast
-            toggleExtensionLast = current
-            return toggled
-        }
-
+    val extensionRetracted
+        get() = xbox.leftBumper
 
     val armAlignObject: Boolean
-        get() = xbox.xButton
+        get() = xbox.startButton
     val armAlignUp
         get() = xbox.yButton
 
     val armAlignDown
         get() = xbox.bButton
 
-    private var lastBrakeToggle = false
-    val brakeToggle: Boolean
+    private var lastToggleBrake = false
+    val toggleBrake: Boolean
         get() {
             val current = xbox.backButton
-            val toggled = current && !lastBrakeToggle
-            lastBrakeToggle = current
+            val toggled = current && !lastToggleBrake
+            lastToggleBrake = current
             return toggled
         }
 

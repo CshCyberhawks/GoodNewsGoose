@@ -2,6 +2,7 @@ package frc.robot.subsystems
 
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
+import cshcyberhawks.swolib.hardware.implementations.VelocityDutyCycleEncoder
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.math.MathUtil
@@ -30,15 +31,15 @@ class ArmSystem : SubsystemBase() {
     private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSoleniod)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
-    private val extensionEncoder = DutyCycleEncoder(MotorConstants.extensionEncoder)
+    private val extensionEncoder = VelocityDutyCycleEncoder(MotorConstants.extensionEncoder)
     private val extensionExtendedSwitch = DigitalInput(MotorConstants.extensionExtendedSwitch)
     private val extensionRetractedSwitch = DigitalInput(MotorConstants.extensionRetractedSwitch)
 
     private val extensionExtended
-        get() = !extensionExtendedSwitch.get()
+        get() = extensionExtendedSwitch.get()
 
     private val extensionRetracted
-        get() = !extensionRetractedSwitch.get()
+        get() = extensionRetractedSwitch.get()
 
     val armAngleDegrees
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360 - ArmConstants.armAngleOffset)
@@ -46,8 +47,6 @@ class ArmSystem : SubsystemBase() {
         get() = extensionEncoder.get()
 
     private var extensionPosition = ExtensionPosition.RETRACTED
-
-    private var extensionFF = 0.6
 
     private val armAnglePID = PIDController(10.0, 0.0, 0.0)
 
@@ -73,6 +72,7 @@ class ArmSystem : SubsystemBase() {
     fun run() {
         desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 130.0)
 
+
         extensionPosition = if (extensionExtended) {
             ExtensionPosition.EXTENDED
         } else if (extensionRetracted) {
@@ -87,27 +87,30 @@ class ArmSystem : SubsystemBase() {
 
         SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
         SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
-        val pidVal = -armAnglePID.calculate(armAngleDegrees) / 360
-        SmartDashboard.putNumber("Arm PID Output", pidVal)
+        val armPIDVal = -armAnglePID.calculate(armAngleDegrees) / 360
+        SmartDashboard.putNumber("Arm PID Output", armPIDVal)
 
         SmartDashboard.putBoolean("Traversal Extended", extensionExtendedSwitch.get())
         SmartDashboard.putBoolean("Traversal Retracted", extensionRetractedSwitch.get())
 
-        armAngleMotor.set(pidVal)
+        SmartDashboard.putNumber("Traversal Velocity", extensionEncoder.velocity)
+
+        armAngleMotor.set(armPIDVal)
         clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
         brakeSolenoid.set(desiredBrake)
         SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
 //        traversalMotor.set(desiredTraversalVelocity)
         SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
-        val extensionSetpoint = if (MiscCalculations.calculateDeadzone(ControllerIO.extensionManualControl, 0.05) != 0.0) {
+        val manualTraversalSetpoint = MiscCalculations.calculateDeadzone(ControllerIO.extensionManualControl, 0.05)
+        val extensionSetpoint = if (manualTraversalSetpoint != 0.0) {
             // TODO: Less sketchy
             desiredExtensionPosition = ExtensionPosition.UNKNOWN
-            ControllerIO.extensionManualControl
+            manualTraversalSetpoint
         } else if (desiredExtensionPosition != extensionPosition) {
             when (desiredExtensionPosition) {
-                ExtensionPosition.EXTENDED -> -extensionFF
-                ExtensionPosition.RETRACTED -> extensionFF
+                ExtensionPosition.EXTENDED -> -0.5
+                ExtensionPosition.RETRACTED -> 1.0
                 else -> 0.0
             }
         } else {

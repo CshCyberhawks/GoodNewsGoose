@@ -135,7 +135,8 @@ class TeleopSwerveCommand(
         if (JoyIO.toggleLimelight) {
             currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
             currentLimelight = limelightArray[currentLimelightIndex]
-            currentLimelight.pipeline = desiredPipe
+//            currentLimelight.pipeline = desiredPipe
+            desiredPipe = currentLimelight.pipeline
         }
 
         if (JoyIO.limelightAngleLock) {

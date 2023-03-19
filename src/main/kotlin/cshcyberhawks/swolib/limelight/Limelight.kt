@@ -37,7 +37,7 @@ class Limelight(
     streamMode: StreamMode = StreamMode.Standard,
     snapshotMode: SnapshotMode = SnapshotMode.Reset,
     crop: Array<Number> = arrayOf(0, 0, 0, 0),
-    private val fiducialPipeline: Int = 0
+    val fiducialPipeline: Int = 0
 ) {
     private val limelight: NetworkTable
     private val tab: ShuffleboardTab = Shuffleboard.getTab("Limelight: $name")
@@ -168,7 +168,7 @@ class Limelight(
 
     fun getBotPosition(): Optional<Vector3> {
         val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
-        if (!hasTarget() || data[0] == 0.000 || pipeline != fiducialPipeline) {
+        if (!hasTarget() || data[0] == 0.0 || pipeline != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(Vector3(data[0], data[1], data[2]))
@@ -217,7 +217,6 @@ class Limelight(
             return Optional.empty()
         }
         val distance = optDistance.get()
-        SmartDashboard.putNumber("Limelight Distance", distance)
         val angle: Double =
             AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
 
