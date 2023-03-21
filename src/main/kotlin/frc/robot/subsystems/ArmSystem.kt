@@ -70,7 +70,7 @@ class ArmSystem : SubsystemBase() {
     }
 
     fun run() {
-        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 130.0)
+        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 40.0, 130.0)
 
 
         extensionPosition = if (extensionExtended) {

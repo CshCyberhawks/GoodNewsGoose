@@ -63,15 +63,16 @@ class SwerveOdometry(
 
         for (limelight in limelightList) {
             val limelightPosition = limelight.getBotPosition()
-            if (!limelightPosition.isEmpty) {
-                val position = limelightPosition.get()
-                val vectorPosition = if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
-                    Vector3(-position.x, -position.y, position.z)
-                } else {
-                    Vector3(-(position.x) - 16.54, -position.y, position.z)
-                }
-                fieldPosition = vectorPosition
-            }
+//            if (!limelightPosition.isEmpty) {
+//                val position = limelightPosition.get()
+//                val vectorPosition = if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+//                    Vector3(-position.x, -position.y, position.z)
+//                } else {
+//                    Vector3(-(position.x) - 16.54, -position.y, position.z)
+//                }
+
+//                fieldPosition = vectorPosition
+//            }
 
             if (JoyIO.resetFieldLimelight) {
                 val limelightRotation = limelight.getBotYaw()

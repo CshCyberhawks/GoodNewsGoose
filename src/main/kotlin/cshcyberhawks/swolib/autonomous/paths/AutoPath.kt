@@ -68,7 +68,8 @@ class AutoPath(
                 }
             }
 
-            currentCommand = GoToPosition(swerveAuto, positions[currentIndex++])
+            val pos = positions[currentIndex++]
+            currentCommand = GoToPosition(swerveAuto, FieldPosition(pos.x, pos.y, gyro.getYaw()))
             currentCommand?.schedule()
         }
     }

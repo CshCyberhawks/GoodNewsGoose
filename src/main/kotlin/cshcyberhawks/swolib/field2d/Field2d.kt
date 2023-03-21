@@ -18,6 +18,14 @@ class Field2d : NTSendable, AutoCloseable {
                 FieldPosition(16.54 - pos.y, pos.x, pos.angle + 180)
             }
         }
+
+        fun fromWPILIBFieldPosition(pos: FieldPosition): FieldPosition {
+            return if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+                FieldPosition(-pos.y, pos.x, pos.angle)
+            } else {
+                FieldPosition(pos.y, -pos.x + 16.54, pos.angle - 180)
+            }
+        }
     }
 
     private var table: NetworkTable? = null

@@ -6,7 +6,9 @@ import cshcyberhawks.swolib.field2d.Field2d
 import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
+import cshcyberhawks.swolib.limelight.LedMode
 import cshcyberhawks.swolib.limelight.Limelight
+import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
@@ -20,6 +22,8 @@ import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
+import edu.wpi.first.wpilibj.AddressableLED
+import edu.wpi.first.wpilibj.AddressableLEDBuffer
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
@@ -66,7 +70,7 @@ class Robot : TimedRobot() {
     private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
     private val limelightBack = Limelight("limelight-back", 0.134, 0.0, fiducialPipeline = 1)
-    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 0)
+    private val limelightFront = Limelight("limelight-front", 0.12, 0.0, fiducialPipeline = 1)
     private var backLeft: SwerveWheel =
         SwerveWheel(
             TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
@@ -178,16 +182,19 @@ class Robot : TimedRobot() {
             arrayOf(limelightFront, limelightBack)
         )
 
-    var autoCommand = TestingAuto(auto, gyro, limelightBack)
     private val autoPathManager = AutoPathManager(auto, gyro)
 
     private val armSystem = ArmSystem()
+
+    var autoCommand = TestingAuto(auto, gyro, armSystem)
 
     private var teleopArmCommand = ManualArmCommand(armSystem)
 
 
     lateinit var llCam: HttpCamera
 
+//    private var led = AddressableLED(8)
+//    private var ledBuffer = AddressableLEDBuffer(50)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -209,7 +216,17 @@ class Robot : TimedRobot() {
 
         driverTab.add("Field", field2d)
 
+        limelightFront.setLED(LedMode.ForceOff)
+        limelightBack.setLED(LedMode.ForceOff)
+
         // driverTab.add("LL", limelightBack.feed)
+    }
+
+    fun setLED(r: Int, g: Int, b: Int, buffer: AddressableLEDBuffer, led: AddressableLED) {
+        for (i in 0..buffer.length) {
+            buffer.setRGB(i, r, g, b)
+        }
+        led.setData(buffer)
     }
 
     /**
@@ -219,6 +236,8 @@ class Robot : TimedRobot() {
      * This runs after the mode specific periodic functions, but before LiveWindow and
      * SmartDashboard integrated updating.
      */
+    private var lastLLLightTime = 0.0
+
     override fun robotPeriodic() {
         // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
         // commands, running already-scheduled commands, removing finished or interrupted commands,
@@ -253,19 +272,37 @@ class Robot : TimedRobot() {
             limelightBack.pipeline = limelightBack.fiducialPipeline
             limelightFront.pipeline = limelightFront.fiducialPipeline
 
-            val backPosition = limelightBack.getBotPosition()
+            val backPosition = limelightBack.getBotFieldPosition()
             if (!backPosition.isEmpty) {
-                swo.fieldPosition = backPosition.get()
+                val pos = backPosition.get()
+                swo.fieldPosition = Vector3(pos.x, pos.y)
             }
 
-            val frontPosition = limelightFront.getBotPosition()
+            val frontPosition = limelightFront.getBotFieldPosition()
             if (!frontPosition.isEmpty) {
-                swo.fieldPosition = frontPosition.get()
+                val pos = frontPosition.get()
+                swo.fieldPosition = Vector3(pos.x, pos.y)
             }
 
-//            if (!frontPosition.isEmpty || !backPosition.isEmpty) {
-//                // LED Code
-//            }
+            SmartDashboard.putBoolean("Front has targ", limelightFront.hasTarget())
+            SmartDashboard.putBoolean("Back has targ", limelightBack.hasTarget())
+            SmartDashboard.putNumber("Time - lastLL", MiscCalculations.getCurrentTime() - lastLLLightTime)
+            if (limelightBack.hasTarget() || limelightFront.hasTarget()) {
+                // LED Code
+//                setLED(255, 0, 0, ledBuffer, led)
+                if (MiscCalculations.getCurrentTime() - lastLLLightTime >= .5) {
+                    limelightFront.setLED(LedMode.ForceOn)
+                    limelightBack.setLED(LedMode.ForceOn)
+                    lastLLLightTime = MiscCalculations.getCurrentTime()
+                }
+            } else {
+                if (MiscCalculations.getCurrentTime() - lastLLLightTime >= .5) {
+                    limelightFront.setLED(LedMode.ForceOff)
+                    limelightBack.setLED(LedMode.ForceOff)
+                    lastLLLightTime = MiscCalculations.getCurrentTime()
+                }
+
+            }
         }
 
         CommandScheduler.getInstance().run()
@@ -279,13 +316,17 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
+//        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
 
-        autoCommand = TestingAuto(auto, gyro, limelightBack)
-        autoCommand.schedule()
-        // autoPathManager.paths["Path"]!!.schedule()
+//        autoCommand = TestingAuto(auto, gyro, armSystem)
+//        autoCommand.schedule()
+        gyro.setYawOffset()
+        autoPathManager.paths["TaxiAndBalance"]!!.schedule()
         // autoPathManager.paths["ComplexPath"]!!.schedule()
+
+        limelightFront.setLED(LedMode.ForceOn)
+        limelightBack.setLED(LedMode.ForceOn)
     }
 
     /** This function is called periodically during autonomous. */
@@ -304,6 +345,9 @@ class Robot : TimedRobot() {
 
         teleopArmCommand.schedule()
         teleopSwerveCommand.schedule()
+
+        limelightFront.setLED(LedMode.ForceOn)
+        limelightBack.setLED(LedMode.ForceOn)
     }
 
     /** This function is called periodically during operator control. */

@@ -52,7 +52,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.armAlignDown) {
-            subsystem.desiredArmAngle = 35.0
+            subsystem.desiredArmAngle = 40.0
         }
 
         if (ControllerIO.armAlignObject) {

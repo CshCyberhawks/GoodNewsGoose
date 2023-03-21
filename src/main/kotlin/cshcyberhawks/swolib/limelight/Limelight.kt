@@ -1,5 +1,6 @@
 package cshcyberhawks.swolib.limelight
 
+import cshcyberhawks.swolib.field2d.Field2d
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.FieldPosition
@@ -7,22 +8,14 @@ import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveOdometry
-import edu.wpi.first.apriltag.AprilTag
-import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.cscore.HttpCamera
-import edu.wpi.first.math.geometry.Pose3d
-import edu.wpi.first.math.geometry.Rotation3d
-import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableInstance
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import java.util.Optional
 import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.tan
 
 class Limelight(
@@ -104,7 +97,7 @@ class Limelight(
     }
 
     /** @return Whether the limelight has any valid targets. */
-    private fun hasTarget(): Boolean = limelight.getEntry("tv").getDouble(0.0) == 1.0
+    public fun hasTarget(): Boolean = limelight.getEntry("tv").getDouble(0.0) == 1.0
 
     /** @return Horizontal Offset From Crosshair To Target (-27 degrees to 27 degrees). */
     fun getHorizontalOffset(): Optional<Double> {
@@ -167,11 +160,22 @@ class Limelight(
     }
 
     fun getBotPosition(): Optional<Vector3> {
-        val data = limelight.getEntry("botpose").getDoubleArray(arrayOf())
+        val data = limelight.getEntry("botpose_wpiblue").getDoubleArray(arrayOf())
         if (!hasTarget() || data[0] == 0.0 || pipeline != fiducialPipeline) {
             return Optional.empty()
         }
         return Optional.of(Vector3(data[0], data[1], data[2]))
+    }
+
+    fun getBotFieldPosition(): Optional<FieldPosition> {
+        val positionOptional = getBotPosition()
+        val rotationOptional = getBotYaw()
+        if (positionOptional.isEmpty || rotationOptional.isEmpty) {
+            return Optional.empty()
+        }
+        val position = positionOptional.get()
+        val rotation = rotationOptional.get()
+        return Optional.of(Field2d.fromWPILIBFieldPosition(FieldPosition(Vector2(position.x, position.y), rotation)))
     }
 
     fun getBotYaw(): Optional<Double> {
@@ -221,5 +225,9 @@ class Limelight(
             AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
 
         return Optional.of(Vector2.fromPolar(Polar(angle, distance)) + Vector2(swo.fieldPosition.x, swo.fieldPosition.y))
+    }
+
+    public fun setLED(mode: LedMode) {
+        limelight.getEntry("ledMode").setNumber(mode.ordinal)
     }
 }
