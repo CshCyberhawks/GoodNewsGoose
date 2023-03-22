@@ -30,7 +30,6 @@ object MotorConstants {
     const val extensionEncoder = 0
     const val extensionExtendedSwitch = 2
     const val extensionRetractedSwitch = 3
-
     const val gyroPort = 30
     const val pcm = 31
 

@@ -3,11 +3,12 @@ package cshcyberhawks.swolib.autonomous.paths
 import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import edu.wpi.first.wpilibj.Filesystem
+import edu.wpi.first.wpilibj2.command.CommandBase
 
 class AutoPathManager(
     swerveAuto: SwerveAuto,
     gyro: GenericGyro,
-    private val commandsToRun: HashMap<String, HashMap<Int, Array<AttachedCommand>>> =
+    private val commandsToRun: HashMap<String, HashMap<Int, CommandBase>> =
         hashMapOf()
 ) {
     val paths: HashMap<String, AutoPath> = hashMapOf()

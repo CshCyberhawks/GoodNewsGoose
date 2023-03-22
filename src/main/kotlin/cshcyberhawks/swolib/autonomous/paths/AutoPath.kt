@@ -6,7 +6,6 @@ import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.FieldPosition
-import cshcyberhawks.swolib.math.Vector3
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj2.command.CommandBase
@@ -16,12 +15,12 @@ class AutoPath(
     inputFile: File,
     val swerveAuto: SwerveAuto,
     val gyro: GenericGyro,
-    private val commandsList: HashMap<Int, Array<AttachedCommand>> = HashMap()
+    private val commandsList: HashMap<Int, CommandBase> = HashMap()
 ) : CommandBase() {
     private var positions: List<FieldPosition>
 
     private var currentCommand: CommandBase? = null
-    private var attachedCommands: MutableList<CommandBase> = mutableListOf()
+    private var attachedCommand: CommandBase? = null
     private var currentIndex = 0
 
     init {
@@ -38,34 +37,17 @@ class AutoPath(
     }
 
     override fun initialize() {
+        gyro.setYawOffset(positions[0].angle)
 //        swerveAuto.swo.fieldPosition =
 //            Vector3(positions[0].x, positions[0].y, AngleCalculations.wrapAroundAngles(positions[0].angle + 180))
     }
 
     override fun execute() {
-        if ((currentCommand == null || currentCommand?.isFinished == true) && currentIndex < positions.size) {
-            for (cmd in attachedCommands) {
-                if (!cmd.isFinished) {
-                    cmd.cancel()
-                }
-            }
-            attachedCommands = mutableListOf()
-
+        if ((currentCommand == null || currentCommand?.isFinished == true) && (attachedCommand == null || attachedCommand?.isFinished == false) && currentIndex < positions.size) {
+            attachedCommand = null
             if (commandsList.containsKey(currentIndex) && commandsList[currentIndex] != null) {
-                val cmds = commandsList[currentIndex]!!
-
-                for (cmd in cmds) {
-                    when (cmd.attachedCommandType) {
-                        AttachedCommandType.ASYNC -> {
-                            cmd.command.schedule()
-                        }
-
-                        AttachedCommandType.SYNC -> {
-                            attachedCommands.add(cmd.command)
-                            cmd.command.schedule()
-                        }
-                    }
-                }
+                attachedCommand = commandsList[currentIndex]!!
+                attachedCommand?.schedule()
             }
 
             val pos = positions[currentIndex++]

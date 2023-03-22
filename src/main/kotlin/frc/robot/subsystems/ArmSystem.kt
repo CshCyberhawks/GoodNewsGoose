@@ -43,6 +43,9 @@ class ArmSystem : SubsystemBase() {
 
     val armAngleDegrees
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360 - ArmConstants.armAngleOffset)
+
+    val rawArmEncoder
+        get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360)
     private val extensionDistance
         get() = extensionEncoder.get()
 
@@ -109,7 +112,7 @@ class ArmSystem : SubsystemBase() {
             manualTraversalSetpoint
         } else if (desiredExtensionPosition != extensionPosition) {
             when (desiredExtensionPosition) {
-                ExtensionPosition.EXTENDED -> -0.5
+                ExtensionPosition.EXTENDED -> -1.0
                 ExtensionPosition.RETRACTED -> 1.0
                 else -> 0.0
             }

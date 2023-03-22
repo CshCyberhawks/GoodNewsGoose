@@ -7,7 +7,7 @@ import frc.robot.subsystems.ExtensionPosition
 /**
  * @property subsystem
  */
-class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Double, private val extensionPosition: ExtensionPosition, private val tilt: Boolean) : CommandBase() {
+class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Double, private val extensionPosition: ExtensionPosition, private val tilt: Boolean, private val clawOpen: Boolean) : CommandBase() {
     /**
      * Creates a new ExampleCommand.
      */
@@ -21,6 +21,7 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
         subsystem.desiredArmAngle = armAngle
         subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt
+        subsystem.desiredClawOpen = clawOpen
     }
 
     // Called every time the scheduler runs while the command is scheduled.

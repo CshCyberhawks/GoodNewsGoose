@@ -1,5 +1,5 @@
 package frc.robot.constants
 
 object ArmConstants {
-    const val armAngleOffset = 152.7
+    const val armAngleOffset = 276.678738166968454
 }

@@ -36,7 +36,7 @@ object ControllerIO {
     val extensionRetracted
         get() = xbox.leftBumper
 
-    val armAlignObject: Boolean
+    val armAlignPickup: Boolean
         get() = xbox.startButton
     val armAlignUp
         get() = xbox.yButton

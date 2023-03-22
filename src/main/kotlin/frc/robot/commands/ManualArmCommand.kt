@@ -55,10 +55,8 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.desiredArmAngle = 40.0
         }
 
-        if (ControllerIO.armAlignObject) {
-            subsystem.desiredArmAngle = 37.0
-            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
-            subsystem.desiredClawOpen = true
+        if (ControllerIO.armAlignPickup) {
+            subsystem.desiredArmAngle = 85.0
         }
 
         subsystem.run()
