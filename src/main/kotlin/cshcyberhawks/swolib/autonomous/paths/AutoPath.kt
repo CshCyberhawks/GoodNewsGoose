@@ -51,7 +51,7 @@ class AutoPath(
             }
 
             val pos = positions[currentIndex++]
-            currentCommand = GoToPosition(swerveAuto, FieldPosition(pos.x, pos.y, gyro.getYaw()))
+            currentCommand = GoToPosition(swerveAuto, FieldPosition(pos.x, pos.y, pos.angle))
             currentCommand?.schedule()
         }
     }

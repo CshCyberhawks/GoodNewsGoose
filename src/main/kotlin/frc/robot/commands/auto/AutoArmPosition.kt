@@ -18,6 +18,7 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
 
     // Called when the command is initially scheduled.
     override fun initialize() {
+        subsystem.usePID = true
         subsystem.desiredArmAngle = armAngle
         subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt

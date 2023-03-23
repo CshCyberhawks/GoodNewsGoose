@@ -27,7 +27,6 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         if (ControllerIO.toggleTilt) {
             subsystem.desiredTilt = !subsystem.desiredTilt
         }
-        subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
 
         if (ControllerIO.extensionExtended) {
             subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
@@ -39,8 +38,13 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         if (ControllerIO.toggleGrabber) {
             subsystem.desiredClawOpen = !subsystem.desiredClawOpen
         }
-        if (ControllerIO.toggleBrake) {
-            subsystem.desiredBrake = !subsystem.desiredBrake
+        if (ControllerIO.togglePID) {
+            subsystem.usePID = false
+            subsystem.desiredArmAngle = subsystem.armAngleDegrees
+            subsystem.desiredAngleSpeed = -ControllerIO.controlArmAngle
+        } else {
+            subsystem.usePID = true
+            subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
         }
 
         if (ControllerIO.armAlignUp) {

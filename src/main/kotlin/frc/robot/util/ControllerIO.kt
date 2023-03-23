@@ -44,12 +44,6 @@ object ControllerIO {
     val armAlignDown
         get() = xbox.bButton
 
-    private var lastToggleBrake = false
-    val toggleBrake: Boolean
-        get() {
-            val current = xbox.backButton
-            val toggled = current && !lastToggleBrake
-            lastToggleBrake = current
-            return toggled
-        }
+    val togglePID: Boolean
+        get() = xbox.backButton
 }

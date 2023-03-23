@@ -30,8 +30,8 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
             AutoArmPosition(armSystem, 126.0, ExtensionPosition.RETRACTED, true, true),
             AutoArmPosition(armSystem, 40.0, ExtensionPosition.RETRACTED, false, true),
             AutoArmPosition(armSystem, 40.0, ExtensionPosition.RETRACTED, false, false),
-//            GoToPosition(swerveAuto, Vector2(0.0 - 4.5))
-            autoPathManager.paths["TaxiAndBalance"]!!
+            //            GoToPosition(swerveAuto, Vector2(0.0 - 4.5))
+//            autoPathManager.paths["TaxiAndBalance"]!!
         )
     }
 }

@@ -152,7 +152,7 @@ class Robot : TimedRobot() {
         )
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
-    private val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
+    private val autoTrapConstraints = TrapezoidProfile.Constraints(6.0, 4.0)
     private val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
 
     private val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
@@ -246,10 +246,10 @@ class Robot : TimedRobot() {
         limelightFront.pipeline = limelightFront.fiducialPipeline
 
         val backPosition = limelightBack.getBotFieldPosition()
-        if (!backPosition.isEmpty) {
-            val pos = backPosition.get()
-            swo.fieldPosition = Vector3(pos.x, pos.y)
-        }
+//        if (!backPosition.isEmpty) {
+//            val pos = backPosition.get()
+//            swo.fieldPosition = Vector3(pos.x, pos.y)
+//        }
 
         val frontPosition = limelightFront.getBotFieldPosition()
         if (!frontPosition.isEmpty) {
@@ -381,6 +381,8 @@ class Robot : TimedRobot() {
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
         SmartDashboard.putNumber("Arm Pivot Encoder Raw", armSystem.rawArmEncoder)
         SmartDashboard.putNumber("Arm Pivot Encoder", armSystem.armAngleDegrees)
+        SmartDashboard.putBoolean("Arm Extended Switch", armSystem.extensionExtended)
+        SmartDashboard.putBoolean("Arm Retracted Switch", armSystem.extensionRetracted)
         //        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(),
         // frontRight.getRawEncoder(), backRight.getRawEncoder())
         //

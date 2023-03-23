@@ -35,10 +35,10 @@ class ArmSystem : SubsystemBase() {
     private val extensionExtendedSwitch = DigitalInput(MotorConstants.extensionExtendedSwitch)
     private val extensionRetractedSwitch = DigitalInput(MotorConstants.extensionRetractedSwitch)
 
-    private val extensionExtended
+    val extensionExtended
         get() = extensionExtendedSwitch.get()
 
-    private val extensionRetracted
+    val extensionRetracted
         get() = extensionRetractedSwitch.get()
 
     val armAngleDegrees
@@ -63,6 +63,8 @@ class ArmSystem : SubsystemBase() {
     var desiredExtensionPosition = ExtensionPosition.RETRACTED
     var desiredClawOpen = false
     var desiredBrake = false
+    var usePID = true
+    var desiredAngleSpeed = 0.0
 
     init {
         armAngleEncoder.distancePerRotation = 360.0
@@ -90,15 +92,15 @@ class ArmSystem : SubsystemBase() {
 
         SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
         SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
-        val armPIDVal = -armAnglePID.calculate(armAngleDegrees) / 360
-        SmartDashboard.putNumber("Arm PID Output", armPIDVal)
+        val armOutput = if (usePID) -armAnglePID.calculate(armAngleDegrees) / 360 else desiredAngleSpeed
+        SmartDashboard.putNumber("Arm PID Output", armOutput)
 
         SmartDashboard.putBoolean("Traversal Extended", extensionExtendedSwitch.get())
         SmartDashboard.putBoolean("Traversal Retracted", extensionRetractedSwitch.get())
 
         SmartDashboard.putNumber("Traversal Velocity", extensionEncoder.velocity)
 
-        armAngleMotor.set(armPIDVal)
+        armAngleMotor.set(armOutput)
         clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
         brakeSolenoid.set(desiredBrake)
