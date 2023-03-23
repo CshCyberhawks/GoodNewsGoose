@@ -62,9 +62,11 @@ class SwerveWheel(
         SmartDashboard.putNumber("angle in wheel for " + this.turnMotor.encoderPort, angle)
 
         driveMotor.setPercentOutput(MathUtil.clamp(speed / configuration.maxSpeed + drivePIDOutput, -1.0, 1.0))
-        if (abs(turnValue - angle) >= .4) {
-            turnMotor.setPercentOutput(MathUtil.clamp(-turnPIDOutput, -1.0, 1.0))
-        }
+        turnMotor.setPercentOutput(if (abs(turnValue - angle) >= .4) {
+            MathUtil.clamp(-turnPIDOutput, -1.0, 1.0)
+        } else {
+            0.0
+        })
     }
 
     fun preserveAngle() {

@@ -73,7 +73,7 @@ class SwerveDriveTrain(
                     Polar(
                         swerveConfiguration.angleConfiguration.frontRight,
                         inputTwist *
-                                swerveConfiguration.speedConfiguration.frontRight
+                            swerveConfiguration.speedConfiguration.frontRight
                     )
                 ),
                 disableFieldOrientation
@@ -86,7 +86,7 @@ class SwerveDriveTrain(
                     Polar(
                         swerveConfiguration.angleConfiguration.frontLeft,
                         inputTwist *
-                                swerveConfiguration.speedConfiguration.frontLeft
+                            swerveConfiguration.speedConfiguration.frontLeft
                     )
                 ),
                 disableFieldOrientation
@@ -99,7 +99,7 @@ class SwerveDriveTrain(
                     Polar(
                         swerveConfiguration.angleConfiguration.backRight,
                         inputTwist *
-                                swerveConfiguration.speedConfiguration.backRight
+                            swerveConfiguration.speedConfiguration.backRight
                     )
                 ),
                 disableFieldOrientation
@@ -139,6 +139,18 @@ class SwerveDriveTrain(
     fun debug() {
         logEncoderValues()
         // put debug stuff here
+    }
+
+    fun lockWheels() {
+        swerveConfiguration.backRight.drive(
+            0.0, swerveConfiguration.angleConfiguration.backRight)
+        swerveConfiguration.backLeft.drive(0.0, swerveConfiguration.angleConfiguration.backLeft)
+        swerveConfiguration.frontRight.drive(0.0, swerveConfiguration.angleConfiguration.frontRight)
+        swerveConfiguration.frontLeft.drive(0.0, swerveConfiguration.angleConfiguration.frontLeft)
+    }
+
+    fun kill() {
+        swerveConfiguration.preserveWheelAngles()
     }
 
     private fun logEncoderValues() {

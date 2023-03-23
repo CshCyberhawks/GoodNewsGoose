@@ -152,7 +152,7 @@ class Robot : TimedRobot() {
         )
 
     //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
-    private val autoTrapConstraints = TrapezoidProfile.Constraints(6.0, 4.0)
+    private val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 2.5)
     private val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
 
     private val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
@@ -192,11 +192,11 @@ class Robot : TimedRobot() {
 
     private var teleopArmCommand = ManualArmCommand(armSystem)
 
+    private val odometryResetLLShuffle = driverTab.add("Reset Odometry With Limelight", true).getEntry()
+
 
     lateinit var llCam: HttpCamera
 
-//    private var led = AddressableLED(8)
-//    private var ledBuffer = AddressableLEDBuffer(50)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -224,13 +224,6 @@ class Robot : TimedRobot() {
         // driverTab.add("LL", limelightBack.feed)
     }
 
-    fun setLED(r: Int, g: Int, b: Int, buffer: AddressableLEDBuffer, led: AddressableLED) {
-        for (i in 0..buffer.length) {
-            buffer.setRGB(i, r, g, b)
-        }
-        led.setData(buffer)
-    }
-
     /**
      * This function is called every robot packet, no matter the mode. Use this for items like
      * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -242,6 +235,11 @@ class Robot : TimedRobot() {
 
 
     fun resetOdometryLL() {
+
+        if (!odometryResetLLShuffle.getBoolean(true)) {
+            return
+        }
+
         limelightBack.pipeline = limelightBack.fiducialPipeline
         limelightFront.pipeline = limelightFront.fiducialPipeline
 
@@ -274,7 +272,6 @@ class Robot : TimedRobot() {
                 limelightBack.setLED(LedMode.ForceOff)
                 lastLLLightTime = MiscCalculations.getCurrentTime()
             }
-
         }
     }
 
@@ -300,13 +297,13 @@ class Robot : TimedRobot() {
 //            SmartDashboard.putNumber("Limelight Pos Y", conePos.get().y)
 //        }
 
-        if (armSystem.desiredTilt) {
-            limelightFront.cameraAngle = 0.0
-            limelightBack.cameraAngle = 0.0
-        } else {
-            limelightFront.cameraAngle = -24.4
-            limelightBack.cameraAngle = 24.4
-        }
+//        if (armSystem.desiredTilt) {
+//            limelightFront.cameraAngle = 0.0
+//            limelightBack.cameraAngle = 0.0
+//        } else {
+//            limelightFront.cameraAngle = -24.4
+//            limelightBack.cameraAngle = 24.4
+//        }
 
         resetOdometryLL()
 
@@ -324,7 +321,7 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
 //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
-        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager)
+        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain)
         autoCommand?.schedule()
 
 //         autoPathManager.paths["ComplexPath"]!!.schedule()
@@ -346,7 +343,9 @@ class Robot : TimedRobot() {
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
         // cancelling it
         autonomousCommand?.cancel()
+
         gyro.setYawOffset()
+//        gyro.setYawOffset()
 
         teleopArmCommand.schedule()
         teleopSwerveCommand.schedule()
@@ -366,6 +365,17 @@ class Robot : TimedRobot() {
     override fun testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll()
+
+//        var led = AddressableLED(6)
+//        var ledBuffer = AddressableLEDBuffer(60)
+//        led.setLength(ledBuffer.length)
+//
+//        for (i in 0 until ledBuffer.length) {
+//            ledBuffer.setRGB(i, 255, 255, 255)
+//        }
+//
+//        led.setData(ledBuffer)
+//        led.start()
     }
 
     /** This function is called periodically during test mode. */
