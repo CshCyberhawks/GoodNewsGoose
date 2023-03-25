@@ -147,6 +147,7 @@ class SwerveDriveTrain(
         swerveConfiguration.backLeft.drive(0.0, swerveConfiguration.angleConfiguration.backLeft)
         swerveConfiguration.frontRight.drive(0.0, swerveConfiguration.angleConfiguration.frontRight)
         swerveConfiguration.frontLeft.drive(0.0, swerveConfiguration.angleConfiguration.frontLeft)
+        println("locking")
     }
 
     fun kill() {

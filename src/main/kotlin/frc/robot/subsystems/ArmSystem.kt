@@ -52,7 +52,7 @@ class ArmSystem : SubsystemBase() {
 
     private var extensionPosition = ExtensionPosition.RETRACTED
 
-    private val armAnglePID = PIDController(10.0, 0.0, 0.0)
+    private val armAnglePID = PIDController(20.0, 0.0, 0.1)
 
     var desiredTilt = false
     var desiredArmAngle = armAngleDegrees
@@ -67,6 +67,9 @@ class ArmSystem : SubsystemBase() {
     var usePID = true
     var desiredAngleSpeed = 0.0
 
+    var hitSetpoint = false
+    var autoMode = false
+
     init {
         armAngleEncoder.distancePerRotation = 360.0
         armAnglePID.enableContinuousInput(0.0, 360.0)
@@ -76,8 +79,7 @@ class ArmSystem : SubsystemBase() {
     }
 
     fun run() {
-        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 40.0, 130.0)
-
+        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 130.0)
 
         extensionPosition = if (extensionExtended) {
             ExtensionPosition.EXTENDED
@@ -87,6 +89,11 @@ class ArmSystem : SubsystemBase() {
             ExtensionPosition.UNKNOWN
         }
 
+        if (desiredExtensionPosition == extensionPosition) {
+            hitSetpoint = true
+        }
+
+        SmartDashboard.putBoolean("Traversal Hit Setpoint", hitSetpoint)
         SmartDashboard.putString("Traversal Position", extensionPosition.name)
         SmartDashboard.putString("Traversal Des Position", desiredExtensionPosition.name)
         SmartDashboard.putNumber("Traversal Angle", extensionDistance)
@@ -113,7 +120,7 @@ class ArmSystem : SubsystemBase() {
             // TODO: Less sketchy
             desiredExtensionPosition = ExtensionPosition.UNKNOWN
             manualTraversalSetpoint
-        } else if (desiredExtensionPosition != extensionPosition) {
+        } else if (desiredExtensionPosition != extensionPosition && (!hitSetpoint || autoMode || desiredExtensionPosition == ExtensionPosition.RETRACTED)) {
             when (desiredExtensionPosition) {
                 ExtensionPosition.EXTENDED -> -1.0
                 ExtensionPosition.RETRACTED -> 1.0

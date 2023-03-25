@@ -9,6 +9,7 @@ import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.networktables.GenericEntry
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.DriverPreferences
@@ -53,6 +54,9 @@ class TeleopSwerveCommand(
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
+        if (!DriverStation.isTeleopEnabled()) {
+            return
+        }
         throttleShuffle.setDouble(throttle)
         pipShuffle.setInteger(desiredPipe.toLong())
         currentLimelightShuffle.setString(currentLimelight.name)
@@ -105,7 +109,7 @@ class TeleopSwerveCommand(
         }
 
         if (JoyIO.togglePipe) {
-            desiredPipe = (desiredPipe + 1) % 2
+            desiredPipe = if (desiredPipe == 0) 1 else 0
             currentLimelight.pipeline = desiredPipe
         }
 

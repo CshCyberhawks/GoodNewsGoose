@@ -23,6 +23,7 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
         subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt
         subsystem.desiredClawOpen = clawOpen
+        subsystem.hitSetpoint = false
     }
 
     // Called every time the scheduler runs while the command is scheduled.

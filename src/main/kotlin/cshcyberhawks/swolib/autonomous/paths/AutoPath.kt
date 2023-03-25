@@ -8,6 +8,7 @@ import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.FieldPosition
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import java.io.File
 
@@ -45,6 +46,7 @@ class AutoPath(
     override fun execute() {
         if ((currentCommand == null || currentCommand?.isFinished == true) && (attachedCommand == null || attachedCommand?.isFinished == false) && currentIndex < positions.size) {
             attachedCommand = null
+            currentCommand = null
             if (commandsList.containsKey(currentIndex) && commandsList[currentIndex] != null) {
                 attachedCommand = commandsList[currentIndex]!!
                 attachedCommand?.schedule()
@@ -57,5 +59,7 @@ class AutoPath(
     }
 
 
-    override fun isFinished(): Boolean = currentIndex == positions.size
+    override fun isFinished(): Boolean {
+        return currentIndex == positions.size && currentCommand != null && currentCommand?.isFinished == true
+    }
 }

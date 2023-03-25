@@ -26,17 +26,25 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-//            AutoBalance(gyro, swerveAuto, swerveAuto.swo)
+////            AutoBalance(gyro, swerveAuto, swerveAuto.swo)
             AutoArmPosition(armSystem, 126.0, ExtensionPosition.RETRACTED, true, false),
             AutoArmPosition(armSystem, 126.0, ExtensionPosition.EXTENDED, true, false),
             AutoArmPosition(armSystem, 120.0, ExtensionPosition.EXTENDED, true, false),
             AutoArmPosition(armSystem, 120.0, ExtensionPosition.EXTENDED, true, true),
             AutoArmPosition(armSystem, 126.0, ExtensionPosition.RETRACTED, true, true),
-            AutoArmPosition(armSystem, 40.0, ExtensionPosition.RETRACTED, false, true),
-            AutoArmPosition(armSystem, 40.0, ExtensionPosition.RETRACTED, false, false),
-            autoPathManager.paths["TaxiTop"]!!,
+            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, true, true),
+            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, false, false),
+//            autoPathManager.paths["BalanceStart"]!!,
+//            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, false, false),
+            GoToPosition(swerveAuto, Vector2(0.0, -2.6)),
+            GoToPosition(swerveAuto, FieldPosition(0.0, -2.6, 15.0))
+//            autoPathManager.paths["Balance"]!!,
+//            autoPathManager.paths["TaxiTop"]!!,
 //            LockWheels(swerveSystem)
 //            GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, gyro.getYaw() + 5))
         )
     }
+    //balance
+//    GoToPosition(swerveAuto, Vector2(0.0, -2.55)),
+    //            GoToPosition(swerveAuto, FieldPosition(0.0, -2.55, 15.0))
 }

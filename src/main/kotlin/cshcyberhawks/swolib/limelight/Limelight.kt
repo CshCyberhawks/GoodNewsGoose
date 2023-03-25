@@ -86,10 +86,10 @@ class Limelight(
         putToTab("$name Target ID", this.getTargetID())
         tab.add("$name Bot Pose", this.getBotDebug())
 
-        feed = if (name == "limelight-front") {
-            HttpCamera("Limelight Feed-Front", "http://10.28.75.11:5800")
+        feed = if (name == "limelight-right") {
+            HttpCamera("Limelight Feed-Right", "http://10.28.75.11:5800")
         } else /* (name == "limelight-back") */ {
-            HttpCamera("Limelight Feed-Back", "http://10.28.75.74:5800")
+            HttpCamera("Limelight Feed-Left", "http://10.28.75.74:5800")
         }
 
 //        tab.add("LLFeed $name", feed).withPosition(0, 0).withSize(8, 4)
