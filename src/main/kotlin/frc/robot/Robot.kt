@@ -2,35 +2,41 @@ package frc.robot
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
+import cshcyberhawks.swolib.field2d.Field2d
 import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
+import cshcyberhawks.swolib.limelight.LedMode
 import cshcyberhawks.swolib.limelight.Limelight
+import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector3
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
 import cshcyberhawks.swolib.swerve.configurations.FourWheelAngleConfiguration
+import cshcyberhawks.swolib.swerve.configurations.FourWheelSpeedConfiguration
 import cshcyberhawks.swolib.swerve.configurations.FourWheelSwerveConfiguration
 import cshcyberhawks.swolib.swerve.configurations.SwerveModuleConfiguration
 import edu.wpi.first.cameraserver.CameraServer
+import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
-import edu.wpi.first.net.PortForwarder
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.CommandBase
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import frc.robot.commands.ManualArmCommand
 import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
-import frc.robot.commands.ManualArmCommand
-import frc.robot.subsystems.ArmSubsystem
-import frc.robot.util.IO
-import javax.swing.GroupLayout.Alignment
+import frc.robot.subsystems.ArmSystem
+import java.sql.Driver
+import java.util.*
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -41,122 +47,154 @@ import javax.swing.GroupLayout.Alignment
 class Robot : TimedRobot() {
 
     companion object {
-        var pipIndex = 0;
+        var pipIndex = 2
     }
 
-    val driverTab = Shuffleboard.getTab("Driver")
+    private val driverTab: ShuffleboardTab = Shuffleboard.getTab("Driver")
 
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
-    val swerveConfiguration: SwerveModuleConfiguration = SwerveModuleConfiguration(4.0, 0.0505, 7.0)
+    private val swerveConfiguration: SwerveModuleConfiguration =
+        SwerveModuleConfiguration(4.0, 0.0505, 7.0)
 
-    val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
-    val turnPIDBackLeft = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDBackLeft = PIDController(.012, 0.0, 0.0002)
 
-    val drivePIDBackRight = PIDController(0.01, 0.0, 0.0)
-    val turnPIDBackRight = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDBackRight = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDBackRight = PIDController(.012, 0.0, 0.0002)
 
-    val drivePIDFrontLeft = PIDController(0.01, 0.0, 0.0)
-    val turnPIDFrontLeft = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDFrontLeft = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDFrontLeft = PIDController(.012, 0.0, 0.0002)
 
-    val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
-    val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
+    private val drivePIDFrontRight = PIDController(0.01, 0.0, 0.0)
+    private val turnPIDFrontRight = PIDController(.012, 0.0, 0.0002)
 
-    val limelightBack = Limelight("limelight-back", 0.12, 0.0)
-    val limelightFront = Limelight("limelight-front", 0.12, 0.0)
-    var backLeft: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.backLeftTurnMotor,
-                            MotorConstants.backLeftEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]
-                    ),
-                    drivePIDBackLeft,
-                    turnPIDBackLeft,
-                    swerveConfiguration
-            )
-    var backRight: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.backRightTurnMotor,
-                            MotorConstants.backRightEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]
-                    ),
-                    drivePIDBackRight,
-                    turnPIDBackRight,
-                    swerveConfiguration
-            )
-    var frontLeft: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.frontLeftTurnMotor,
-                            MotorConstants.frontLeftEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]
-                    ),
-                    drivePIDFrontLeft,
-                    turnPIDFrontLeft,
-                    swerveConfiguration
-            )
-    var frontRight: SwerveWheel =
-            SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
-                    SparkMaxTurnMotor(
-                            MotorConstants.frontRightTurnMotor,
-                            MotorConstants.frontRightEncoder,
-                            MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]
-                    ),
-                    drivePIDFrontRight,
-                    turnPIDFrontRight,
-                    swerveConfiguration
-            )
+    private val limelightLeft = Limelight("limelight-left", 0.134, 0.0, fiducialPipeline = 1)
+    private val limelightRight = Limelight("limelight-right", 0.12, 0.0, fiducialPipeline = 1)
+    private var backLeft: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.backLeftTurnMotor,
+                MotorConstants.backLeftEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.backLeftEncoder - 10]
+            ),
+            drivePIDBackLeft,
+            turnPIDBackLeft,
+            swerveConfiguration
+        )
+    private var backRight: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.backRightTurnMotor,
+                MotorConstants.backRightEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.backRightEncoder - 10]
+            ),
+            drivePIDBackRight,
+            turnPIDBackRight,
+            swerveConfiguration
+        )
+    private var frontLeft: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.frontLeftTurnMotor,
+                MotorConstants.frontLeftEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.frontLeftEncoder - 10]
+            ),
+            drivePIDFrontLeft,
+            turnPIDFrontLeft,
+            swerveConfiguration
+        )
+    private var frontRight: SwerveWheel =
+        SwerveWheel(
+            TalonFXDriveMotor(MotorConstants.frontRightDriveMotor),
+            SparkMaxTurnMotor(
+                MotorConstants.frontRightTurnMotor,
+                MotorConstants.frontRightEncoder,
+                MotorConstants.turnEncoderOffsets[MotorConstants.frontRightEncoder - 10]
+            ),
+            drivePIDFrontRight,
+            turnPIDFrontRight,
+            swerveConfiguration
+        )
 
-    val gyro = Pigeon2Gyro(30)
+    val gyro = Pigeon2Gyro(MotorConstants.gyroPort)
 
-    val swerveDriveTrain =
-            SwerveDriveTrain(
-                    FourWheelSwerveConfiguration(frontRight, frontLeft, backRight, backLeft, angleConfiguration = FourWheelAngleConfiguration(-45.0, 45.0, -135.0, 135.0)),
-                    gyro
-            )
+    private val swerveDriveTrain =
+        SwerveDriveTrain(
+            FourWheelSwerveConfiguration(
+                frontRight,
+                frontLeft,
+                backRight,
+                backLeft,
+                angleConfiguration =
+                FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4),
+                speedConfiguration = FourWheelSpeedConfiguration(.65, .65, .65, .65)
+            ),
+            gyro
+        )
 
-    val swo =
-            SwerveOdometry(swerveDriveTrain, gyro, 1.0, Vector3(0.0, 0.0, 0.0), limelightFront, debugLogging = true)
+    private val field2d = Field2d()
 
-    var autoPIDX = PIDController(.01, 0.0, 0.0)
-    var autoPIDY = PIDController(.01, 0.0, 0.0)
+    private val swo =
+        SwerveOdometry(
+            swerveDriveTrain,
+            gyro,
+            1.0,
+            Vector3(0.0, 0.0, 0.0),
+            arrayOf(limelightLeft),
+            debugLogging = true,
+            field2d = Optional.of(field2d)
+        )
 
-    var auto =
-            SwerveAuto(
-                    autoPIDX,
-                    autoPIDY,
-                    PIDController(.5, 0.0, 0.05),
-                    // TrapezoidProfile.Constraints(4.0, 1.5),
-                    TrapezoidProfile.Constraints(1.0, .2),
-                    1.0, // TODO: Tune PIDs so this can be smaller
-                    0.2,
-                    1.0,
-                    swo,
-                    swerveDriveTrain,
-                    gyro,
-                    false
-            )
+    //    val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
+    private val autoTrapConstraints = TrapezoidProfile.Constraints(5.0, 3.0)
+    private val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
 
-    var teleopCommand =
-            TeleopSwerveCommand(
-                    swerveDriveTrain,
-                    auto,
-                    gyro,
-                    driverTab,
-                    limelightFront,
-                    limelightBack
-            )
+    private val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
+    private val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
+    private val twistPID = PIDController(0.1, 0.0, 0.00)
 
-    val armSystem = ArmSubsystem(driverTab)
+    private val auto =
+        SwerveAuto(
+            autoPIDX,
+            autoPIDY,
+            twistPID,
+            twistTrapConstraints,
+            // TrapezoidProfile.Constraints(4.0, 1.5),
+            10.0, // TODO: Tune PIDs so this can be smaller
+            0.2,
+            swo,
+            swerveDriveTrain,
+            gyro,
+            true,
+            Optional.of(field2d)
+        )
 
-//    var autoCommand = TestingAuto(auto, gyro)
-    val autoPathManager = AutoPathManager(auto, gyro)
+    private var teleopSwerveCommand =
+        TeleopSwerveCommand(
+            swerveDriveTrain,
+            auto,
+            gyro,
+            driverTab,
+            arrayOf(limelightRight, limelightLeft)
+        )
+
+    private val autoPathManager = AutoPathManager(auto, gyro)
+
+    private val armSystem = ArmSystem()
+
+    var autoCommand: CommandBase? = null
+
+    private var teleopArmCommand = ManualArmCommand(armSystem)
+
+    private val odometryResetLLShuffle = driverTab.add("Reset Odometry With Limelight", true).getEntry()
+
+
+    lateinit var llCam: HttpCamera
+
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -167,22 +205,23 @@ class Robot : TimedRobot() {
         // autonomous chooser on the dashboard.
         robotContainer = RobotContainer()
 
-        //        PortForwarder.add(5800, "limelight.local", 5800)
-        for (i in 5800..5808) {
-            PortForwarder.add(i, "limelight.local", i)
-        }
+//        for (i in 5800..5808) {
+//            PortForwarder.add(i, "limelight.local", i)
+//        }
+
+//        swo.fieldPosition = Vector3(0.0, 5.0, 0.0)
+
+        limelightLeft.pipeline = 1
+        limelightRight.pipeline = 1
+
         CameraServer.startAutomaticCapture()
 
-        val sink = CameraServer.getVideo()
-        val source = sink.source
+        driverTab.add("Field", field2d)
 
-        driverTab.add("Camera", source)
-//        driverTab.add("BackLL", limelightBack.feed)
-//        driverTab.add("FrontLL", limelightFront.feed)
+        limelightRight.setLED(LedMode.ForceOff)
+        limelightLeft.setLED(LedMode.ForceOff)
 
-
-        limelightBack.setPipeline(3)
-        limelightFront.setPipeline(3)
+        // driverTab.add("LL", limelightBack.feed)
     }
 
     /**
@@ -192,6 +231,73 @@ class Robot : TimedRobot() {
      * This runs after the mode specific periodic functions, but before LiveWindow and
      * SmartDashboard integrated updating.
      */
+    private var lastLLLightTime = 0.0
+    private var lastRightLLResetTime = 0.0
+    private var lastLeftLLResetTime = 0.0
+
+
+    fun resetOdometryLL() {
+        if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
+            return
+        }
+
+        if (!odometryResetLLShuffle.getBoolean(true)) {
+            return
+        }
+
+        limelightLeft.pipeline = 1
+        limelightRight.pipeline = 1
+
+//        limelightLeft.pipeline = limelightLeft.fiducialPipeline
+//        limelightRight.pipeline = limelightRight.fiducialPipeline
+
+        val backPosition = limelightLeft.getBotFieldPosition()
+        if (!backPosition.isEmpty && MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .275 && limelightLeft.pipeline == limelightLeft.fiducialPipeline) {
+            val pos = backPosition.get()
+            swo.fieldPosition = Vector3(pos.x, pos.y)
+        } else if (backPosition.isEmpty) {
+            lastLeftLLResetTime = MiscCalculations.getCurrentTime()
+        }
+
+        val frontPosition = limelightRight.getBotFieldPosition()
+        if (!frontPosition.isEmpty && MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .275 && limelightRight.pipeline == limelightRight.fiducialPipeline) {
+            val pos = frontPosition.get()
+            swo.fieldPosition = Vector3(pos.x, pos.y)
+        } else if (frontPosition.isEmpty) {
+            lastRightLLResetTime = MiscCalculations.getCurrentTime()
+        }
+
+        SmartDashboard.putBoolean("Front has targ", limelightRight.hasTarget())
+        SmartDashboard.putBoolean("Back has targ", limelightLeft.hasTarget())
+        SmartDashboard.putNumber("Time - lastLL", MiscCalculations.getCurrentTime() - lastLLLightTime)
+
+        if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
+            return
+        }
+
+        if (limelightLeft.hasTarget() || limelightRight.hasTarget()) {
+            // LED Code
+            //                setLED(255, 0, 0, ledBuffer, led)
+            if (MiscCalculations.getCurrentTime() - lastLLLightTime >= .5) {
+                if (limelightLeft.hasTarget()) {
+                    limelightLeft.setLED(LedMode.ForceOn)
+
+                }
+                if (limelightRight.hasTarget()) {
+                    limelightRight.setLED(LedMode.ForceOn)
+
+                }
+                lastLLLightTime = MiscCalculations.getCurrentTime()
+            }
+        } else {
+            if (MiscCalculations.getCurrentTime() - lastLLLightTime >= .5) {
+                limelightRight.setLED(LedMode.ForceOff)
+                limelightLeft.setLED(LedMode.ForceOff)
+                lastLLLightTime = MiscCalculations.getCurrentTime()
+            }
+        }
+    }
+
     override fun robotPeriodic() {
         // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
         // commands, running already-scheduled commands, removing finished or interrupted commands,
@@ -203,10 +309,26 @@ class Robot : TimedRobot() {
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
         SmartDashboard.putNumber("gyro", gyro.getYaw())
 
+//        pipIndex = (pipIndex + 1) % 3
+//        limelightBack.pipeline = pipIndex
+//                limelightFront.setPipeline(pipIndex)
 
-//        pipIndex = (pipIndex + 1) % 4
-//        limelightBack.setPipeline(pipIndex)
-//        limelightFront.setPipeline(pipIndex)
+//        val conePos = limelightBack.getPosition(swo, 0.165, gyro)
+//        if (!conePos.isEmpty) {
+//            SmartDashboard.putNumber("Limelight Pos X", conePos.get().x)
+//            SmartDashboard.putNumber("Limelight Vert Offset", limelightBack.getVerticalOffset().get())
+//            SmartDashboard.putNumber("Limelight Pos Y", conePos.get().y)
+//        }
+
+//        if (armSystem.desiredTilt) {
+//            limelightFront.cameraAngle = 0.0
+//            limelightBack.cameraAngle = 0.0
+//        } else {
+//            limelightFront.cameraAngle = -24.4
+//            limelightBack.cameraAngle = 24.4
+//        }
+
+//        resetOdometryLL()
 
         CommandScheduler.getInstance().run()
     }
@@ -217,19 +339,24 @@ class Robot : TimedRobot() {
     /** This function is called periodically when disabled. */
     override fun disabledPeriodic() {}
 
+
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
+        armSystem.autoMode = true
 //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
-        armSystem.brakeSolenoid.set(true)
+        //        armSystem.brakeSolenoid.set(true)
+        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain)
+        autoCommand?.schedule()
 
-//        autoCommand = TestingAuto(auto, gyro)
-//        autoCommand.schedule()
-        // autoPathManager.paths["Path"]!!.schedule()
-        autoPathManager.paths["Balance"]!!.schedule()
+//         autoPathManager.paths["ComplexPath"]!!.schedule()
+
+        limelightRight.setLED(LedMode.ForceOn)
+        limelightLeft.setLED(LedMode.ForceOn)
     }
 
     /** This function is called periodically during autonomous. */
-    override fun autonomousPeriodic() {}
+    override fun autonomousPeriodic() {
+    }
 
     /** This function is called once when teleop is enabled. */
     override fun teleopInit() {
@@ -239,40 +366,61 @@ class Robot : TimedRobot() {
         // this line or comment it out.
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
         // cancelling it
+        armSystem.autoMode = false
         autonomousCommand?.cancel()
-        gyro.setYawOffset()
 
-        val armCommand = ManualArmCommand(armSystem)
-        armCommand.schedule()
-        teleopCommand.schedule()
+        gyro.setYawOffset()
+//        gyro.setYawOffset()
+
+        teleopArmCommand.schedule()
+        teleopSwerveCommand.schedule()
+
+        limelightRight.setLED(LedMode.ForceOn)
+        limelightLeft.setLED(LedMode.ForceOn)
     }
 
     /** This function is called periodically during operator control. */
     override fun teleopPeriodic() {
 
-//        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
-        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
+        //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
+        //        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
     }
 
     /** This function is called once when test mode is enabled. */
     override fun testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll()
+
+//        var led = AddressableLED(6)
+//        var ledBuffer = AddressableLEDBuffer(60)
+//        led.setLength(ledBuffer.length)
+//
+//        for (i in 0 until ledBuffer.length) {
+//            ledBuffer.setRGB(i, 255, 255, 255)
+//        }
+//
+//        led.setData(ledBuffer)
+//        led.start()
     }
 
     /** This function is called periodically during test mode. */
     override fun testPeriodic() {
         val encoderValues =
-                arrayOf(
-                        backLeft.getRawEncoder(),
-                        frontLeft.getRawEncoder(),
-                        frontRight.getRawEncoder(),
-                        backRight.getRawEncoder()
-                )
+            arrayOf(
+                backLeft.getRawEncoder(),
+                frontLeft.getRawEncoder(),
+                frontRight.getRawEncoder(),
+                backRight.getRawEncoder()
+            )
 
         SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
-//        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(), frontRight.getRawEncoder(), backRight.getRawEncoder())
-//
-//        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
+        SmartDashboard.putNumber("Arm Pivot Encoder Raw", armSystem.rawArmEncoder)
+        SmartDashboard.putNumber("Arm Pivot Encoder", armSystem.armAngleDegrees)
+        SmartDashboard.putBoolean("Arm Extended Switch", armSystem.extensionExtended)
+        SmartDashboard.putBoolean("Arm Retracted Switch", armSystem.extensionRetracted)
+        //        val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(),
+        // frontRight.getRawEncoder(), backRight.getRawEncoder())
+        //
+        //        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
     }
 }

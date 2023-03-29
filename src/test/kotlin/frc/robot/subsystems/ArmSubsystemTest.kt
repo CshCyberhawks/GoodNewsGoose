@@ -1,9 +1,6 @@
 package frc.robot.subsystems
 
-import cshcyberhawks.swolib.hardware.implementations.TestGyro
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 class ArmSubsystemTest {
     companion object {
