@@ -78,8 +78,14 @@ object JoyIO {
             return toggled
         }
 
+    private var limelightSingleAxisXLast = false
     val limelightTranslateSingleAxisX: Boolean
-        get() = rightJoy.getRawButton(6)
+        get() {
+            val current = rightJoy.getRawButton(6)
+            val toggled = current && !limelightSingleAxisXLast
+            limelightSingleAxisXLast = current
+            return toggled
+        }
 
     private var limelightSingleAxisYLast = false
     val limelightTranslateSingleAxisY: Boolean

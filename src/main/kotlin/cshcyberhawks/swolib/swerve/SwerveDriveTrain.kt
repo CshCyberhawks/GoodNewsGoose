@@ -127,8 +127,8 @@ class SwerveDriveTrain(
         var wheelSpeeds = arrayOf(frontRightSpeed, frontLeftSpeed, backRightSpeed, backLeftSpeed)
         wheelSpeeds = normalizeWheelSpeeds(wheelSpeeds, 1.0)
 
-        SmartDashboard.putNumber("Drive in x", input.x)
-        SmartDashboard.putNumber("Drive in y", input.y)
+//        SmartDashboard.putNumber("Drive in x", input.x)
+//        SmartDashboard.putNumber("Drive in y", input.y)
 
         swerveConfiguration.backRight.drive(wheelSpeeds[2], backRightAngle)
         swerveConfiguration.backLeft.drive(wheelSpeeds[3], backLeftAngle)
@@ -162,6 +162,6 @@ class SwerveDriveTrain(
                 swerveConfiguration.backLeft.getRawEncoder(),
                 swerveConfiguration.backRight.getRawEncoder()
             )
-        SmartDashboard.putString("Encoder values", vals.joinToString(", "))
+//        SmartDashboard.putString("Encoder values", vals.joinToString(", "))
     }
 }

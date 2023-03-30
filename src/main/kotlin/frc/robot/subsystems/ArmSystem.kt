@@ -26,7 +26,7 @@ enum class ExtensionPosition {
 
 class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
-    private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
+    private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
     private val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushed)
     private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
     private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSoleniod)
@@ -52,7 +52,9 @@ class ArmSystem : SubsystemBase() {
 
     private var extensionPosition = ExtensionPosition.RETRACTED
 
-    private val armAnglePID = PIDController(20.0, 0.0, 0.1)
+    //    private val armAnglePID = PIDController(20.0, 0.0, 0.5)
+    private val armAnglePID = PIDController(10.0, 0.0, 0.1)
+
 
     var desiredTilt = false
     var desiredArmAngle = armAngleDegrees
@@ -93,28 +95,28 @@ class ArmSystem : SubsystemBase() {
             hitSetpoint = true
         }
 
-        SmartDashboard.putBoolean("Traversal Hit Setpoint", hitSetpoint)
-        SmartDashboard.putString("Traversal Position", extensionPosition.name)
-        SmartDashboard.putString("Traversal Des Position", desiredExtensionPosition.name)
-        SmartDashboard.putNumber("Traversal Angle", extensionDistance)
+//        SmartDashboard.putBoolean("Traversal Hit Setpoint", hitSetpoint)
+//        SmartDashboard.putString("Traversal Position", extensionPosition.name)
+//        SmartDashboard.putString("Traversal Des Position", desiredExtensionPosition.name)
+//        SmartDashboard.putNumber("Traversal Angle", extensionDistance)
 
-        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
-        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
+//        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
+//        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
         val armOutput = if (usePID) -armAnglePID.calculate(armAngleDegrees) / 360 else desiredAngleSpeed
-        SmartDashboard.putNumber("Arm PID Output", armOutput)
+//        SmartDashboard.putNumber("Arm PID Output", armOutput)
 
-        SmartDashboard.putBoolean("Traversal Extended", extensionExtendedSwitch.get())
-        SmartDashboard.putBoolean("Traversal Retracted", extensionRetractedSwitch.get())
+//        SmartDashboard.putBoolean("Traversal Extended", extensionExtendedSwitch.get())
+//        SmartDashboard.putBoolean("Traversal Retracted", extensionRetractedSwitch.get())
 
-        SmartDashboard.putNumber("Traversal Velocity", extensionEncoder.velocity)
+//        SmartDashboard.putNumber("Traversal Velocity", extensionEncoder.velocity)
 
         armAngleMotor.set(armOutput)
         clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
         brakeSolenoid.set(desiredBrake)
-        SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
+//        SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
 //        traversalMotor.set(desiredTraversalVelocity)
-        SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
+//        SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
         val manualTraversalSetpoint = MiscCalculations.calculateDeadzone(ControllerIO.extensionManualControl, 0.05)
         val extensionSetpoint = if (manualTraversalSetpoint != 0.0) {
             // TODO: Less sketchy
@@ -129,7 +131,7 @@ class ArmSystem : SubsystemBase() {
         } else {
             0.0
         }
-        SmartDashboard.putNumber("Traversal Set", extensionSetpoint)
+//        SmartDashboard.putNumber("Traversal Set", extensionSetpoint)
         extensionMotor.set(extensionSetpoint)
 //        if (desiredTraversalPosition != traversalPosition) {
 //            SmartDashboard.putNumber("Traversal Set", if (desiredTraversalPosition == TraversalPosition.EXTENDED) {

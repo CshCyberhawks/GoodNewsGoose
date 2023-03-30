@@ -51,8 +51,7 @@ class AutoLimelightSingleAxis(
                         0.0
                     )
                 )
-        }
-        else if (axis == Axis.Y) {
+        } else if (axis == Axis.Y) {
             command =
                 GoToPosition(
                     swerveAuto,
@@ -75,11 +74,13 @@ class AutoLimelightSingleAxis(
         setPos()
     }
 
-    override fun execute() {}
+    override fun execute() {
+//        swerveAuto.move()
+    }
 
     override fun isFinished(): Boolean {
         SmartDashboard.putBoolean("single axis", swerveAuto.isFinishedMoving() && command != null)
-        return swerveAuto.isFinishedMoving() && command != null
+        return command != null && command!!.isFinished
     }
 
     override fun end(int: Boolean) {

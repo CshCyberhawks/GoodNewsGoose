@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.DriverPreferences
 import frc.robot.util.JoyIO
@@ -141,28 +142,35 @@ class TeleopSwerveCommand(
             driveTwist =
                 MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
                     50
-        } else if (JoyIO.limelightTranslateSingleAxisX) {
-            val limelightOffset = currentLimelight.getHorizontalOffset()
-            if (!limelightOffset.isEmpty) {
-                swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0, true)
-                return
-            }
-        } else if (JoyIO.limelightTranslate) {
+        }
+
+//        if (JoyIO.limelightTranslateSingleAxisX) {
+//            val limelightOffset = currentLimelight.getHorizontalOffset()
+//            if (!limelightOffset.isEmpty) {
+//                swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0, true)
+//                return
+//            }
+//        }
+        if (JoyIO.limelightTranslate) {
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
-            //        } else if (IO.limelightTranslateSingleAxisX) {
-            //            println("set current command to axis X")
-            //            setCurrentCommand(
-            //                AutoLimelightSingleAxis(
-            //                    swerveAuto,
-            //                    currentLimelight,
-            //                    0.31,
-            //                    AutoLimelightSingleAxis.Axis.X,
-            //                    desiredPipe
-            //                )
-            //            )
-            //            return
-        } else if (JoyIO.limelightTranslateSingleAxisY) {
+        }
+        if (JoyIO.limelightTranslateSingleAxisX) {
+            SmartDashboard.putBoolean("single axis x set", true)
+            setCurrentCommand(
+                AutoLimelightSingleAxis(
+                    swerveAuto,
+                    currentLimelight,
+                    0.31,
+                    AutoLimelightSingleAxis.Axis.X,
+                    desiredPipe
+                )
+            )
+            return
+        } else {
+            SmartDashboard.putBoolean("single axis x set", false)
+        }
+        if (JoyIO.limelightTranslateSingleAxisY) {
             setCurrentCommand(
                 AutoLimelightSingleAxis(
                     swerveAuto,
