@@ -1,6 +1,10 @@
 package frc.robot.commands
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
+import frc.robot.commands.auto.arm.align.ArmAlignClosed
+import frc.robot.commands.auto.arm.align.ArmAlignMid
+import frc.robot.commands.auto.arm.align.ArmAlignTop
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ExtensionPosition
 import frc.robot.util.ControllerIO
@@ -9,6 +13,8 @@ import frc.robot.util.ControllerIO
  * @property subsystem
  */
 class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
+    private var currentCommand: CommandBase? = null
+
     /**
      * Creates a new ExampleCommand.
      */
@@ -24,6 +30,21 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
+        if (ControllerIO.commandCancel) {
+            currentCommand?.cancel()
+            currentCommand = null
+        }
+
+        if (currentCommand != null && currentCommand?.isFinished == true) {
+            currentCommand = null
+        }
+
+        SmartDashboard.putBoolean("Current Command Exists", currentCommand != null)
+
+        if (currentCommand != null) {
+            return
+        }
+
         if (ControllerIO.toggleTilt) {
             subsystem.desiredTilt = !subsystem.desiredTilt
         }
@@ -41,15 +62,14 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         if (ControllerIO.toggleGrabber) {
             subsystem.desiredClawOpen = !subsystem.desiredClawOpen
         }
-//        if (ControllerIO.togglePID) {
-//            subsystem.usePID = false
-//            subsystem.desiredArmAngle = subsystem.armAngleDegrees
-//            subsystem.desiredAngleSpeed = -ControllerIO.controlArmAngle
-//        } else {
-//            subsystem.usePID = true
-//            subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
-//        }
-        subsystem.usePID = false
+        if (ControllerIO.togglePID) {
+            subsystem.usePID = false
+            subsystem.desiredArmAngle = subsystem.armAngleDegrees
+            subsystem.desiredAngleSpeed = ControllerIO.controlArmAngle
+        } else {
+            subsystem.usePID = true
+            subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
+        }
 
         if (ControllerIO.armAlignUp) {
             subsystem.desiredArmAngle = if (subsystem.desiredTilt) {
@@ -57,6 +77,17 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             } else {
                 90.0
             }
+        }
+
+        if (ControllerIO.armAlignTop) {
+            currentCommand = ArmAlignTop(subsystem)
+            currentCommand?.schedule()
+        } else if (ControllerIO.armAlignMid) {
+            currentCommand = ArmAlignMid(subsystem)
+            currentCommand?.schedule()
+        } else if (ControllerIO.armClose) {
+            currentCommand = ArmAlignClosed(subsystem)
+            currentCommand?.schedule()
         }
 
         if (ControllerIO.armAlignDown) {

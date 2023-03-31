@@ -163,8 +163,8 @@ class Robot : TimedRobot() {
                     twistPID,
                     twistTrapConstraints,
                     // TrapezoidProfile.Constraints(4.0, 1.5),
-                    10.0, // TODO: Tune PIDs so this can be smaller
-                    0.2,
+                    5.0, // TODO: Tune PIDs so this can be smaller
+                    0.05,
                     swo,
                     swerveDriveTrain,
                     gyro,
@@ -234,9 +234,9 @@ class Robot : TimedRobot() {
     private var lastLeftLLResetTime = 0.0
 
     fun resetOdometryLL() {
-        if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
-            return
-        }
+//        if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
+//            return
+//        }
 
         if (!odometryResetLLShuffle.getBoolean(true)) {
             return
@@ -333,7 +333,7 @@ class Robot : TimedRobot() {
         //            limelightBack.cameraAngle = 24.4
         //        }
 
-        //        resetOdometryLL()
+                resetOdometryLL()
 
         CommandScheduler.getInstance().run()
     }
