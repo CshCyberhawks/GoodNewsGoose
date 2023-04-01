@@ -49,6 +49,8 @@ class TeleopSwerveCommand(
         addRequirements(swerveDriveTrain)
 //1 was originally 3.83 +.24
         if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+            SmartDashboard.putString("ds alliance", "blue")
+
             this.presetPositions =
                     arrayOf(
                             FieldPosition(-4.82, yForAutoThing, 180.0),
@@ -59,6 +61,8 @@ class TeleopSwerveCommand(
                             FieldPosition(-.52, yForAutoThing, 180.0)
                     )
         } else {
+            SmartDashboard.putString("ds alliance", "red")
+
             this.presetPositions =
                     arrayOf(
                             FieldPosition(4.82, yForAutoThing, 180.0),
@@ -155,7 +159,7 @@ class TeleopSwerveCommand(
         }
 
         if (MiscCalculations.calculateDeadzone(JoyIO.moveYThrottle - prevJoyMoveyThrottle, .005) !=
-                        0.0
+                0.0
         ) {
             throttle = JoyIO.moveYThrottle
         }
@@ -223,8 +227,8 @@ class TeleopSwerveCommand(
         SmartDashboard.putNumber("preset pos", JoyIO.presetPos.toDouble())
         if (JoyIO.presetPos != -1) {
             setCurrentCommand(
-                GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, 180.0)),
-                        GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
+                    GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, 180.0)),
+                    GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
             )
             return
         }

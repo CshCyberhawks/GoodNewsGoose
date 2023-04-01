@@ -30,32 +30,34 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-        if (ControllerIO.commandCancel) {
-            currentCommand?.cancel()
-            currentCommand = null
-        }
-
-        if (currentCommand != null && currentCommand?.isFinished == true) {
-            currentCommand = null
-        }
-
-        SmartDashboard.putBoolean("Current Command Exists", currentCommand != null)
-
-        if (currentCommand != null) {
-            return
-        }
+//        if (ControllerIO.commandCancel) {
+//            currentCommand?.cancel()
+//            currentCommand = null
+//        }
+//
+//        if (currentCommand != null && currentCommand?.isFinished == true) {
+//            currentCommand = null
+//        }
+//
+//        SmartDashboard.putBoolean("Current Command Exists", currentCommand != null)
+//
+//        if (currentCommand != null) {
+//            return
+//        }
 
         if (ControllerIO.toggleTilt) {
             subsystem.desiredTilt = !subsystem.desiredTilt
         }
 
         if (ControllerIO.extensionExtended) {
-            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
+            subsystem.desiredExtensionPosition = 3600.0
+//            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
             subsystem.hitSetpoint = false
 
         }
         if (ControllerIO.extensionRetracted) {
-            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
+            subsystem.desiredExtensionPosition = 0.0
+//            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.hitSetpoint = false
         }
 
@@ -79,16 +81,23 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             }
         }
 
-        if (ControllerIO.armAlignTop) {
-            currentCommand = ArmAlignTop(subsystem)
-            currentCommand?.schedule()
-        } else if (ControllerIO.armAlignMid) {
-            currentCommand = ArmAlignMid(subsystem)
-            currentCommand?.schedule()
-        } else if (ControllerIO.armClose) {
-            currentCommand = ArmAlignClosed(subsystem)
-            currentCommand?.schedule()
+        val extensionManualControl = ControllerIO.extensionManualControl
+        //TODO: uncomment if statement
+        if (extensionManualControl != 0.0) {
+            subsystem.desiredExtensionPosition -= extensionManualControl * 25
+//        subsystem.extensionMotor.set(extensionManualControl)
         }
+
+//        if (ControllerIO.armAlignTop) {
+//            currentCommand = ArmAlignTop(subsystem)
+//            currentCommand?.schedule()
+//        } else if (ControllerIO.armAlignMid) {
+//            currentCommand = ArmAlignMid(subsystem)
+//            currentCommand?.schedule()
+//        } else if (ControllerIO.armClose) {
+//            currentCommand = ArmAlignClosed(subsystem)
+//            currentCommand?.schedule()
+//        }
 
         if (ControllerIO.armAlignDown) {
             subsystem.desiredArmAngle = 35.0
@@ -97,8 +106,9 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         if (ControllerIO.armAlignClosed) {
             subsystem.desiredArmAngle = 35.0
             subsystem.desiredClawOpen = false
-            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
+//            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.desiredTilt = false
+            subsystem.hitSetpoint = false
         }
 
         subsystem.run()

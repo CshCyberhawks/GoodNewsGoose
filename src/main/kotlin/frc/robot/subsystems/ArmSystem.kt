@@ -11,13 +11,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.util.WPIUtilJNI
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.DutyCycleEncoder
+import edu.wpi.first.wpilibj.Encoder
 import edu.wpi.first.wpilibj.PneumaticsModuleType
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.ArmConstants
 import frc.robot.constants.MotorConstants
-import frc.robot.util.ControllerIO
 import kotlin.math.abs
 
 enum class ExtensionPosition {
@@ -29,12 +29,12 @@ enum class ExtensionPosition {
 class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
-    private val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
+    val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
     private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
     private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSoleniod)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
-    private val extensionEncoder = VelocityDutyCycleEncoder(MotorConstants.extensionEncoder)
+    private val extensionEncoder = Encoder(4, 5)
     private val extensionExtendedSwitch = DigitalInput(MotorConstants.extensionExtendedSwitch)
     private val extensionRetractedSwitch = DigitalInput(MotorConstants.extensionRetractedSwitch)
 
@@ -49,20 +49,28 @@ class ArmSystem : SubsystemBase() {
 
     val rawArmEncoder
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360)
-    private val extensionDistance
-        get() = extensionEncoder.get()
 
-    private var extensionPosition = ExtensionPosition.RETRACTED
+    private var extensionPositionOffset = 0.0
+    private val rawExtensionPosition
+        get() = abs(extensionEncoder.distance)
+    private val extensionPosition
+        get() = rawExtensionPosition - extensionPositionOffset
 
-        private val armAnglePID = PIDController(10.0, 0.0, 0.0)
+    private val armAnglePID = PIDController(10.0, 0.0, 0.0)
     private var currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
     private var desiredArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
+
+    private val armExtensionPID = PIDController(2.0, 0.0, 0.0)
+    private var currentArmExtensionTrap = TrapezoidProfile.State(extensionPosition, 0.0)
+    private var desiredArmExtensionTrap = TrapezoidProfile.State(extensionPosition, 0.0)
     private val armAngleTrapConstraints = TrapezoidProfile.Constraints(360.0, 45.0)
+    private val armExtensionTrapConstraints = TrapezoidProfile.Constraints(3600.0, 3000.0)
 
 //    private val armExtensionPID = PIDController(0.2, 0.0, 0.0)
 
-    private var previousTime = 0.0
-//    private val armAnglePID = ProfiledPIDController(15.0, 0.0, 0.0, TrapezoidProfile.Constraints(360.0, 49.0))
+    private var previousAngleTime = 0.0
+    private var previousExtensionTime = 0.0
+    //    private val armAnglePID = ProfiledPIDController(15.0, 0.0, 0.0, TrapezoidProfile.Constraints(360.0, 49.0))
 
 
     var desiredTilt = false
@@ -72,11 +80,19 @@ class ArmSystem : SubsystemBase() {
             armAnglePID.setpoint = value
             desiredArmAngleTrap = TrapezoidProfile.State(value, 0.0)
             currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
-            previousTime = 0.0
+            previousAngleTime = 0.0
 //            armAnglePID.reset(armAngleDegrees)
             field = value
         }
-    var desiredExtensionPosition = ExtensionPosition.RETRACTED
+    var desiredExtensionPosition = extensionPosition
+        set(value) {
+            armExtensionPID.setpoint = value
+            desiredArmExtensionTrap = TrapezoidProfile.State(value, 0.0)
+            currentArmAngleTrap = TrapezoidProfile.State(extensionPosition, 0.0)
+
+            previousExtensionTime = 0.0
+            field = value
+        }
     var desiredClawOpen = false
     var desiredBrake = false
     var usePID = true
@@ -88,55 +104,82 @@ class ArmSystem : SubsystemBase() {
     init {
         armAngleEncoder.distancePerRotation = 360.0
         armAnglePID.enableContinuousInput(0.0, 360.0)
-
-        // This is sketchy
-        extensionEncoder.positionOffset = extensionEncoder.absolutePosition
+        extensionEncoder.reset()
+//        armExtensionPID.setTolerance(200.0)
     }
 
     fun run() {
-        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, 130.0)
-
-        extensionPosition = if (extensionExtended) {
-            ExtensionPosition.EXTENDED
-        } else if (extensionRetracted) {
-            ExtensionPosition.RETRACTED
-        } else {
-            ExtensionPosition.UNKNOWN
+        SmartDashboard.putNumber("Raw Extension Encoder", extensionEncoder.distance)
+        SmartDashboard.putNumber("Extension Position", extensionPosition)
+        if (extensionRetracted) {
+            extensionPositionOffset = rawExtensionPosition
         }
 
-        if (desiredExtensionPosition == extensionPosition) {
-            hitSetpoint = true
+//        return;
+        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, if (desiredTilt) 135.0 else 100.0)
+        if (desiredExtensionPosition < 0.0 || desiredExtensionPosition > 3600.0) {
+            desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, 3600.0)
         }
 
-//        SmartDashboard.putBoolean("Traversal Hit Setpoint", hitSetpoint)
-//        SmartDashboard.putString("Traversal Position", extensionPosition.name)
-//        SmartDashboard.putString("Traversal Des Position", desiredExtensionPosition.name)
-//        SmartDashboard.putNumber("Traversal Angle", extensionDistance)
+
+//        else if (extensionExtended) {
+//            extensionPositionOffset = 3600 - rawExtensionPosition
+//        }
+
 
         SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
-//        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
-        val timeNow = WPIUtilJNI.now() * 1.0e-6
-        val trapTime: Double = if (previousTime == 0.0) 0.0 else timeNow - previousTime
+        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
+
+        SmartDashboard.putNumber("Extension Setpoint", desiredExtensionPosition)
+
+        val angleTimeNow = WPIUtilJNI.now() * 1.0e-6
+        val angleTime: Double = if (previousAngleTime == 0.0) 0.0 else angleTimeNow - previousAngleTime
 
         val armPIDOutput = if (usePID) armAnglePID.calculate(armAngleDegrees) / 360 else desiredAngleSpeed
 
         val trapProfile = TrapezoidProfile(armAngleTrapConstraints, desiredArmAngleTrap, currentArmAngleTrap)
 
-        val trapOutput = trapProfile.calculate(trapTime)
+        val trapOutput = trapProfile.calculate(angleTime)
 
         val armOutput =
-            if (armPIDOutput < 0) {
-                armPIDOutput - abs(trapOutput.velocity)
-            } else {
-                armPIDOutput + abs(trapOutput.velocity)
-            }
+                if (armPIDOutput < 0) {
+                    armPIDOutput - abs(trapOutput.velocity)
+                } else {
+                    armPIDOutput + abs(trapOutput.velocity)
+                }
 
         currentArmAngleTrap = trapOutput
 
-        SmartDashboard.putNumber("Arm PID Output", armPIDOutput)
-        SmartDashboard.putNumber("Arm Trap Output", trapOutput.velocity)
-        SmartDashboard.putNumber("Arm Output", armOutput)
+        if (extensionPositionOffset != -1.0) {
+            val extensionTimeNow = MiscCalculations.getCurrentTime()
+            val extensionTime = if (previousExtensionTime == 0.0) 0.0 else extensionTimeNow - previousExtensionTime
 
+            SmartDashboard.putNumber("Extension Trap Time", extensionTime)
+            SmartDashboard.putNumber("Extension Prev Time", previousExtensionTime)
+            SmartDashboard.putNumber("Extension Now Time", extensionTimeNow)
+
+            val armExtensionPIDOutput = -(armExtensionPID.calculate(extensionPosition) / 360)
+
+            val extensionTrap = TrapezoidProfile(armExtensionTrapConstraints, desiredArmExtensionTrap, currentArmExtensionTrap)
+
+            val extensionTrapOut = extensionTrap.calculate(extensionTime)
+            val extensionTrapOutput = extensionTrapOut.velocity / 3600
+
+
+            val extensionOutput = armExtensionPIDOutput * abs(extensionTrapOutput)
+
+            currentArmExtensionTrap = extensionTrapOut
+
+            SmartDashboard.putNumber("Extension Trap", extensionTrapOutput)
+            SmartDashboard.putNumber("Extension PID", armExtensionPIDOutput)
+            SmartDashboard.putNumber("Extension Output", extensionOutput)
+
+            extensionMotor.set(extensionOutput)
+
+            previousExtensionTime = extensionTimeNow
+        } else {
+            extensionMotor.set(0.1)
+        }
 
         SmartDashboard.putBoolean("Traversal Extended", extensionExtended)
         SmartDashboard.putBoolean("Traversal Retracted", extensionRetracted)
@@ -148,50 +191,10 @@ class ArmSystem : SubsystemBase() {
         clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
         brakeSolenoid.set(desiredBrake)
-//        SmartDashboard.putBoolean("Arm Out", extensionPosition == ExtensionPosition.EXTENDED)
-//        traversalMotor.set(desiredTraversalVelocity)
-//        SmartDashboard.putBoolean("At Pos", desiredExtensionPosition == extensionPosition)
-        val manualTraversalSetpoint = MiscCalculations.calculateDeadzone(ControllerIO.extensionManualControl, 0.05)
-        val extensionSetpoint = if (manualTraversalSetpoint != 0.0) {
-            // TODO: Less sketchy
-            desiredExtensionPosition = ExtensionPosition.UNKNOWN
-            manualTraversalSetpoint
-        } else if (desiredExtensionPosition != extensionPosition && (!hitSetpoint || autoMode)) {
-            when (desiredExtensionPosition) {
-                ExtensionPosition.EXTENDED -> -0.6
-                ExtensionPosition.RETRACTED -> 0.6
-                else -> 0.0
-            }
-        } else {
-            0.0
-        }
-
-        SmartDashboard.putNumber("Extension Velocity", extensionEncoder.velocity)
-//        SmartDashboard.putNumber("Traversal Set", extensionSetpoint)
-        extensionMotor.set(extensionSetpoint)
-//        if (desiredTraversalPosition != traversalPosition) {
-//            SmartDashboard.putNumber("Traversal Set", if (desiredTraversalPosition == TraversalPosition.EXTENDED) {
-//                -traversalOut
-//            } else {
-//                traversalOut
-//            })
-//            traversalMotor.set(if (desiredTraversalPosition == TraversalPosition.EXTENDED) {
-//                -traversalOut
-//            } else {
-//                traversalOut
-//            })
-//        } else {
-//            SmartDashboard.putNumber("Traversal Set", 0.0)
-//            traversalMotor.set(0.0)
-//        }
-//        val traversalManualControl = ControllerIO.traversalManualControl
-//        SmartDashboard.putNumber("Trav Manual Control", traversalManualControl)
-//        traversalMotor.set(traversalManualControl)
-//        desiredTraversalVelocity = 0.0
 
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
 
-        previousTime = timeNow
+        previousAngleTime = angleTimeNow
     }
 
     fun isFinished(): Boolean {

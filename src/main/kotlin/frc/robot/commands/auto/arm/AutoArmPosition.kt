@@ -20,7 +20,7 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
     override fun initialize() {
         subsystem.usePID = true
         subsystem.desiredArmAngle = armAngle
-        subsystem.desiredExtensionPosition = extensionPosition
+//        subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt
         subsystem.desiredClawOpen = clawOpen
         subsystem.hitSetpoint = false
