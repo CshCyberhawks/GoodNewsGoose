@@ -41,7 +41,7 @@ class TeleopSwerveCommand(
     private val currentLimelightShuffle: GenericEntry =
             driverTab.add("Current Limelight Name", "Unknown").entry
 
-    private val presetPositions: Array<FieldPosition>
+    private var presetPositions: Array<FieldPosition>
 
     private val yForAutoThing = 1.93
 
@@ -88,6 +88,34 @@ class TeleopSwerveCommand(
     private fun setCurrentCommand(command1: CommandBase, command2: CommandBase) {
         this.currentCommand = command1
         this.currentCommand?.andThen(command2)?.schedule()
+    }
+
+    fun recheckDS() {
+        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+            SmartDashboard.putString("ds alliance", "blue")
+
+            this.presetPositions =
+                    arrayOf(
+                            FieldPosition(-4.82, yForAutoThing, 180.0),
+                            FieldPosition(-4.07, yForAutoThing, 180.0),
+                            FieldPosition(-3.28, yForAutoThing, 180.0),
+                            FieldPosition(-2.20, yForAutoThing, 180.0),
+                            FieldPosition(-1.62, yForAutoThing, 180.0),
+                            FieldPosition(-.52, yForAutoThing, 180.0)
+                    )
+        } else {
+            SmartDashboard.putString("ds alliance", "red")
+
+            this.presetPositions =
+                    arrayOf(
+                            FieldPosition(4.82, yForAutoThing, 180.0),
+                            FieldPosition(3.83, yForAutoThing, 180.0),
+                            FieldPosition(3.28, yForAutoThing, 180.0),
+                            FieldPosition(2.20, yForAutoThing, 180.0),
+                            FieldPosition(1.62, yForAutoThing, 180.0),
+                            FieldPosition(.52, yForAutoThing, 180.0)
+                    )
+        }
     }
 
 

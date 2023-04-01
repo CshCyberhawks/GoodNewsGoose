@@ -2,6 +2,7 @@ package frc.robot.commands
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
+import frc.robot.commands.auto.arm.AutoArmPosition
 import frc.robot.commands.auto.arm.align.ArmAlignClosed
 import frc.robot.commands.auto.arm.align.ArmAlignMid
 import frc.robot.commands.auto.arm.align.ArmAlignTop
@@ -20,30 +21,42 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
      */
     init {
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(subsystem)
+//        addRequirements(subsystem)
     }
 
     // Called when the command is initially scheduled.
     override fun initialize() {
         subsystem.desiredArmAngle = subsystem.armAngleDegrees
+
+//        setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
+    }
+
+    private fun setCurrentCommand(command: CommandBase) {
+        this.currentCommand = command
+        this.currentCommand?.schedule()
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-//        if (ControllerIO.commandCancel) {
-//            currentCommand?.cancel()
-//            currentCommand = null
-//        }
-//
-//        if (currentCommand != null && currentCommand?.isFinished == true) {
-//            currentCommand = null
-//        }
-//
-//        SmartDashboard.putBoolean("Current Command Exists", currentCommand != null)
-//
-//        if (currentCommand != null) {
-//            return
-//        }
+        SmartDashboard.putBoolean("is cmd null", this.currentCommand == null)
+
+        if (ControllerIO.commandCancel) {
+            currentCommand?.cancel()
+            currentCommand = null
+        }
+
+        SmartDashboard.putBoolean("Command Is Finished", currentCommand?.isFinished == true)
+
+        if (currentCommand != null && currentCommand?.isFinished == false) {
+            SmartDashboard.putBoolean("return", true)
+            return
+        } else if (currentCommand != null && currentCommand?.isFinished == true) {
+            currentCommand?.cancel()
+            currentCommand = null
+        }
+
+        SmartDashboard.putBoolean("return", false)
+
 
         if (ControllerIO.toggleTilt) {
             subsystem.desiredTilt = !subsystem.desiredTilt
@@ -77,27 +90,25 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.desiredArmAngle = if (subsystem.desiredTilt) {
                 115.0
             } else {
-                90.0
+                85.0
             }
         }
 
-        val extensionManualControl = ControllerIO.extensionManualControl
-        //TODO: uncomment if statement
-        if (extensionManualControl != 0.0) {
-            subsystem.desiredExtensionPosition -= extensionManualControl * 25
-//        subsystem.extensionMotor.set(extensionManualControl)
-        }
 
 //        if (ControllerIO.armAlignTop) {
-//            currentCommand = ArmAlignTop(subsystem)
-//            currentCommand?.schedule()
-//        } else if (ControllerIO.armAlignMid) {
-//            currentCommand = ArmAlignMid(subsystem)
-//            currentCommand?.schedule()
-//        } else if (ControllerIO.armClose) {
-//            currentCommand = ArmAlignClosed(subsystem)
-//            currentCommand?.schedule()
+//            setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
 //        }
+
+        if (ControllerIO.armAlignTop) {
+            currentCommand = ArmAlignTop(subsystem)
+            currentCommand?.schedule()
+        } else if (ControllerIO.armAlignMid) {
+            currentCommand = ArmAlignMid(subsystem)
+            currentCommand?.schedule()
+        } else if (ControllerIO.armClose) {
+            currentCommand = ArmAlignClosed(subsystem)
+            currentCommand?.schedule()
+        }
 
         if (ControllerIO.armAlignDown) {
             subsystem.desiredArmAngle = 35.0
@@ -106,6 +117,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         if (ControllerIO.armAlignClosed) {
             subsystem.desiredArmAngle = 35.0
             subsystem.desiredClawOpen = false
+            subsystem.desiredExtensionPosition = 0.0
 //            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.desiredTilt = false
             subsystem.hitSetpoint = false

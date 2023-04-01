@@ -129,7 +129,7 @@ class Robot : TimedRobot() {
                             backRight,
                             backLeft,
                             angleConfiguration =
-                                    FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4),
+                            FourWheelAngleConfiguration(131.6, -131.6, 48.4, -48.4),
                             speedConfiguration = FourWheelSpeedConfiguration(.65, .65, .65, .65)
                     ),
                     gyro
@@ -250,8 +250,8 @@ class Robot : TimedRobot() {
 
         val backPosition = limelightLeft.getBotFieldPosition()
         if (!backPosition.isEmpty &&
-                        MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .275 &&
-                        limelightLeft.pipeline == limelightLeft.fiducialPipeline
+                MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .275 &&
+                limelightLeft.pipeline == limelightLeft.fiducialPipeline
         ) {
             val pos = backPosition.get()
             swo.fieldPosition = Vector3(pos.x, pos.y)
@@ -261,8 +261,8 @@ class Robot : TimedRobot() {
 
         val frontPosition = limelightRight.getBotFieldPosition()
         if (!frontPosition.isEmpty &&
-                        MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .275 &&
-                        limelightRight.pipeline == limelightRight.fiducialPipeline
+                MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .275 &&
+                limelightRight.pipeline == limelightRight.fiducialPipeline
         ) {
             val pos = frontPosition.get()
             swo.fieldPosition = Vector3(pos.x, pos.y)
@@ -333,7 +333,7 @@ class Robot : TimedRobot() {
         //            limelightBack.cameraAngle = 24.4
         //        }
 
-                resetOdometryLL()
+        resetOdometryLL()
 
         CommandScheduler.getInstance().run()
     }
@@ -346,6 +346,7 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
+        armSystem.initialize()
         armSystem.autoMode = true
         //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
@@ -363,6 +364,7 @@ class Robot : TimedRobot() {
 
     /** This function is called once when teleop is enabled. */
     override fun teleopInit() {
+        armSystem.initialize()
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
@@ -392,6 +394,7 @@ class Robot : TimedRobot() {
     /** This function is called once when test mode is enabled. */
     override fun testInit() {
         // Cancels all running commands at the start of test mode.
+        teleopSwerveCommand.recheckDS()
         CommandScheduler.getInstance().cancelAll()
 
         //        var led = AddressableLED(6)

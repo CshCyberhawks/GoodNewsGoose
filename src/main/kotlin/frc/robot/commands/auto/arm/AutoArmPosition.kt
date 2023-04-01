@@ -7,7 +7,7 @@ import frc.robot.subsystems.ExtensionPosition
 /**
  * @property subsystem
  */
-class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Double, private val extensionPosition: ExtensionPosition, private val tilt: Boolean, private val clawOpen: Boolean) : CommandBase() {
+class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Double, private val extensionPosition: Double, private val tilt: Boolean, private val clawOpen: Boolean) : CommandBase() {
     /**
      * Creates a new ExampleCommand.
      */
@@ -20,7 +20,7 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
     override fun initialize() {
         subsystem.usePID = true
         subsystem.desiredArmAngle = armAngle
-//        subsystem.desiredExtensionPosition = extensionPosition
+        subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt
         subsystem.desiredClawOpen = clawOpen
         subsystem.hitSetpoint = false
@@ -32,7 +32,9 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
     }
 
     // Called once the command ends or is interrupted.
-    override fun end(interrupted: Boolean) {}
+    override fun end(interrupted: Boolean) {
+        subsystem.kill()
+    }
 
     // Returns true when the command should end.
     override fun isFinished(): Boolean {

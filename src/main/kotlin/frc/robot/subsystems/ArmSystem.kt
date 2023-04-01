@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.constants.ArmConstants
 import frc.robot.constants.MotorConstants
+import frc.robot.util.ControllerIO
 import kotlin.math.abs
 
 enum class ExtensionPosition {
@@ -52,7 +53,7 @@ class ArmSystem : SubsystemBase() {
 
     private var extensionPositionOffset = 0.0
     private val rawExtensionPosition
-        get() = abs(extensionEncoder.distance)
+        get() = extensionEncoder.distance
     private val extensionPosition
         get() = rawExtensionPosition - extensionPositionOffset
 
@@ -105,7 +106,11 @@ class ArmSystem : SubsystemBase() {
         armAngleEncoder.distancePerRotation = 360.0
         armAnglePID.enableContinuousInput(0.0, 360.0)
         extensionEncoder.reset()
-//        armExtensionPID.setTolerance(200.0)
+    }
+
+    fun initialize() {
+        desiredExtensionPosition = 0.0
+        extensionPositionOffset = 0.0
     }
 
     fun run() {
@@ -151,32 +156,44 @@ class ArmSystem : SubsystemBase() {
         currentArmAngleTrap = trapOutput
 
         if (extensionPositionOffset != -1.0) {
-            val extensionTimeNow = MiscCalculations.getCurrentTime()
-            val extensionTime = if (previousExtensionTime == 0.0) 0.0 else extensionTimeNow - previousExtensionTime
+            val extensionManualControl = ControllerIO.extensionManualControl
+            if (extensionManualControl != 0.0) {
+                desiredExtensionPosition -= extensionManualControl
+            } else {
+                val extensionTimeNow = MiscCalculations.getCurrentTime()
+                val extensionTime = if (previousExtensionTime == 0.0) 0.0 else extensionTimeNow - previousExtensionTime
 
-            SmartDashboard.putNumber("Extension Trap Time", extensionTime)
-            SmartDashboard.putNumber("Extension Prev Time", previousExtensionTime)
-            SmartDashboard.putNumber("Extension Now Time", extensionTimeNow)
+                SmartDashboard.putNumber("Extension Trap Time", extensionTime)
+                SmartDashboard.putNumber("Extension Prev Time", previousExtensionTime)
+                SmartDashboard.putNumber("Extension Now Time", extensionTimeNow)
 
-            val armExtensionPIDOutput = -(armExtensionPID.calculate(extensionPosition) / 360)
+                val armExtensionPIDOutput = -(armExtensionPID.calculate(extensionPosition) / 360)
 
-            val extensionTrap = TrapezoidProfile(armExtensionTrapConstraints, desiredArmExtensionTrap, currentArmExtensionTrap)
+                SmartDashboard.putNumber("Extension PID", armExtensionPIDOutput)
 
-            val extensionTrapOut = extensionTrap.calculate(extensionTime)
-            val extensionTrapOutput = extensionTrapOut.velocity / 3600
+                if (armExtensionPIDOutput < -0.1 || armExtensionPIDOutput > 0.1) {
+                    val extensionTrap = TrapezoidProfile(armExtensionTrapConstraints, desiredArmExtensionTrap, currentArmExtensionTrap)
 
+                    val extensionTrapOut = extensionTrap.calculate(extensionTime)
+                    val extensionTrapOutput = extensionTrapOut.velocity / 3600
 
-            val extensionOutput = armExtensionPIDOutput * abs(extensionTrapOutput)
+                    val extensionOutput = armExtensionPIDOutput * if (extensionTrapOutput != 0.0) abs(extensionTrapOutput) else 1.0
 
-            currentArmExtensionTrap = extensionTrapOut
+                    currentArmExtensionTrap = extensionTrapOut
 
-            SmartDashboard.putNumber("Extension Trap", extensionTrapOutput)
-            SmartDashboard.putNumber("Extension PID", armExtensionPIDOutput)
-            SmartDashboard.putNumber("Extension Output", extensionOutput)
+                    SmartDashboard.putNumber("Extension Trap", extensionTrapOutput)
+                    SmartDashboard.putNumber("Extension Output", extensionOutput)
 
-            extensionMotor.set(extensionOutput)
+                    extensionMotor.set(extensionOutput)
 
-            previousExtensionTime = extensionTimeNow
+                    previousExtensionTime = extensionTimeNow
+                } else if (desiredExtensionPosition == 0.0 && !extensionRetracted) {
+                    extensionMotor.set(0.1)
+                    extensionPositionOffset = rawExtensionPosition
+                } else {
+                    extensionMotor.set(0.01)
+                }
+            }
         } else {
             extensionMotor.set(0.1)
         }
@@ -197,8 +214,13 @@ class ArmSystem : SubsystemBase() {
         previousAngleTime = angleTimeNow
     }
 
+    fun kill() {
+        armAngleMotor.set(0.0)
+        extensionMotor.set(0.0)
+    }
+
     fun isFinished(): Boolean {
-        return desiredExtensionPosition == extensionPosition && MiscCalculations.calculateDeadzone(desiredArmAngle - armAngleDegrees, 3.0) == 0.0
+        return abs(desiredExtensionPosition - extensionPosition) < 50.0 && abs(desiredArmAngle - armAngleDegrees) < 3.0
     }
 
     override fun simulationPeriodic() {
