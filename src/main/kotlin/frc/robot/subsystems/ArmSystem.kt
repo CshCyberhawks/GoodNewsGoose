@@ -30,7 +30,6 @@ class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
     val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
-    private val clawMotor = CANSparkMax(MotorConstants.clawMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
     private val extensionEncoder = Encoder(4, 5)
@@ -92,9 +91,6 @@ class ArmSystem : SubsystemBase() {
             previousExtensionTime = 0.0
             field = value
         }
-    var clawSpinning = false
-    var clawSpitting = false
-    var usePID = true
     var desiredAngleSpeed = 0.0
 
     var hitSetpoint = false
@@ -138,7 +134,7 @@ class ArmSystem : SubsystemBase() {
         val angleTimeNow = WPIUtilJNI.now() * 1.0e-6
         val angleTime: Double = if (previousAngleTime == 0.0) 0.0 else angleTimeNow - previousAngleTime
 
-        val armPIDOutput = if (usePID) armAnglePID.calculate(armAngleDegrees) / 360 else desiredAngleSpeed
+        val armPIDOutput = armAnglePID.calculate(armAngleDegrees) / 360
 
         val trapProfile = TrapezoidProfile(armAngleTrapConstraints, desiredArmAngleTrap, currentArmAngleTrap)
 
@@ -204,13 +200,6 @@ class ArmSystem : SubsystemBase() {
         armAngleMotor.set(armOutput)
 //        armAngleMotor.set(ControllerIO.controlArmAngle)
         tiltSolenoid.set(desiredTilt)
-        clawMotor.set(if (clawSpitting) {
-            0.4
-        } else if (clawSpinning) {
-            -0.4
-        } else {
-            -0.15
-        })
 
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
 

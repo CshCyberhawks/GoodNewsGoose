@@ -72,10 +72,6 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.hitSetpoint = false
         }
 
-        subsystem.clawSpinning = ControllerIO.spinClaw
-        subsystem.clawSpitting = ControllerIO.clawSpit
-
-        subsystem.usePID = true
         subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
 
         if (ControllerIO.armAlignUp) {
@@ -108,7 +104,6 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 
         if (ControllerIO.armAlignClosed) {
             subsystem.desiredArmAngle = 35.0
-            subsystem.clawSpinning = false
             subsystem.desiredExtensionPosition = 0.0
 //            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.desiredTilt = false

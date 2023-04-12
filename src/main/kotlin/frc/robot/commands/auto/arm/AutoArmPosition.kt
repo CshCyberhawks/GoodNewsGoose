@@ -6,7 +6,7 @@ import frc.robot.subsystems.ArmSystem
 /**
  * @property subsystem
  */
-class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Double, private val extensionPosition: Double, private val tilt: Boolean, private val clawOpen: Boolean) : CommandBase() {
+class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Double, private val extensionPosition: Double, private val tilt: Boolean) : CommandBase() {
     /**
      * Creates a new ExampleCommand.
      */
@@ -17,11 +17,9 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
 
     // Called when the command is initially scheduled.
     override fun initialize() {
-        subsystem.usePID = true
         subsystem.desiredArmAngle = armAngle
         subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt
-        subsystem.clawSpinning = clawOpen
         subsystem.hitSetpoint = false
     }
 
