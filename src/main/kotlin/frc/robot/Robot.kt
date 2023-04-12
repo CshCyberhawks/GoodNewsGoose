@@ -31,10 +31,12 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandBase
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.commands.ManualArmCommand
+import frc.robot.commands.ManualClawCommand
 import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
 import frc.robot.constants.MotorConstants
 import frc.robot.subsystems.ArmSystem
+import frc.robot.subsystems.ClawSystem
 import java.util.*
 
 /**
@@ -44,7 +46,6 @@ import java.util.*
  * project.
  */
 class Robot : TimedRobot() {
-
     companion object {
         var pipIndex = 2
     }
@@ -184,10 +185,12 @@ class Robot : TimedRobot() {
     private val autoPathManager = AutoPathManager(auto, gyro)
 
     private val armSystem = ArmSystem()
+    private val clawSystem = ClawSystem()
 
     var autoCommand: CommandBase? = null
 
     private var teleopArmCommand = ManualArmCommand(armSystem)
+    private var teleopClawCommand = ManualClawCommand(clawSystem)
 
     private val odometryResetLLShuffle =
             driverTab.add("Reset Odometry With Limelight", true).getEntry()
@@ -350,7 +353,7 @@ class Robot : TimedRobot() {
         armSystem.autoMode = true
         //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
-        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain)
+        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
         autoCommand?.schedule()
 
         //         autoPathManager.paths["ComplexPath"]!!.schedule()
@@ -379,6 +382,7 @@ class Robot : TimedRobot() {
 
         teleopArmCommand.schedule()
         teleopSwerveCommand.schedule()
+        teleopClawCommand.schedule()
 
         limelightRight.setLED(LedMode.ForceOn)
         limelightLeft.setLED(LedMode.ForceOn)

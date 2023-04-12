@@ -9,11 +9,13 @@ import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import frc.robot.commands.auto.arm.AutoArmPosition
+import frc.robot.constants.ArmConstants
 import frc.robot.subsystems.ArmSystem
-import frc.robot.subsystems.ExtensionPosition
+import frc.robot.subsystems.ClawState
+import frc.robot.subsystems.ClawSystem
 
 // define an empty SequentialCommandGroup
-class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain) :
+class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem) :
         SequentialCommandGroup() {
 
     // define the constructor
@@ -22,13 +24,13 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         // add the commands to the SequentialCommandGroup
         addCommands(
 ////            AutoBalance(gyro, swerveAuto, swerveAuto.swo)
-//            AutoArmPosition(armSystem, 126.0, ExtensionPosition.RETRACTED, true, false),
-//            AutoArmPosition(armSystem, 126.0, ExtensionPosition.EXTENDED, true, false),
-//            AutoArmPosition(armSystem, 120.0, ExtensionPosition.EXTENDED, true, false),
-//            AutoArmPosition(armSystem, 120.0, ExtensionPosition.EXTENDED, true, true),
-//            AutoArmPosition(armSystem, 126.0, ExtensionPosition.RETRACTED, true, true),
-//            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, true, true),
-//            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, false, false),
+                AutoArmPosition(armSystem, clawSystem, 126.0, ArmConstants.armExtensionIn, true),
+                AutoArmPosition(armSystem, clawSystem, 126.0, ArmConstants.armExtensionOut, true),
+                AutoArmPosition(armSystem, clawSystem, 120.0, ArmConstants.armExtensionOut, true),
+                AutoArmPosition(armSystem, clawSystem, 120.0, ArmConstants.armExtensionOut, true, ClawState.Spitting),
+                AutoArmPosition(armSystem, clawSystem, 126.0, ArmConstants.armExtensionIn, true),
+                AutoArmPosition(armSystem, clawSystem, 35.0, ArmConstants.armExtensionIn, true),
+                AutoArmPosition(armSystem, clawSystem, 35.0, ArmConstants.armExtensionIn, false),
 //            autoPathManager.paths["BalanceStart"]!!,
 //            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, false, false),
                 GoToPosition(swerveAuto, Vector2(0.0, -2.6)),

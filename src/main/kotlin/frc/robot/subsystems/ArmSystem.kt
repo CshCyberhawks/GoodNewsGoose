@@ -20,12 +20,6 @@ import frc.robot.constants.MotorConstants
 import frc.robot.util.ControllerIO
 import kotlin.math.abs
 
-enum class ExtensionPosition {
-    EXTENDED,
-    RETRACTED,
-    UNKNOWN
-}
-
 class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
@@ -91,8 +85,6 @@ class ArmSystem : SubsystemBase() {
             previousExtensionTime = 0.0
             field = value
         }
-    var desiredAngleSpeed = 0.0
-
     var hitSetpoint = false
     var autoMode = false
 

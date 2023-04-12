@@ -36,15 +36,6 @@ object ControllerIO {
     val extensionRetracted
         get() = xbox.leftBumper
 
-    val armAlignTop
-        get() = xbox.pov == 0
-    val armAlignMid
-        get() = xbox.pov == 90
-    val armClose
-        get() = xbox.pov == 180
-    val commandCancel
-        get() = xbox.pov == 270
-
     val armAlignClosed: Boolean
         get() = xbox.startButton
     val armAlignUp

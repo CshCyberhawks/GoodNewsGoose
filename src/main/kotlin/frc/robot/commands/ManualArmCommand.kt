@@ -1,10 +1,6 @@
 package frc.robot.commands
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
-import frc.robot.commands.auto.arm.align.ArmAlignClosed
-import frc.robot.commands.auto.arm.align.ArmAlignMid
-import frc.robot.commands.auto.arm.align.ArmAlignTop
 import frc.robot.subsystems.ArmSystem
 import frc.robot.util.ControllerIO
 
@@ -12,8 +8,6 @@ import frc.robot.util.ControllerIO
  * @property subsystem
  */
 class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
-    private var currentCommand: CommandBase? = null
-
     /**
      * Creates a new ExampleCommand.
      */
@@ -29,33 +23,8 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 //        setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
     }
 
-    private fun setCurrentCommand(command: CommandBase) {
-        this.currentCommand = command
-        this.currentCommand?.schedule()
-    }
-
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-        SmartDashboard.putBoolean("is cmd null", this.currentCommand == null)
-
-        if (ControllerIO.commandCancel) {
-            currentCommand?.cancel()
-            currentCommand = null
-        }
-
-        SmartDashboard.putBoolean("Command Is Finished", currentCommand?.isFinished == true)
-
-        if (currentCommand != null && currentCommand?.isFinished == false) {
-            SmartDashboard.putBoolean("return", true)
-            return
-        } else if (currentCommand != null && currentCommand?.isFinished == true) {
-            currentCommand?.cancel()
-            currentCommand = null
-        }
-
-        SmartDashboard.putBoolean("return", false)
-
-
         if (ControllerIO.toggleTilt) {
             subsystem.desiredTilt = !subsystem.desiredTilt
         }
@@ -86,17 +55,6 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 //        if (ControllerIO.armAlignTop) {
 //            setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
 //        }
-
-        if (ControllerIO.armAlignTop) {
-            currentCommand = ArmAlignTop(subsystem)
-            currentCommand?.schedule()
-        } else if (ControllerIO.armAlignMid) {
-            currentCommand = ArmAlignMid(subsystem)
-            currentCommand?.schedule()
-        } else if (ControllerIO.armClose) {
-            currentCommand = ArmAlignClosed(subsystem)
-            currentCommand?.schedule()
-        }
 
         if (ControllerIO.armAlignDown) {
             subsystem.desiredArmAngle = 35.0

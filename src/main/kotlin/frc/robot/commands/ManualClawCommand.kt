@@ -1,6 +1,7 @@
 package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
+import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 import frc.robot.util.ControllerIO
 
@@ -21,8 +22,13 @@ class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-        subsystem.clawSpinning = ControllerIO.spinClaw
-        subsystem.clawSpitting = ControllerIO.clawSpit
+        subsystem.clawState = if (ControllerIO.clawSpit) {
+            ClawState.Spitting
+        } else if (ControllerIO.spinClaw) {
+            ClawState.Intaking
+        } else {
+            ClawState.Idle
+        }
 
         subsystem.run()
     }

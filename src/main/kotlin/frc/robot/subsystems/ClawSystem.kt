@@ -5,19 +5,26 @@ import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import frc.robot.constants.MotorConstants
 
+enum class ClawState {
+    Intaking,
+    Spitting,
+    Idle
+}
+
 class ClawSystem : SubsystemBase() {
     private val clawMotor = CANSparkMax(MotorConstants.clawMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
 
-    var clawSpinning = false
-    var clawSpitting = false
-
+    var clawState = ClawState.Idle
     fun run() {
-        clawMotor.set(if (clawSpitting) {
-            0.4
-        } else if (clawSpinning) {
-            -0.4
-        } else {
-            -0.15
+        clawMotor.set(when (clawState) {
+            ClawState.Intaking -> -0.4
+            ClawState.Spitting -> 0.4
+            ClawState.Idle -> -0.15
         })
+    }
+
+    fun kill() {
+        clawState = ClawState.Idle
+        run()
     }
 }
