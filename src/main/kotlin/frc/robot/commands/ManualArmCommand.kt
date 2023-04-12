@@ -2,12 +2,10 @@ package frc.robot.commands
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
-import frc.robot.commands.auto.arm.AutoArmPosition
 import frc.robot.commands.auto.arm.align.ArmAlignClosed
 import frc.robot.commands.auto.arm.align.ArmAlignMid
 import frc.robot.commands.auto.arm.align.ArmAlignTop
 import frc.robot.subsystems.ArmSystem
-import frc.robot.subsystems.ExtensionPosition
 import frc.robot.util.ControllerIO
 
 /**
@@ -74,17 +72,11 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.hitSetpoint = false
         }
 
-        if (ControllerIO.toggleGrabber) {
-            subsystem.desiredClawOpen = !subsystem.desiredClawOpen
-        }
-        if (ControllerIO.togglePID) {
-            subsystem.usePID = false
-            subsystem.desiredArmAngle = subsystem.armAngleDegrees
-            subsystem.desiredAngleSpeed = ControllerIO.controlArmAngle
-        } else {
-            subsystem.usePID = true
-            subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
-        }
+        subsystem.clawSpinning = ControllerIO.spinClaw
+        subsystem.clawSpitting = ControllerIO.clawSpit
+
+        subsystem.usePID = true
+        subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
 
         if (ControllerIO.armAlignUp) {
             subsystem.desiredArmAngle = if (subsystem.desiredTilt) {
@@ -116,7 +108,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 
         if (ControllerIO.armAlignClosed) {
             subsystem.desiredArmAngle = 35.0
-            subsystem.desiredClawOpen = false
+            subsystem.clawSpinning = false
             subsystem.desiredExtensionPosition = 0.0
 //            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.desiredTilt = false

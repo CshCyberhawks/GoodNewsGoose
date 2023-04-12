@@ -2,7 +2,6 @@ package frc.robot.commands.auto.arm
 
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.subsystems.ArmSystem
-import frc.robot.subsystems.ExtensionPosition
 
 /**
  * @property subsystem
@@ -22,7 +21,7 @@ class AutoArmPosition(private val subsystem: ArmSystem, private val armAngle: Do
         subsystem.desiredArmAngle = armAngle
         subsystem.desiredExtensionPosition = extensionPosition
         subsystem.desiredTilt = tilt
-        subsystem.desiredClawOpen = clawOpen
+        subsystem.clawSpinning = clawOpen
         subsystem.hitSetpoint = false
     }
 

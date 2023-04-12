@@ -2,7 +2,6 @@ package frc.robot.subsystems
 
 import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
-import cshcyberhawks.swolib.hardware.implementations.VelocityDutyCycleEncoder
 import cshcyberhawks.swolib.math.AngleCalculations
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.math.MathUtil
@@ -31,8 +30,7 @@ class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
     val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
-    private val clawSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.grabberSolenoid)
-    private val brakeSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.brakeSoleniod)
+    private val clawMotor = CANSparkMax(MotorConstants.clawMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
     private val extensionEncoder = Encoder(4, 5)
@@ -94,8 +92,8 @@ class ArmSystem : SubsystemBase() {
             previousExtensionTime = 0.0
             field = value
         }
-    var desiredClawOpen = false
-    var desiredBrake = false
+    var clawSpinning = false
+    var clawSpitting = false
     var usePID = true
     var desiredAngleSpeed = 0.0
 
@@ -205,9 +203,14 @@ class ArmSystem : SubsystemBase() {
 
         armAngleMotor.set(armOutput)
 //        armAngleMotor.set(ControllerIO.controlArmAngle)
-        clawSolenoid.set(desiredClawOpen)
         tiltSolenoid.set(desiredTilt)
-        brakeSolenoid.set(desiredBrake)
+        clawMotor.set(if (clawSpitting) {
+            0.4
+        } else if (clawSpinning) {
+            -0.4
+        } else {
+            -0.15
+        })
 
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
 

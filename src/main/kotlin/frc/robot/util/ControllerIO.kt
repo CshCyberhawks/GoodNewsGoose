@@ -7,7 +7,7 @@ object ControllerIO {
     private val xbox = XboxController(2)
 
     private var lastToggleGrabber = false
-    val toggleGrabber: Boolean
+    val spinClaw: Boolean
         get() {
             val current = xbox.xButton
             val toggled = current && !lastToggleGrabber
@@ -53,6 +53,6 @@ object ControllerIO {
     val armAlignDown
         get() = xbox.bButton
 
-    val togglePID: Boolean
+    val clawSpit
         get() = xbox.backButton
 }
