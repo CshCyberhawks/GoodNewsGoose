@@ -10,6 +10,7 @@ import cshcyberhawks.swolib.limelight.LedMode
 import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector3
+import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
@@ -38,6 +39,10 @@ import frc.robot.constants.MotorConstants
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 import java.util.*
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator
+import edu.wpi.first.math.estimator.KalmanFilter
+import edu.wpi.first.math.filter.LinearFilter
+import edu.wpi.first.math.filter.MedianFilter
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -197,6 +202,11 @@ class Robot : TimedRobot() {
 
     lateinit var llCam: HttpCamera
 
+    // private val odometryKalmanFilter: KalmanFilter = KalmanFilter()
+    private val odometryFilterX: MedianFilter = MedianFilter(30)
+    private val odometryFilterY: MedianFilter = MedianFilter(30)
+    private val odometryFilterTwist: MedianFilter = MedianFilter(30)
+
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -251,13 +261,16 @@ class Robot : TimedRobot() {
         //        limelightLeft.pipeline = limelightLeft.fiducialPipeline
         //        limelightRight.pipeline = limelightRight.fiducialPipeline
 
+        var positions: MutableList<FieldPosition> = mutableListOf(FieldPosition(swo.fieldPosition.x, swo.fieldPosition.y, gyro.getYaw()))
+
         val backPosition = limelightLeft.getBotFieldPosition()
         if (!backPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .275 &&
                 limelightLeft.pipeline == limelightLeft.fiducialPipeline
         ) {
             val pos = backPosition.get()
-            swo.fieldPosition = Vector3(pos.x, pos.y)
+            positions.add(pos)
+            // swo.fieldPosition = Vector3(pos.x, pos.y)
         } else if (backPosition.isEmpty) {
             lastLeftLLResetTime = MiscCalculations.getCurrentTime()
         }
@@ -268,9 +281,19 @@ class Robot : TimedRobot() {
                 limelightRight.pipeline == limelightRight.fiducialPipeline
         ) {
             val pos = frontPosition.get()
-            swo.fieldPosition = Vector3(pos.x, pos.y)
+            positions.add(pos)
+            // swo.fieldPosition = Vector3(pos.x, pos.y)
         } else if (frontPosition.isEmpty) {
             lastRightLLResetTime = MiscCalculations.getCurrentTime()
+        }
+
+
+        //NOTE: this is the filter for positions with the ll
+        for (position in positions) {
+            val x = odometryFilterX.calculate(position.x)
+            val y = odometryFilterY.calculate(position.y)
+            // val twist = odometryFilterTwist.calculate(position.angle)
+            swo.fieldPosition = Vector3(x, y)
         }
 
         SmartDashboard.putBoolean("Front has targ", limelightRight.hasTarget())
@@ -310,8 +333,8 @@ class Robot : TimedRobot() {
         // commands, running already-scheduled commands, removing finished or interrupted commands,
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
-
         swo.updatePosition()
+
         SmartDashboard.putNumber("swo x", swo.fieldPosition.x)
         SmartDashboard.putNumber("swo y", swo.fieldPosition.y)
         SmartDashboard.putNumber("gyro", gyro.getYaw())
