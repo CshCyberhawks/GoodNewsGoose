@@ -1,6 +1,7 @@
 package frc.robot
 
 import cshcyberhawks.swolib.field2d.Field2d
+import cshcyberhawks.swolib.hardware.implementations.Pigeon2Gyro
 import cshcyberhawks.swolib.limelight.LedMode
 import cshcyberhawks.swolib.limelight.Limelight
 import cshcyberhawks.swolib.math.FieldPosition
@@ -97,7 +98,7 @@ class Robot : TimedRobot() {
 //                    swerveConfiguration
 //            )
 //
-//    val gyro = Pigeon2Gyro(MotorConstants.gyroPort)
+    val gyro = Pigeon2Gyro(0)
 //
 //    private val swerveDriveTrain =
 //            SwerveDriveTrain(

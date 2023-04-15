@@ -1,18 +1,15 @@
 package frc.robot.commands.auto
 
-import cshcyberhawks.swolib.autonomous.SwerveAuto
 import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.math.Vector2
-import cshcyberhawks.swolib.swerve.SwerveOdometry
-import edu.wpi.first.wpilibj2.command.CommandBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import frc.robot.Robot
+import edu.wpi.first.wpilibj2.command.CommandBase
 
 
-class AutoBalance(val gyro: GenericGyro, val swerveAuto: SwerveAuto, val swo: SwerveOdometry) : CommandBase() {
+class AutoBalance(val gyro: GenericGyro) : CommandBase() {
 
     lateinit var pos: GoToPosition
 
@@ -29,9 +26,9 @@ class AutoBalance(val gyro: GenericGyro, val swerveAuto: SwerveAuto, val swo: Sw
     fun setPos() {
         val pitchRoll: Vector2 = gyro.mergePitchRoll()
         val negPitchRoll: Vector2 = Vector2.fromPolar(Polar(-Polar.fromVector2(pitchRoll).theta, 0.3))
-        val robotPosMeters: Vector2 = Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
-        val position: Vector2 = robotPosMeters + negPitchRoll
-        pos = GoToPosition(swerveAuto, position)
+//        val robotPosMeters: Vector2 = Vector2(swo.fieldPosition.x, swo.fieldPosition.y)
+        val position: Vector2 = negPitchRoll
+//        pos = GoToPosition(swerveAuto, position)
         roll = gyro.getRoll()
         pitch = gyro.getPitch()
         SmartDashboard.putNumber("AutoBalance Position X", position.x)
@@ -50,7 +47,6 @@ class AutoBalance(val gyro: GenericGyro, val swerveAuto: SwerveAuto, val swo: Sw
     }
 
     override fun end(interrupted: Boolean) {
-        swerveAuto.kill()
     }
 
     override fun isFinished(): Boolean {
