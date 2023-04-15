@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import frc.robot.commands.auto.AutoBalance
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,7 +31,7 @@ class Robot : TimedRobot() {
 
     private val driverTab: ShuffleboardTab = Shuffleboard.getTab("Driver")
 
-//    private var autonomousCommand: Command? = null
+    //    private var autonomousCommand: Command? = null
 //    private var robotContainer: RobotContainer? = null
 //    private val swerveConfiguration: SwerveModuleConfiguration =
 //            SwerveModuleConfiguration(4.0, 0.0505, 7.0)
@@ -49,7 +50,8 @@ class Robot : TimedRobot() {
 //
     private val limelightLeft = Limelight("limelight-left", 0.74, 0.0, fiducialPipeline = 1)
     private val limelightRight = Limelight("limelight-right", 0.74, 0.0, fiducialPipeline = 1)
-//    private var backLeft: SwerveWheel =
+
+    //    private var backLeft: SwerveWheel =
 //            SwerveWheel(
 //                    TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
 //                    SparkMaxTurnMotor(
@@ -98,8 +100,9 @@ class Robot : TimedRobot() {
 //                    swerveConfiguration
 //            )
 //
-    val gyro = Pigeon2Gyro(0)
-//
+    val gyro = Pigeon2Gyro(30)
+
+    //
 //    private val swerveDriveTrain =
 //            SwerveDriveTrain(
 //                    FourWheelSwerveConfiguration(
@@ -355,6 +358,8 @@ class Robot : TimedRobot() {
         //        armSystem.brakeSolenoid.set(true)
 //        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
 //        autoCommand?.schedule()
+        val balance = AutoBalance(gyro)
+        balance.schedule()
 
         //         autoPathManager.paths["ComplexPath"]!!.schedule()
 
