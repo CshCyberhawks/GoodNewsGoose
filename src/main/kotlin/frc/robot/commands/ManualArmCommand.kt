@@ -2,7 +2,6 @@ package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.subsystems.ArmSystem
-import frc.robot.subsystems.ExtensionPosition
 import frc.robot.util.ControllerIO
 
 /**
@@ -14,12 +13,14 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
      */
     init {
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(subsystem)
+//        addRequirements(subsystem)
     }
 
     // Called when the command is initially scheduled.
     override fun initialize() {
         subsystem.desiredArmAngle = subsystem.armAngleDegrees
+
+//        setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -29,34 +30,31 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.extensionExtended) {
-            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
+            subsystem.desiredExtensionPosition = 3600.0
+//            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
             subsystem.hitSetpoint = false
 
         }
         if (ControllerIO.extensionRetracted) {
-            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
+            subsystem.desiredExtensionPosition = 0.0
+//            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.hitSetpoint = false
         }
 
-        if (ControllerIO.toggleGrabber) {
-            subsystem.desiredClawOpen = !subsystem.desiredClawOpen
-        }
-        if (ControllerIO.togglePID) {
-            subsystem.usePID = false
-            subsystem.desiredArmAngle = subsystem.armAngleDegrees
-            subsystem.desiredAngleSpeed = -ControllerIO.controlArmAngle
-        } else {
-            subsystem.usePID = true
-            subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
-        }
+        subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
 
         if (ControllerIO.armAlignUp) {
             subsystem.desiredArmAngle = if (subsystem.desiredTilt) {
                 115.0
             } else {
-                90.0
+                85.0
             }
         }
+
+
+//        if (ControllerIO.armAlignTop) {
+//            setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
+//        }
 
         if (ControllerIO.armAlignDown) {
             subsystem.desiredArmAngle = 35.0
@@ -64,9 +62,10 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
 
         if (ControllerIO.armAlignClosed) {
             subsystem.desiredArmAngle = 35.0
-            subsystem.desiredClawOpen = false
-            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
+            subsystem.desiredExtensionPosition = 0.0
+//            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.desiredTilt = false
+            subsystem.hitSetpoint = false
         }
 
         subsystem.run()

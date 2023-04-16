@@ -1,8 +1,10 @@
 package frc.robot.commands
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
+import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.limelight.Limelight
+import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.math.Vector3
@@ -11,16 +13,17 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.constants.DriverPreferences
 import frc.robot.util.JoyIO
 
 class TeleopSwerveCommand(
-    private var swerveDriveTrain: SwerveDriveTrain,
-    val swerveAuto: SwerveAuto,
-    var gyro: GenericGyro,
-    driverTab: ShuffleboardTab,
-    private val limelightArray: Array<Limelight>
+        private var swerveDriveTrain: SwerveDriveTrain,
+        val swerveAuto: SwerveAuto,
+        var gyro: GenericGyro,
+        driverTab: ShuffleboardTab,
+        private val limelightArray: Array<Limelight>
 ) : CommandBase() {
 
     private var desiredPipe = 0
@@ -36,10 +39,40 @@ class TeleopSwerveCommand(
     private val throttleShuffle: GenericEntry = driverTab.add("Throttle", 0.0).entry
     private val pipShuffle: GenericEntry = driverTab.add("Desired PIP", 0).entry
     private val currentLimelightShuffle: GenericEntry =
-        driverTab.add("Current Limelight Name", "Unknown").entry
+            driverTab.add("Current Limelight Name", "Unknown").entry
+
+    private var presetPositions: Array<FieldPosition>
+
+    private val yForAutoThing = 1.93
 
     init {
         addRequirements(swerveDriveTrain)
+//1 was originally 3.83 +.24
+        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+            SmartDashboard.putString("ds alliance", "blue")
+
+            this.presetPositions =
+                    arrayOf(
+                            FieldPosition(-4.82, yForAutoThing, 180.0),
+                            FieldPosition(-4.07, yForAutoThing, 180.0),
+                            FieldPosition(-3.28, yForAutoThing, 180.0),
+                            FieldPosition(-2.20, yForAutoThing, 180.0),
+                            FieldPosition(-1.62, yForAutoThing, 180.0),
+                            FieldPosition(-.52, yForAutoThing, 180.0)
+                    )
+        } else {
+            SmartDashboard.putString("ds alliance", "red")
+
+            this.presetPositions =
+                    arrayOf(
+                            FieldPosition(4.82, yForAutoThing, 180.0),
+                            FieldPosition(3.83, yForAutoThing, 180.0),
+                            FieldPosition(3.28, yForAutoThing, 180.0),
+                            FieldPosition(2.20, yForAutoThing, 180.0),
+                            FieldPosition(1.62, yForAutoThing, 180.0),
+                            FieldPosition(.52, yForAutoThing, 180.0)
+                    )
+        }
     }
 
     // Called when the command is initially scheduled.
@@ -51,6 +84,40 @@ class TeleopSwerveCommand(
         this.currentCommand = command
         this.currentCommand?.schedule()
     }
+
+    private fun setCurrentCommand(command1: CommandBase, command2: CommandBase) {
+        this.currentCommand = command1
+        this.currentCommand?.andThen(command2)?.schedule()
+    }
+
+    fun recheckDS() {
+        if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
+            SmartDashboard.putString("ds alliance", "blue")
+
+            this.presetPositions =
+                    arrayOf(
+                            FieldPosition(-4.82, yForAutoThing, 180.0),
+                            FieldPosition(-4.07, yForAutoThing, 180.0),
+                            FieldPosition(-3.28, yForAutoThing, 180.0),
+                            FieldPosition(-2.20, yForAutoThing, 180.0),
+                            FieldPosition(-1.62, yForAutoThing, 180.0),
+                            FieldPosition(-.52, yForAutoThing, 180.0)
+                    )
+        } else {
+            SmartDashboard.putString("ds alliance", "red")
+
+            this.presetPositions =
+                    arrayOf(
+                            FieldPosition(4.82, yForAutoThing, 180.0),
+                            FieldPosition(3.83, yForAutoThing, 180.0),
+                            FieldPosition(3.28, yForAutoThing, 180.0),
+                            FieldPosition(2.20, yForAutoThing, 180.0),
+                            FieldPosition(1.62, yForAutoThing, 180.0),
+                            FieldPosition(.52, yForAutoThing, 180.0)
+                    )
+        }
+    }
+
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
@@ -73,7 +140,6 @@ class TeleopSwerveCommand(
             currentCommand = null
         }
 
-
         //        } else if (IO.pip2) {
         //            desiredPip = 2
         //        } else if (IO.pip3) {
@@ -83,11 +149,11 @@ class TeleopSwerveCommand(
             swerveAuto.swo.fieldPosition = Vector3()
         }
 
-//        if (JoyIO.toggleLimelight) {
-//            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
-//            currentLimelight = limelightArray[currentLimelightIndex]
-//            currentLimelight.pipeline = desiredPipe
-//        }
+        //        if (JoyIO.toggleLimelight) {
+        //            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
+        //            currentLimelight = limelightArray[currentLimelightIndex]
+        //            currentLimelight.pipeline = desiredPipe
+        //        }
 
         //         if(JoyIO.limelightGyroCorrect) {
         //             /**assumes limelight is at center of robot*/
@@ -98,12 +164,12 @@ class TeleopSwerveCommand(
         //                 gyro.setYawOffset(-offset.get())
         //             }
         //         }
-//                 if (JoyIO.limelightChangeRot) {
-//                     val offset = currentLimelight.getHorizontalOffset()
-//                     if (offset.isPresent) {
-//                         gyro.setYawOffset(-offset.get() + 90.0)
-//                     }
-//                 }
+        //                 if (JoyIO.limelightChangeRot) {
+        //                     val offset = currentLimelight.getHorizontalOffset()
+        //                     if (offset.isPresent) {
+        //                         gyro.setYawOffset(-offset.get() + 90.0)
+        //                     }
+        //                 }
         if (JoyIO.gyroReset) {
             gyro.setYawOffset()
         }
@@ -120,7 +186,8 @@ class TeleopSwerveCommand(
             throttle += DriverPreferences.quickThrottleChange
         }
 
-        if (MiscCalculations.calculateDeadzone(JoyIO.moveYThrottle - prevJoyMoveyThrottle, .005) != 0.0
+        if (MiscCalculations.calculateDeadzone(JoyIO.moveYThrottle - prevJoyMoveyThrottle, .005) !=
+                0.0
         ) {
             throttle = JoyIO.moveYThrottle
         }
@@ -133,44 +200,63 @@ class TeleopSwerveCommand(
         if (JoyIO.toggleLimelight) {
             currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
             currentLimelight = limelightArray[currentLimelightIndex]
-//            currentLimelight.pipeline = desiredPipe
+            //            currentLimelight.pipeline = desiredPipe
             desiredPipe = currentLimelight.pipeline
         }
 
         if (JoyIO.limelightAngleLock) {
             driveTwist =
-                MiscCalculations.calculateDeadzone(currentLimelight.getHorizontalOffset().get(), .5) /
-                    50
-        } else if (JoyIO.limelightTranslateSingleAxisX) {
-            val limelightOffset = currentLimelight.getHorizontalOffset()
-            if (!limelightOffset.isEmpty) {
-                swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0, true)
-                return
-            }
-        } else if (JoyIO.limelightTranslate) {
+                    MiscCalculations.calculateDeadzone(
+                            currentLimelight.getHorizontalOffset().get(),
+                            .5
+                    ) / 50
+        }
+
+        //        if (JoyIO.limelightTranslateSingleAxisX) {
+        //            val limelightOffset = currentLimelight.getHorizontalOffset()
+        //            if (!limelightOffset.isEmpty) {
+        //                swerveDriveTrain.drive(Vector2(limelightOffset.get() / 100, 0.0), 0.0,
+        // true)
+        //                return
+        //            }
+        //        }
+        if (JoyIO.limelightTranslate) {
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
-            //        } else if (IO.limelightTranslateSingleAxisX) {
-            //            println("set current command to axis X")
-            //            setCurrentCommand(
-            //                AutoLimelightSingleAxis(
-            //                    swerveAuto,
-            //                    currentLimelight,
-            //                    0.31,
-            //                    AutoLimelightSingleAxis.Axis.X,
-            //                    desiredPipe
-            //                )
-            //            )
-            //            return
-        } else if (JoyIO.limelightTranslateSingleAxisY) {
+        }
+//        if (JoyIO.limelightTranslateSingleAxisX) {
+//            SmartDashboard.putBoolean("single axis x set", true)
+//            setCurrentCommand(
+//                    AutoLimelightSingleAxis(
+//                            swerveAuto,
+//                            currentLimelight,
+//                            0.61,
+//                            AutoLimelightSingleAxis.Axis.X,
+//                            desiredPipe
+//                    )
+//            )
+//            return
+//        } else {
+//            SmartDashboard.putBoolean("single axis x set", false)
+//        }
+//        if (JoyIO.limelightTranslateSingleAxisY) {
+//            setCurrentCommand(
+//                    AutoLimelightSingleAxis(
+//                            swerveAuto,
+//                            currentLimelight,
+//                            0.61,
+//                            AutoLimelightSingleAxis.Axis.Y,
+//                            desiredPipe
+//                    )
+//            )
+//            return
+//        }
+
+        SmartDashboard.putNumber("preset pos", JoyIO.presetPos.toDouble())
+        if (JoyIO.presetPos != -1) {
             setCurrentCommand(
-                AutoLimelightSingleAxis(
-                    swerveAuto,
-                    currentLimelight,
-                    0.31,
-                    AutoLimelightSingleAxis.Axis.Y,
-                    desiredPipe
-                )
+                    GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, 180.0)),
+                    GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
             )
             return
         }
@@ -180,4 +266,3 @@ class TeleopSwerveCommand(
         swerveDriveTrain.drive(driveVec, driveTwist, JoyIO.disableFieldOrientation)
     }
 }
-

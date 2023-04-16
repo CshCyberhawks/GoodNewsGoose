@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import java.util.Optional
 import kotlin.math.abs
 import kotlin.math.tan
@@ -221,10 +222,15 @@ class Limelight(
             return Optional.empty()
         }
         val distance = optDistance.get()
+        //TODO: fix buster's mistakes
         val angle: Double =
             AngleCalculations.wrapAroundAngles(getHorizontalOffset().get() + gyro.getYaw()) // 357
 
-        return Optional.of(Vector2.fromPolar(Polar(angle, distance)) + Vector2(swo.fieldPosition.x, swo.fieldPosition.y))
+        SmartDashboard.putNumber("distance", distance)
+
+        val robotRelative = Vector2.fromPolar(Polar(angle, distance))
+        robotRelative.x *= -1
+        return Optional.of(robotRelative + Vector2(swo.fieldPosition.x, swo.fieldPosition.y))
     }
 
     public fun setLED(mode: LedMode) {

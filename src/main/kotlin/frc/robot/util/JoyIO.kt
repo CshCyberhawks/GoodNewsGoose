@@ -11,16 +11,17 @@ object JoyIO {
     val quickThrottle
         get() = leftJoy.pov
 
-//    val normalThrottle
-//        get() = leftJoy.getRawButtonPressed(3)
-//
-//    val fastThrottle
-//        get() = leftJoy.getRawButtonPressed(4)
+    //    val normalThrottle
+    //        get() = leftJoy.getRawButtonPressed(3)
+    //
+    //    val fastThrottle
+    //        get() = leftJoy.getRawButtonPressed(4)
 
     val moveYThrottle
-        get() = if (DriverPreferences.hosas) {
-            MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
-        } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
+        get() =
+                if (DriverPreferences.hosas) {
+                    MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
+                } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
 
     val gyroReset
         get() = rightJoy.getRawButtonPressed(2)
@@ -32,18 +33,18 @@ object JoyIO {
         get() = MiscCalculations.calculateDeadzone(rightJoy.y, .08)
 
     val moveTwist
-        get() = if (DriverPreferences.hosas) {
-            MiscCalculations.calculateDeadzone(leftJoy.x, .08)
-        } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
+        get() =
+                if (DriverPreferences.hosas) {
+                    MiscCalculations.calculateDeadzone(leftJoy.x, .08)
+                } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
 
     val resetFieldLimelight
         get() = leftJoy.getRawButtonPressed(1)
 
-
     //    val limelightGyroCorrect: Boolean
-//        get() {
-//            return xbox.bButtonPressed
-//        }
+    //        get() {
+    //            return xbox.bButtonPressed
+    //        }
     val limelightChangeRot: Int
         get() {
             return rightJoy.pov
@@ -62,10 +63,10 @@ object JoyIO {
 
     val limelightAngleLock: Boolean
         get() {
-//            val current = leftJoy.getRawButton(4)
-//            val toggled = current && !limelightAngleLockLast
-//            limelightAngleLockLast = current
-//            return toggled
+            //            val current = leftJoy.getRawButton(4)
+            //            val toggled = current && !limelightAngleLockLast
+            //            limelightAngleLockLast = current
+            //            return toggled
             return rightJoy.getRawButton(4)
         }
 
@@ -78,8 +79,14 @@ object JoyIO {
             return toggled
         }
 
+    private var limelightSingleAxisXLast = false
     val limelightTranslateSingleAxisX: Boolean
-        get() = rightJoy.getRawButton(6)
+        get() {
+            val current = rightJoy.getRawButton(6)
+            val toggled = current && !limelightSingleAxisXLast
+            limelightSingleAxisXLast = current
+            return toggled
+        }
 
     private var limelightSingleAxisYLast = false
     val limelightTranslateSingleAxisY: Boolean
@@ -112,5 +119,23 @@ object JoyIO {
             val toggled = current && !togglePipeLast
             togglePipeLast = current
             return toggled
+        }
+
+    val presetPos: Int
+        get() {
+            if (leftJoy.getRawButton(13)) {
+                return 0
+            } else if (leftJoy.getRawButton(12)) {
+                return 1
+            } else if (leftJoy.getRawButton(11)) {
+                return 2
+            } else if (leftJoy.getRawButton(14)) {
+                return 3
+            } else if (leftJoy.getRawButton(15)) {
+                return 4
+            } else if (leftJoy.getRawButton(16)) {
+                return 5
+            }
+            return -1
         }
 }
