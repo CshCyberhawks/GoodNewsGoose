@@ -6,14 +6,10 @@ import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.FieldPosition
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
-import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import frc.robot.commands.auto.AutoBalance
-import frc.robot.commands.auto.AutoPlace
-import frc.robot.commands.auto.arm.AutoArmPosition
-import frc.robot.constants.ArmConstants
+import frc.robot.commands.auto.AutoPlaceHigh
 import frc.robot.subsystems.ArmSystem
-import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
 // define an empty SequentialCommandGroup
@@ -25,7 +21,7 @@ class PlaceAndBalanceMid(private val swerveAuto: SwerveAuto, private val gyro: G
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-                AutoPlace(armSystem, clawSystem),
+                AutoPlaceHigh(armSystem, clawSystem),
                 autoPathManager.paths["TaxiAndBalance"]!!,
                 AutoBalance(gyro, swerveAuto, swerveAuto.swo),
 //            LockWheels(swerveSystem)

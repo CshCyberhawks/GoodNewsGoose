@@ -4,17 +4,32 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
+import java.util.*
 
 /**
  * @property armSystem
  */
-class AutoArmPosition(private val armSystem: ArmSystem, private val clawSystem: ClawSystem, private val armAngle: Double, private val extensionPosition: Double, private val tilt: Boolean, private val clawState: ClawState = ClawState.Idle) : CommandBase() {
-    /**
-     * Creates a new ExampleCommand.
-     */
+class AutoArmPosition(private val armSystem: ArmSystem, private val clawSystem: ClawSystem, armAngleInput: Double? = null, extensionPositionInput: Double? = null, tiltInput: Boolean? = null, clawStateInput: ClawState? = null) : CommandBase() {
+    companion object {
+        var armAngle = 35.0
+        var extensionPosition = 0.0
+        var tilt = false
+        var clawState = ClawState.Idle
+    }
+
     init {
-        // Use addRequirements() here to declare subsystem dependencies.
-//        addRequirements(armSystem)
+        if (armAngleInput != null) {
+            armAngle = armAngleInput
+        }
+        if (extensionPositionInput != null) {
+            extensionPosition = extensionPositionInput
+        }
+        if (tiltInput != null) {
+            tilt = tiltInput
+        }
+        if (clawStateInput != null) {
+            clawState = clawStateInput
+        }
     }
 
     // Called when the command is initially scheduled.
@@ -35,12 +50,10 @@ class AutoArmPosition(private val armSystem: ArmSystem, private val clawSystem: 
     // Called once the command ends or is interrupted.
     override fun end(interrupted: Boolean) {
         armSystem.kill()
-        clawSystem.kill()
     }
 
     // Returns true when the command should end.
     override fun isFinished(): Boolean {
-        // TODO: Add time to make sure that the claw ran
         return armSystem.isFinished()
     }
 }
