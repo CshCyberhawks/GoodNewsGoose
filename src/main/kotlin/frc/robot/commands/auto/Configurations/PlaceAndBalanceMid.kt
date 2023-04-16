@@ -27,7 +27,7 @@ class PlaceAndBalanceMid(private val swerveAuto: SwerveAuto, private val gyro: G
         addCommands(
                 AutoPlace(armSystem, clawSystem),
                 autoPathManager.paths["TaxiAndBalance"]!!,
-                AutoBalance(gyro),
+                AutoBalance(gyro, swerveAuto, swerveAuto.swo),
 //            LockWheels(swerveSystem)
                 GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, gyro.getYaw() + 5))
         )

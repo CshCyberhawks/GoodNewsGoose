@@ -24,7 +24,7 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-                AutoBalance(gyro)
+                AutoBalance(gyro, swerveAuto, swerveAuto.swo)
 //                AutoPlace()
 //            autoPathManager.paths["BalanceStart"]!!,
 //            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, false, false),

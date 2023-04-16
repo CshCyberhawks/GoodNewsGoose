@@ -27,9 +27,6 @@ class PlaceAndTaxiBump(private val swerveAuto: SwerveAuto, private val gyro: Gen
         addCommands(
                 AutoPlace(armSystem, clawSystem),
                 autoPathManager.paths["TaxiBump"]!!,
-                AutoBalance(gyro),
-                //            LockWheels(swerveSystem)
-                GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, gyro.getYaw() + 5))
         )
     }
 }
