@@ -2,18 +2,16 @@ package frc.robot.util
 
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.XboxController
+import kotlin.math.abs
 
 object ControllerIO {
     private val xbox = XboxController(2)
 
-    private var lastToggleGrabber = false
     val spinClaw: Boolean
-        get() {
-            val current = xbox.xButton
-            val toggled = current && !lastToggleGrabber
-            lastToggleGrabber = current
-            return toggled
-        }
+        get() = abs(xbox.rightTriggerAxis) > 0.1
+
+    val unspinClaw: Boolean
+        get() = xbox.backButton
 
     private var toggleTiltLast = false
     val toggleTilt: Boolean
@@ -44,6 +42,7 @@ object ControllerIO {
     val armAlignDown
         get() = xbox.bButton
 
-    val clawSpit
-        get() = xbox.backButton
+    val clawSpit: Boolean
+        get() = abs(xbox.leftTriggerAxis) > 0.1
+
 }

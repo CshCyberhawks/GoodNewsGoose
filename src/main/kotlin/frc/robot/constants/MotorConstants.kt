@@ -24,6 +24,7 @@ object MotorConstants {
     const val armAngleMotor = 22
     const val extensionMotor = 21
     const val clawMotor = 23
+    const val intakeBeamBreak = 4
     const val tiltSolenoid = 2
     const val armAngleEncoder = 1
     const val extensionEncoder = 0
