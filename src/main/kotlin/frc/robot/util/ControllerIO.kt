@@ -42,6 +42,15 @@ object ControllerIO {
     val armAlignDown
         get() = xbox.bButton
 
+    val armAlignTop
+        get() = xbox.pov == 0
+
+    val armAlignMid
+        get() = xbox.pov == 90
+
+    val armAlignFloor
+        get() = xbox.pov == 180
+
     val clawSpit: Boolean
         get() = abs(xbox.leftTriggerAxis) > 0.1
 
