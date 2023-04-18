@@ -34,6 +34,10 @@ class Vector2(var x: Double = 0.0, var y: Double = 0.0) {
         return x == other.x && y == other.y
     }
 
+    fun distance(other: Vector2): Double {
+        return Math.sqrt(Math.pow(other.x - x, 2.0) + Math.pow(other.y - y, 2.0))
+    }
+
     override fun hashCode(): Int {
         var result = x.hashCode()
         result = 31 * result + y.hashCode()

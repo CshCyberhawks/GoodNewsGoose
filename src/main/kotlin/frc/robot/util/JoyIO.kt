@@ -97,14 +97,14 @@ object JoyIO {
             return toggled
         }
 
-    private var toggleLimelightLast = false
-    val toggleLimelight: Boolean
-        get() {
-            val current = leftJoy.getRawButton(3)
-            val toggled = current && !toggleLimelightLast
-            toggleLimelightLast = current
-            return toggled
-        }
+    // private var toggleLimelightLast = false
+    // val toggleLimelight: Boolean
+    //     get() {
+    //         val current = leftJoy.getRawButton(3)
+    //         val toggled = current && !toggleLimelightLast
+    //         toggleLimelightLast = current
+    //         return toggled
+    //     }
 
     val resetSwo
         get() = rightJoy.getRawButton(11)
@@ -112,13 +112,18 @@ object JoyIO {
     val disableFieldOrientation
         get() = rightJoy.getRawButton(1)
 
-    private var togglePipeLast = false
-    val togglePipe: Boolean
+    // private var togglePipeLast = false
+    // val togglePipe: Boolean
+    //     get() {
+    //         val current = leftJoy.getRawButton(4)
+    //         val toggled = current && !togglePipeLast
+    //         togglePipeLast = current
+    //         return toggled
+    //     }
+
+    val nearestConePos: Boolean
         get() {
-            val current = leftJoy.getRawButton(4)
-            val toggled = current && !togglePipeLast
-            togglePipeLast = current
-            return toggled
+            return leftJoy.getRawButton(4)
         }
 
     val presetPos: Int
