@@ -23,18 +23,23 @@ import kotlin.math.abs
 class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
     private val armAngleMotor = CANSparkMax(MotorConstants.armAngleMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
-    val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
+    private val extensionMotor = CANSparkMax(MotorConstants.extensionMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
 
     private val armAngleEncoder = DutyCycleEncoder(MotorConstants.armAngleEncoder)
     private val extensionEncoder = Encoder(4, 5)
-    private val extensionExtendedSwitch = DigitalInput(MotorConstants.extensionExtendedSwitch)
-    private val extensionRetractedSwitch = DigitalInput(MotorConstants.extensionRetractedSwitch)
 
-    val extensionExtended
-        get() = extensionExtendedSwitch.get()
+    val extensionInBeamBreak = DigitalInput(MotorConstants.extensionInBeamBreak)
+    val extensionMidBeamBreak = DigitalInput(MotorConstants.extensionMidBeamBreak)
+    val extensionOutBeamBreak = DigitalInput(MotorConstants.extensionOutBeamBreak)
 
-    val extensionRetracted
-        get() = extensionRetractedSwitch.get()
+//    private val extensionExtendedSwitch = DigitalInput(MotorConstants.extensionExtendedSwitch)
+//    private val extensionRetractedSwitch = DigitalInput(MotorConstants.extensionRetractedSwitch)
+//
+//    val extensionExtended
+//        get() = extensionExtendedSwitch.get()
+//
+//    val extensionRetracted
+//        get() = extensionRetractedSwitch.get()
 
     val armAngleDegrees
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360 - ArmConstants.armAngleOffset)
@@ -88,6 +93,12 @@ class ArmSystem : SubsystemBase() {
     var hitSetpoint = false
     var autoMode = false
 
+    private fun setExtensionPosition(pos: Double) {
+        // ep = raw - off
+        // off = raw - ep
+        extensionPositionOffset = rawExtensionPosition - pos
+    }
+
     init {
         armAngleEncoder.distancePerRotation = 360.0
         armAnglePID.enableContinuousInput(0.0, 360.0)
@@ -102,15 +113,25 @@ class ArmSystem : SubsystemBase() {
     fun run() {
         SmartDashboard.putNumber("Raw Extension Encoder", extensionEncoder.distance)
         SmartDashboard.putNumber("Extension Position", extensionPosition)
-        if (extensionRetracted) {
-            extensionPositionOffset = rawExtensionPosition
+
+        // TODO: Measure these again and measure mid one properly
+        if (extensionInBeamBreak.get()) {
+            setExtensionPosition(ArmConstants.armExtensionIn)
+        } else if (extensionOutBeamBreak.get()) {
+            setExtensionPosition(ArmConstants.armExtensionOut)
+//        } else if (extensionMidBeamBreak.get()) {
+//            setExtensionPosition(ArmConstants.armExtensionMid)
         }
 
 //        return;
         desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, if (desiredTilt) 135.0 else 100.0)
-        if (desiredExtensionPosition < 0.0 || desiredExtensionPosition > 3600.0) {
-            desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, 3600.0)
+        if (desiredExtensionPosition < 0.0 || desiredExtensionPosition > ArmConstants.armExtensionOut) {
+            desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, ArmConstants.armExtensionOut)
         }
+
+        SmartDashboard.putBoolean("Extension In", extensionInBeamBreak.get())
+        SmartDashboard.putBoolean("Extension Mid", extensionMidBeamBreak.get())
+        SmartDashboard.putBoolean("Extension Out", extensionOutBeamBreak.get())
 
 
 //        else if (extensionExtended) {
@@ -173,7 +194,7 @@ class ArmSystem : SubsystemBase() {
                     extensionMotor.set(extensionOutput)
 
                     previousExtensionTime = extensionTimeNow
-                } else if (desiredExtensionPosition == 0.0 && !extensionRetracted) {
+                } else if (desiredExtensionPosition == 0.0 && !extensionInBeamBreak.get()) {
                     extensionMotor.set(0.1)
                     extensionPositionOffset = rawExtensionPosition
                 } else {
@@ -183,9 +204,6 @@ class ArmSystem : SubsystemBase() {
         } else {
             extensionMotor.set(0.1)
         }
-
-        SmartDashboard.putBoolean("Traversal Extended", extensionExtended)
-        SmartDashboard.putBoolean("Traversal Retracted", extensionRetracted)
 
 //        SmartDashboard.putNumber("Traversal Velocity", extensionEncoder.velocity)
 

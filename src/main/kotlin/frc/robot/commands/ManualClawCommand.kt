@@ -14,8 +14,8 @@ class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
      * Creates a new ExampleCommand.
      */
     init {
-        // Use addRequirements() here to declare subsystem dependencies.
-        // addRequirements(subsystem)
+    // Use addRequirements() here to declare subsystem dependencies.
+    // addRequirements(subsystem)
     }
 
     // Called when the command is initially scheduled.
