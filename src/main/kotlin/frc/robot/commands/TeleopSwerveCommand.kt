@@ -203,12 +203,12 @@ class TeleopSwerveCommand(
         val driveVec = Vector2(JoyIO.moveX * throttle, -JoyIO.moveY * throttle)
         var driveTwist = JoyIO.moveTwist * throttle
 
-        if (JoyIO.toggleLimelight) {
-            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
-            currentLimelight = limelightArray[currentLimelightIndex]
-            //            currentLimelight.pipeline = desiredPipe
-            desiredPipe = currentLimelight.pipeline
-        }
+        // if (JoyIO.toggleLimelight) {
+        //     currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
+        //     currentLimelight = limelightArray[currentLimelightIndex]
+        //     //            currentLimelight.pipeline = desiredPipe
+        //     desiredPipe = currentLimelight.pipeline
+        // }
 
         if (JoyIO.limelightAngleLock) {
             driveTwist =
