@@ -13,11 +13,11 @@ import kotlin.math.abs
 
 
 class SwerveWheel(
-    private val driveMotor: GenericDriveMotor,
-    private val turnMotor: GenericTurnMotor,
-    private val drivePID: PIDController,
-    private val turnPID: PIDController,
-    private val configuration: SwerveModuleConfiguration
+        private val driveMotor: GenericDriveMotor,
+        private val turnMotor: GenericTurnMotor,
+        private val drivePID: PIDController,
+        private val turnPID: PIDController,
+        private val configuration: SwerveModuleConfiguration
 ) {
     private var oldAngle = 0.0
 
@@ -67,6 +67,11 @@ class SwerveWheel(
         } else {
             0.0
         })
+    }
+
+    fun kill() {
+        driveMotor.setPercentOutput(0.0)
+        turnMotor.setPercentOutput(0.0)
     }
 
     fun preserveAngle() {

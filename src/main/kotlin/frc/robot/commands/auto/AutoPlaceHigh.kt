@@ -11,14 +11,14 @@ import frc.robot.subsystems.ClawSystem
 public class AutoPlaceHigh(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
     init {
         addCommands(
-                AutoArmPosition(armSystem, clawSystem, ArmConstants.armHighAngle, ArmConstants.armExtensionIn, true),
-                AutoArmPosition(armSystem, clawSystem, extensionPositionInput = ArmConstants.armExtensionOut),
-                AutoArmPosition(armSystem, clawSystem, armAngleInput = ArmConstants.armHighAngle - 5),
-                AutoArmPosition(armSystem, clawSystem, clawStateInput = ClawState.Spitting),
+                AutoArmPosition(armSystem, clawSystem, 126.0, ArmConstants.armExtensionIn, true),
+                AutoArmPosition(armSystem, clawSystem, 126.0, ArmConstants.armExtensionOut, true),
+                AutoArmPosition(armSystem, clawSystem, 120.0, ArmConstants.armExtensionOut, true),
+                AutoArmPosition(armSystem, clawSystem, 120.0, ArmConstants.armExtensionOut, true, ClawState.Spitting),
                 WaitCommand(1.0),
-                AutoArmPosition(armSystem, clawSystem, armAngleInput = ArmConstants.armHighAngle, extensionPositionInput = ArmConstants.armExtensionIn, clawStateInput = ClawState.Idle),
-                AutoArmPosition(armSystem, clawSystem, armAngleInput = ArmConstants.armInAngle),
-                AutoArmPosition(armSystem, clawSystem, tiltInput = false),
+                AutoArmPosition(armSystem, clawSystem, 126.0, ArmConstants.armExtensionIn, true),
+                AutoArmPosition(armSystem, clawSystem, 35.0, ArmConstants.armExtensionIn, true),
+                AutoArmPosition(armSystem, clawSystem, 35.0, ArmConstants.armExtensionIn, false),
         )
     }
 }

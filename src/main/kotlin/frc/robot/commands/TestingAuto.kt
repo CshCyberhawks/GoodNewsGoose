@@ -9,6 +9,8 @@ import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import frc.robot.commands.auto.AutoBalance
+import frc.robot.commands.auto.AutoPlaceHigh
+import frc.robot.commands.auto.DumbAutoBalance
 import frc.robot.commands.auto.arm.AutoArmPosition
 import frc.robot.constants.ArmConstants
 import frc.robot.subsystems.ArmSystem
@@ -24,11 +26,12 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-                AutoBalance(gyro, swerveAuto, swerveAuto.swo)
+                AutoPlaceHigh(armSystem, clawSystem)
+//                GoToPosition(swerveAuto, Vector2(0.0, -2.6)),
+//                DumbAutoBalance(gyro, swerveSystem)
 //                AutoPlace()
 //            autoPathManager.paths["BalanceStart"]!!,
 //            AutoArmPosition(armSystem, 35.0, ExtensionPosition.RETRACTED, false, false),
-//                GoToPosition(swerveAuto, Vector2(0.0, -2.6)),
 //                GoToPosition(swerveAuto, FieldPosition(0.0, -2.6, 15.0))
 //            autoPathManager.paths["Balance"]!!,
 //            autoPathManager.paths["TaxiTop"]!!,

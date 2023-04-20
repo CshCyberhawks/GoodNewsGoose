@@ -18,9 +18,11 @@ class DumbAutoBalance(val gyro: GenericGyro, val driveTrain: SwerveDriveTrain) :
 
     fun setPos() {
         val pitchRoll: Vector2 = gyro.mergePitchRoll()
-        val negPitchRoll: Vector2 = Vector2.fromPolar(Polar(-Polar.fromVector2(pitchRoll).theta, Polar.fromVector2(pitchRoll).r / 40))
+        val negPitchRoll: Vector2 = Vector2.fromPolar(Polar(-Polar.fromVector2(pitchRoll).theta, .15))
         val position: Vector2 = negPitchRoll
         driveTrain.drive(position, 0.0)
+//        driveTrain.drive(Vector2(0.0, 0.0), 0.0)
+
         SmartDashboard.putNumber("AutoBalance Position X", position.x)
         SmartDashboard.putNumber("AutoBalance Position Y", position.y)
         SmartDashboard.putNumber("Pitch", gyro.getRoll())
@@ -32,10 +34,11 @@ class DumbAutoBalance(val gyro: GenericGyro, val driveTrain: SwerveDriveTrain) :
     }
 
     override fun end(interrupted: Boolean) {
+        driveTrain.kill()
     }
 
     override fun isFinished(): Boolean {
         SmartDashboard.putNumber("rollPitchMag", Polar.fromVector2(gyro.mergePitchRoll()).r)
-        return Polar.fromVector2(gyro.mergePitchRoll()).r < 6.0
+        return Polar.fromVector2(gyro.mergePitchRoll()).r < 2.5
     }
 }

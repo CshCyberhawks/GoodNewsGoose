@@ -24,15 +24,17 @@ object MotorConstants {
     const val armAngleMotor = 22
     const val extensionMotor = 21
     const val clawMotor = 23
-    const val extensionInBeamBreak = 1
-    const val extensionMidBeamBreak = 2
-    const val extensionOutBeamBreak = 3
-    const val intakeBeamBreak = 4
+    const val extensionInBeamBreak = 2
+    const val extensionMidBeamBreak = 3
+    const val extensionOutBeamBreak = 0
+    const val intakeBeamBreak = 6
     const val tiltSolenoid = 2
     const val armAngleEncoder = 1
-    const val extensionEncoder = 0
-    const val extensionExtendedSwitch = 2
-    const val extensionRetractedSwitch = 3
+
+//    const val extensionEncoder = 0
+
+    //    const val extensionExtendedSwitch = 2
+//    const val extensionRetractedSwitch = 3
     const val gyroPort = 30
     const val pcm = 31
 }

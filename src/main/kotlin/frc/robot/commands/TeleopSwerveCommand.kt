@@ -118,7 +118,7 @@ class TeleopSwerveCommand(
         }
     }
 
-    private fun closestPresetPos: Vector2 {
+    private fun closestPresetPos(): Vector2 {
         return MiscCalculations.closestPoint(
                 Vector2(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y),
                 presetPositions.map { Vector2(it.x, it.y) }.toTypedArray()
@@ -137,6 +137,7 @@ class TeleopSwerveCommand(
         if (JoyIO.killCommand) {
             currentCommand?.cancel()
             currentCommand = null
+            swerveAuto.kill()
         }
 
         if (currentCommand != null && currentCommand?.isFinished() == false) {
@@ -193,7 +194,7 @@ class TeleopSwerveCommand(
         }
 
         if (MiscCalculations.calculateDeadzone(JoyIO.moveYThrottle - prevJoyMoveyThrottle, .005) !=
-                        0.0
+                0.0
         ) {
             throttle = JoyIO.moveYThrottle
         }
@@ -258,20 +259,20 @@ class TeleopSwerveCommand(
         //            return
         //        }
 
-        if (JoyIO.nearestConePos) {
-            setCurrentCommand(
-                    GoToPosition(
-                            swerveAuto,
-                            FieldPosition(
-                                    swerveAuto.swo.fieldPosition.x,
-                                    swerveAuto.swo.fieldPosition.y,
-                                    180.0
-                            )
-                    ),
-                    GoToPosition(swerveAuto, closestPresetPos())
-            )
-            return
-        }
+//        if (JoyIO.nearestConePos) {
+//            setCurrentCommand(
+//                    GoToPosition(
+//                            swerveAuto,
+//                            FieldPosition(
+//                                    swerveAuto.swo.fieldPosition.x,
+//                                    swerveAuto.swo.fieldPosition.y,
+//                                    180.0
+//                            )
+//                    ),
+//                    GoToPosition(swerveAuto, closestPresetPos())
+//            )
+//            return
+//        }
 
         // SmartDashboard.putNumber("preset pos", JoyIO.presetPos.toDouble())
         if (JoyIO.presetPos != -1) {

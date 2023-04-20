@@ -17,7 +17,7 @@ enum class ClawState {
 class ClawSystem : SubsystemBase() {
     private val clawMotor = CANSparkMax(MotorConstants.clawMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
 
-    private val intakeBeamBreak = DigitalInput(MotorConstants.intakeBeamBreak)
+    val intakeBeamBreak = DigitalInput(MotorConstants.intakeBeamBreak)
 
     private var breakTime = -1.0
 
@@ -31,7 +31,7 @@ class ClawSystem : SubsystemBase() {
             breakTime = -1.0
         }
 
-        if (breakTime != -1.0 && MiscCalculations.getCurrentTime() >= breakTime + 0.1) {
+        if (breakTime != -1.0 && MiscCalculations.getCurrentTime() >= breakTime + 0.2) {
             clawState = ClawState.Idle
         }
 
@@ -39,11 +39,11 @@ class ClawSystem : SubsystemBase() {
         SmartDashboard.putString("Claw State", clawState.name)
         SmartDashboard.putBoolean("Claw Break", intakeBeamBreak.get())
 
-        //        clawMotor.set(when (clawState) {
-        //            ClawState.Intaking -> 0.8
-        //            ClawState.Spitting -> -0.5
-        //            ClawState.Idle -> 0.05
-        //        })
+        clawMotor.set(when (clawState) {
+            ClawState.Intaking -> 0.8
+            ClawState.Spitting -> -0.5
+            ClawState.Idle -> 0.05
+        })
 
         SmartDashboard.putNumber("Current", clawMotor.outputCurrent)
     }

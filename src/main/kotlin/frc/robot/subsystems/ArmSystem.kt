@@ -47,7 +47,7 @@ class ArmSystem : SubsystemBase() {
     val rawArmEncoder
         get() = AngleCalculations.wrapAroundAngles(armAngleEncoder.absolutePosition * 360)
 
-    private var extensionPositionOffset = 0.0
+    private var extensionPositionOffset = -1.0
     private val rawExtensionPosition
         get() = extensionEncoder.distance
     private val extensionPosition
@@ -117,11 +117,18 @@ class ArmSystem : SubsystemBase() {
         // TODO: Measure these again and measure mid one properly
         if (extensionInBeamBreak.get()) {
             setExtensionPosition(ArmConstants.armExtensionIn)
-        } else if (extensionOutBeamBreak.get()) {
-            setExtensionPosition(ArmConstants.armExtensionOut)
+//        } else if (extensionOutBeamBreak.get()) {
+//            setExtensionPosition(ArmConstants.armExtensionOut)
 //        } else if (extensionMidBeamBreak.get()) {
 //            setExtensionPosition(ArmConstants.armExtensionMid)
         }
+
+        if (desiredTilt && desiredExtensionPosition > ArmConstants.armExtensionMid) {
+            desiredExtensionPosition = ArmConstants.armExtensionMid
+        }
+
+        SmartDashboard.putNumber("Extension Position", extensionPosition)
+        SmartDashboard.putNumber("Raw Extension Position", rawExtensionPosition)
 
 //        return;
         desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, if (desiredTilt) 135.0 else 100.0)
@@ -196,7 +203,7 @@ class ArmSystem : SubsystemBase() {
                     previousExtensionTime = extensionTimeNow
                 } else if (desiredExtensionPosition == 0.0 && !extensionInBeamBreak.get()) {
                     extensionMotor.set(0.1)
-                    extensionPositionOffset = rawExtensionPosition
+                    setExtensionPosition(0.0)
                 } else {
                     extensionMotor.set(0.01)
                 }
@@ -210,6 +217,7 @@ class ArmSystem : SubsystemBase() {
         armAngleMotor.set(armOutput)
 //        armAngleMotor.set(ControllerIO.controlArmAngle)
         tiltSolenoid.set(desiredTilt)
+//        extensionMotor.set(ControllerIO.extensionManualControl)
 
         SmartDashboard.putNumber("Desired Arm Angle", desiredArmAngle)
 
@@ -222,6 +230,8 @@ class ArmSystem : SubsystemBase() {
     }
 
     fun isFinished(): Boolean {
+        SmartDashboard.putBoolean("Extension Finished", abs(desiredExtensionPosition - extensionPosition) < 50.0)
+        SmartDashboard.putBoolean("Arm Finished", abs(desiredArmAngle - armAngleDegrees) < 3.0)
         return abs(desiredExtensionPosition - extensionPosition) < 50.0 && abs(desiredArmAngle - armAngleDegrees) < 3.0
     }
 

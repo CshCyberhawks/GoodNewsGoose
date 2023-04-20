@@ -24,17 +24,17 @@ import java.util.Optional
 import kotlin.math.abs
 
 class SwerveAuto(
-    private val xPID: ProfiledPIDController,
-    private val yPID: ProfiledPIDController,
-    private val twistPID: PIDController,
-    private val twistTrapConstraints: TrapezoidProfile.Constraints,
-    private val angleDeadzone: Double,
-    private val positionDeadzone: Double,
-    val swo: SwerveOdometry,
-    val swerveSystem: SwerveDriveTrain,
-    val gyro: GenericGyro,
-    private val debugLogging: Boolean = false,
-    private val field2d: Optional<Field2d> = Optional.empty()
+        private val xPID: ProfiledPIDController,
+        private val yPID: ProfiledPIDController,
+        private val twistPID: PIDController,
+        private val twistTrapConstraints: TrapezoidProfile.Constraints,
+        private val angleDeadzone: Double,
+        private val positionDeadzone: Double,
+        val swo: SwerveOdometry,
+        val swerveSystem: SwerveDriveTrain,
+        val gyro: GenericGyro,
+        private val debugLogging: Boolean = false,
+        private val field2d: Optional<Field2d> = Optional.empty()
 ) {
     var desiredPosition: FieldPosition = FieldPosition(0.0, 0.0, 0.0)
         set(value) {
@@ -76,16 +76,15 @@ class SwerveAuto(
     //    val twistPIDShuffleboard = autoShuffleboardTab.add("Twist PID", twistPID)
 
     private val translationTwistShuffleboard: GenericEntry =
-        autoShuffleboardTab.add("Translation Twist", 0.0).entry
+            autoShuffleboardTab.add("Translation Twist", 0.0).entry
 
     private val xPIDOutputShuffle: GenericEntry = autoShuffleboardTab.add("X PID OUT", 0.0).entry
     private val yPIDOutputShuffle = autoShuffleboardTab.add("Y PID OUT", 0.0).entry
     private val twistPIDOutputShuffle: GenericEntry =
-        autoShuffleboardTab.add("Twist PID OUT", 0.0).entry
+            autoShuffleboardTab.add("Twist PID OUT", 0.0).entry
 
     private val xDesPosShuffle = autoShuffleboardTab.add("Desired Pos X", 0.0).entry
     private val yDesPosShuffle = autoShuffleboardTab.add("Desired Pos Y", 0.0).entry
-
 
 
     init {
@@ -108,11 +107,11 @@ class SwerveAuto(
         val trapOutput = trapProfile.calculate(trapTime)
 
         val twistOutput =
-            if (pidVal < 0) {
-                pidVal - abs(trapOutput.velocity)
-            } else {
-                pidVal + abs(trapOutput.velocity)
-            }
+                if (pidVal < 0) {
+                    pidVal - abs(trapOutput.velocity)
+                } else {
+                    pidVal + abs(trapOutput.velocity)
+                }
 
         SmartDashboard.putNumber("Twist PID", pidVal)
         SmartDashboard.putNumber("Twist Trap", trapOutput.velocity)
@@ -168,29 +167,29 @@ class SwerveAuto(
 
     private fun isAtDesiredAngle(): Boolean {
         return AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) <
-            angleDeadzone ||
-            AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) >
-            360 - angleDeadzone
+                angleDeadzone ||
+                AngleCalculations.wrapAroundAngles(desiredPosition.angle - gyro.getYaw()) >
+                360 - angleDeadzone
     }
 
     private fun isAtDesiredPosition(): Boolean {
         return (MiscCalculations.calculateDeadzone(
-            desiredPosition.x - swo.fieldPosition.x,
-            positionDeadzone
-        ) == 0.0 &&
-            MiscCalculations.calculateDeadzone(
-                desiredPosition.y - swo.fieldPosition.y,
+                desiredPosition.x - swo.fieldPosition.x,
                 positionDeadzone
-            ) == 0.0)
+        ) == 0.0 &&
+                MiscCalculations.calculateDeadzone(
+                        desiredPosition.y - swo.fieldPosition.y,
+                        positionDeadzone
+                ) == 0.0)
     }
 
     fun setDesiredAngleRelative(desiredAngle: Double) {
         desiredPosition =
-            FieldPosition(
-                desiredPosition.x,
-                desiredPosition.y,
-                AngleCalculations.wrapAroundAngles(gyro.getYaw() + desiredAngle)
-            )
+                FieldPosition(
+                        desiredPosition.x,
+                        desiredPosition.y,
+                        AngleCalculations.wrapAroundAngles(gyro.getYaw() + desiredAngle)
+                )
     }
 
     fun isFinishedMoving(): Boolean {
@@ -198,6 +197,7 @@ class SwerveAuto(
     }
 
     fun kill() {
-        swerveSystem.drive(Vector2(0.0, 0.0), 0.0)
+//        swerveSystem.drive(Vector2(0.0, 0.0), 0.0)
+        swerveSystem.kill()
     }
 }

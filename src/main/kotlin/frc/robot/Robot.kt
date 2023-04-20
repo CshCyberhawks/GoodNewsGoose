@@ -24,6 +24,7 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.math.filter.MedianFilter
+import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
@@ -36,6 +37,9 @@ import frc.robot.commands.ManualArmCommand
 import frc.robot.commands.ManualClawCommand
 import frc.robot.commands.TeleopSwerveCommand
 import frc.robot.commands.TestingAuto
+import frc.robot.commands.auto.AutoBalance
+import frc.robot.commands.auto.Configurations.PlaceAndBalanceMid
+import frc.robot.commands.auto.DumbAutoBalance
 import frc.robot.constants.MotorConstants
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
@@ -203,8 +207,8 @@ class Robot : TimedRobot() {
 
     lateinit var llCam: HttpCamera
 
-    private val odometryFilterX: MedianFilter = MedianFilter(10)
-    private val odometryFilterY: MedianFilter = MedianFilter(10)
+//    private val odometryFilterX: MedianFilter = MedianFilter(10)
+//    private val odometryFilterY: MedianFilter = MedianFilter(10)
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -250,6 +254,10 @@ class Robot : TimedRobot() {
 //            return
 //        }
 
+//        if (!DriverStation.isTeleopEnabled()) {
+//            return
+//        }
+
         if (!odometryResetLLShuffle.getBoolean(true)) {
             return
         }
@@ -260,7 +268,7 @@ class Robot : TimedRobot() {
         //        limelightLeft.pipeline = limelightLeft.fiducialPipeline
         //        limelightRight.pipeline = limelightRight.fiducialPipeline
 
-        var positions: MutableList<FieldPosition> = mutableListOf()
+        val positions: MutableList<FieldPosition> = mutableListOf()
 
         val backPosition = limelightLeft.getBotFieldPosition()
         if (!backPosition.isEmpty &&
@@ -279,23 +287,25 @@ class Robot : TimedRobot() {
                 limelightRight.pipeline == limelightRight.fiducialPipeline
         ) {
             val pos = frontPosition.get()
+            positions.add(pos)
 
         } else if (frontPosition.isEmpty) {
             lastRightLLResetTime = MiscCalculations.getCurrentTime()
         }
 
 
-        //NOTE: this is the filter for positions with the ll
-        for (position in positions) {
-            val x = odometryFilterX.calculate(position.x)
-            val y = odometryFilterY.calculate(position.y)
-            swo.fieldPosition = Vector3(x, y)
-            // val changedPosition = Field2d.toWPILIBFieldPosition(FieldPosition(x, y, 0.0))
-            // field2d.setRobotPose(changedPosition.x, changedPosition.y, Rotation2d(changedPosition.angleRadians))
-
-            // val twist = odometryFilterTwist.calculate(position.angle)
-//            swo.fieldPosition = Vector3(x, y)
+        if (positions.size != 0) {
+            //NOTE: this is the filter for positions with the ll
+            val totalPos: Vector3 = Vector3(0.0, 0.0, 0.0)
+            var count = 0
+            for (position in positions) {
+                totalPos.x += position.x
+                totalPos.y += position.y
+                count++
+            }
+            swo.fieldPosition = Vector3(totalPos.x / count, totalPos.y / count)
         }
+
 
         SmartDashboard.putBoolean("Front has targ", limelightRight.hasTarget())
         SmartDashboard.putBoolean("Back has targ", limelightLeft.hasTarget())
@@ -373,13 +383,15 @@ class Robot : TimedRobot() {
 
     /** This autonomous runs the autonomous command selected by your [RobotContainer] class. */
     override fun autonomousInit() {
-        armSystem.initialize()
-        armSystem.autoMode = true
+//        armSystem.initialize()
+//        armSystem.autoMode = true
         //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
-//        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
-//        autoCommand?.schedule()
+        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
+        autoCommand?.schedule()
 
+//        autoCommand = PlaceAndBalanceMid(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
+//        autoCommand?.schedule()
         //         autoPathManager.paths["ComplexPath"]!!.schedule()
 
         limelightRight.setLED(LedMode.ForceOn)
@@ -447,14 +459,19 @@ class Robot : TimedRobot() {
         //         backRight.getRawEncoder()
         //     )
 
-        SmartDashboard.putNumber("Arm Pivot Encoder Raw", armSystem.rawArmEncoder)
-        SmartDashboard.putNumber("Arm Pivot Encoder", armSystem.armAngleDegrees)
-        SmartDashboard.putBoolean("Arm Extended Switch", armSystem.extensionInBeamBreak.get())
-        SmartDashboard.putBoolean("Arm Mid Switch", armSystem.extensionMidBeamBreak.get())
-        SmartDashboard.putBoolean("Arm Retracted Switch", armSystem.extensionOutBeamBreak.get())
+//        SmartDashboard.putNumber("Arm Pivot Encoder Raw", armSystem.rawArmEncoder)
+//        SmartDashboard.putNumber("Arm Pivot Encoder", armSystem.armAngleDegrees)
+//        SmartDashboard.putBoolean("Arm Extended Switch", armSystem.extensionOutBeamBreak.get())
+//        SmartDashboard.putBoolean("Arm Mid Switch", armSystem.extensionMidBeamBreak.get())
+//        SmartDashboard.putBoolean("Arm Retracted Switch", armSystem.extensionInBeamBreak.get())
+//        SmartDashboard.putBoolean("Claw Break Beam", clawSystem.intakeBeamBreak.get())
         val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(),
                 frontRight.getRawEncoder(), backRight.getRawEncoder())
         //
-        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
+//        SmartDashboard.putString("Encoder Offsets", encoderValues.joinToString(", "))
+
+        SmartDashboard.putNumber("gyro roll", gyro.getRoll())
+        SmartDashboard.putNumber("gyro pitch", gyro.getPitch())
+
     }
 }
