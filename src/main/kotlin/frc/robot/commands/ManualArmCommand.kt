@@ -11,7 +11,7 @@ import frc.robot.util.ControllerIO
 class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
     // Called when the command is initially scheduled.
     override fun initialize() {
-        subsystem.desiredArmAngle = subsystem.armAngleDegrees
+        subsystem.desiredArmAngle = 35.0
 
 //        setCurrentCommand(AutoArmPosition(subsystem, 90.0, 0.0, false, true))
     }
@@ -23,15 +23,15 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.extensionExtended) {
-            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
+            subsystem.desiredExtensionPosition = ArmConstants.armExtensionMid
 //            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
-            subsystem.hitSetpoint = false
 
         }
         if (ControllerIO.extensionRetracted) {
-            subsystem.desiredExtensionPosition = 0.0
+            if (!subsystem.extensionInBeamBreak.get()) {
+                subsystem.desiredExtensionPosition = 0.0
+            }
 //            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
-            subsystem.hitSetpoint = false
         }
 
         subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
@@ -53,26 +53,30 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.desiredExtensionPosition = 0.0
 //            subsystem.desiredExtensionPosition = ExtensionPosition.RETRACTED
             subsystem.desiredTilt = false
-            subsystem.hitSetpoint = false
-        }
-
-        if (ControllerIO.armAlignTop) {
-            subsystem.desiredArmAngle = ArmConstants.armHighAngle
-            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
-            subsystem.desiredTilt = true
-        }
-
-        if (ControllerIO.armAlignMid) {
-            subsystem.desiredArmAngle = ArmConstants.armMidAngle
-            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
-            subsystem.desiredTilt = false
         }
 
         if (ControllerIO.armAlignFloor) {
-            subsystem.desiredArmAngle = ArmConstants.armFloorAngle
-            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
-            subsystem.desiredTilt = false
+            subsystem.desiredArmAngle = 45.0
+            subsystem.desiredTilt = true
         }
+
+//        if (ControllerIO.armAlignTop) {
+//            subsystem.desiredArmAngle = ArmConstants.armHighAngle
+//            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
+//            subsystem.desiredTilt = true
+//        }
+//
+//        if (ControllerIO.armAlignMid) {
+//            subsystem.desiredArmAngle = ArmConstants.armMidAngle
+//            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
+//            subsystem.desiredTilt = false
+//        }
+//
+//        if (ControllerIO.armAlignFloor) {
+//            subsystem.desiredArmAngle = ArmConstants.armFloorAngle
+//            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
+//            subsystem.desiredTilt = false
+//        }
 
         subsystem.run()
     }

@@ -31,9 +31,9 @@ object MiscCalculations {
     } else 0.0
 
     /**
-     * A function to get the current time in milliseconds
+     * A function to get the current time in seconds
      *
-     * @return The current time in milliseconds
+     * @return The current time in seconds
      */
     fun getCurrentTime(): Double = WPIUtilJNI.now() * 1.0e-6
 

@@ -18,11 +18,11 @@ JoyIO {
     //    val fastThrottle
     //        get() = leftJoy.getRawButtonPressed(4)
 
-    val moveYThrottle 
+    val moveYThrottle
         get() =
-                if (DriverPreferences.hosas) {
-                    MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
-                } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
+            if (DriverPreferences.hosas) {
+                MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
+            } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
 
     val gyroReset
         get() = rightJoy.getRawButtonPressed(2)
@@ -35,9 +35,9 @@ JoyIO {
 
     val moveTwist
         get() =
-                if (DriverPreferences.hosas) {
-                    MiscCalculations.calculateDeadzone(leftJoy.x, .08)
-                } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
+            if (DriverPreferences.hosas) {
+                MiscCalculations.calculateDeadzone(leftJoy.x, .08)
+            } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
 
     val resetFieldLimelight
         get() = leftJoy.getRawButtonPressed(1)
@@ -51,13 +51,14 @@ JoyIO {
             return rightJoy.pov
         }
 
-    private var killCommandLast = false
+    //    private var killCommandLast = false
     val killCommand: Boolean
         get() {
             val current = leftJoy.getRawButton(2)
-            val toggled = current && !killCommandLast
-            killCommandLast = current
-            return toggled
+            return current
+//            val toggled = current && !killCommandLast
+//            killCommandLast = current
+//            return toggled
         }
 
     private var limelightAngleLockLast = false

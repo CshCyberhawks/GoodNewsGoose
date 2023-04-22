@@ -43,6 +43,7 @@ import frc.robot.commands.auto.DumbAutoBalance
 import frc.robot.constants.MotorConstants
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
+import frc.robot.util.ControllerIO
 import java.util.*
 
 /**
@@ -194,7 +195,7 @@ class Robot : TimedRobot() {
 
     private val autoPathManager = AutoPathManager(auto, gyro)
 
-    private val armSystem = ArmSystem()
+    private var armSystem = ArmSystem()
     private val clawSystem = ClawSystem()
 
     var autoCommand: CommandBase? = null
@@ -254,9 +255,9 @@ class Robot : TimedRobot() {
 //            return
 //        }
 
-//        if (!DriverStation.isTeleopEnabled()) {
-//            return
-//        }
+        if (!DriverStation.isTeleopEnabled()) {
+            return
+        }
 
         if (!odometryResetLLShuffle.getBoolean(true)) {
             return
@@ -385,13 +386,16 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
 //        armSystem.initialize()
 //        armSystem.autoMode = true
-        //        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
+        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
         autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
-        autoCommand?.schedule()
+//        autoCommand?.schedule()
 
 //        autoCommand = PlaceAndBalanceMid(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
-//        autoCommand?.schedule()
+
+
+//        autoCommand = PlaceAndBalanceMid(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
+        autoCommand?.schedule()
         //         autoPathManager.paths["ComplexPath"]!!.schedule()
 
         limelightRight.setLED(LedMode.ForceOn)
@@ -399,7 +403,9 @@ class Robot : TimedRobot() {
     }
 
     /** This function is called periodically during autonomous. */
-    override fun autonomousPeriodic() {}
+    override fun autonomousPeriodic() {
+        clawSystem.run()
+    }
 
     /** This function is called once when teleop is enabled. */
     override fun teleopInit() {
@@ -410,7 +416,6 @@ class Robot : TimedRobot() {
         // this line or comment it out.
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
         // cancelling it
-        armSystem.autoMode = false
         autonomousCommand?.cancel()
 
         gyro.setYawOffset()
@@ -429,6 +434,7 @@ class Robot : TimedRobot() {
 
         //        swerveDriveTrain.drive(Vector2(IO.moveX, IO.moveY), IO.moveTwist)
         //        SmartDashboard.putNumber("Arm Angle", armSystem.getArmAngle())
+
     }
 
     /** This function is called once when test mode is enabled. */
@@ -459,11 +465,11 @@ class Robot : TimedRobot() {
         //         backRight.getRawEncoder()
         //     )
 
-//        SmartDashboard.putNumber("Arm Pivot Encoder Raw", armSystem.rawArmEncoder)
-//        SmartDashboard.putNumber("Arm Pivot Encoder", armSystem.armAngleDegrees)
-//        SmartDashboard.putBoolean("Arm Extended Switch", armSystem.extensionOutBeamBreak.get())
-//        SmartDashboard.putBoolean("Arm Mid Switch", armSystem.extensionMidBeamBreak.get())
-//        SmartDashboard.putBoolean("Arm Retracted Switch", armSystem.extensionInBeamBreak.get())
+        SmartDashboard.putNumber("Arm Pivot Encoder Raw", armSystem.rawArmEncoder)
+        SmartDashboard.putNumber("Arm Pivot Encoder", armSystem.armAngleDegrees)
+        SmartDashboard.putBoolean("Arm Extended Switch", armSystem.extensionOutBeamBreak.get())
+        SmartDashboard.putBoolean("Arm Mid Switch", armSystem.extensionMidBeamBreak.get())
+        SmartDashboard.putBoolean("Arm Retracted Switch", armSystem.extensionInBeamBreak.get())
 //        SmartDashboard.putBoolean("Claw Break Beam", clawSystem.intakeBeamBreak.get())
         val encoderValues = arrayOf(backLeft.getRawEncoder(), frontLeft.getRawEncoder(),
                 frontRight.getRawEncoder(), backRight.getRawEncoder())
@@ -472,6 +478,7 @@ class Robot : TimedRobot() {
 
         SmartDashboard.putNumber("gyro roll", gyro.getRoll())
         SmartDashboard.putNumber("gyro pitch", gyro.getPitch())
+
 
     }
 }

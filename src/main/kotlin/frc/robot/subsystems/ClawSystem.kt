@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.DigitalInput
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.constants.MotorConstants
 
@@ -20,6 +21,8 @@ class ClawSystem : SubsystemBase() {
     val intakeBeamBreak = DigitalInput(MotorConstants.intakeBeamBreak)
 
     private var breakTime = -1.0
+
+//    private var wheelSpeedShuffle = Shuffleboard.getTab("Driver").add("Wheel Speed", -.9).entry
 
     var clawState = ClawState.Idle
     fun run() {
@@ -40,8 +43,8 @@ class ClawSystem : SubsystemBase() {
         SmartDashboard.putBoolean("Claw Break", intakeBeamBreak.get())
 
         clawMotor.set(when (clawState) {
-            ClawState.Intaking -> 0.8
-            ClawState.Spitting -> -0.5
+            ClawState.Intaking -> 1.0
+            ClawState.Spitting -> -0.6
             ClawState.Idle -> 0.05
         })
 

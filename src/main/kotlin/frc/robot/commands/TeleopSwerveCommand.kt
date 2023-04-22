@@ -43,7 +43,7 @@ class TeleopSwerveCommand(
 
     private var presetPositions: Array<FieldPosition>
 
-    private val yForAutoThing = 1.93
+    private val yForAutoThing = 1.98
 
     init {
         addRequirements(swerveDriveTrain)
@@ -86,8 +86,8 @@ class TeleopSwerveCommand(
     }
 
     private fun setCurrentCommand(command1: CommandBase, command2: CommandBase) {
-        this.currentCommand = command1
-        this.currentCommand?.andThen(command2)?.schedule()
+        this.currentCommand = command1.andThen(command2)
+        this.currentCommand?.schedule()
     }
 
     fun recheckDS() {
@@ -134,7 +134,10 @@ class TeleopSwerveCommand(
         pipShuffle.setInteger(desiredPipe.toLong())
         currentLimelightShuffle.setString(currentLimelight.name)
 
+        SmartDashboard.putBoolean("kill cmd", JoyIO.killCommand)
+
         if (JoyIO.killCommand) {
+            println("killed")
             currentCommand?.cancel()
             currentCommand = null
             swerveAuto.kill()
@@ -276,16 +279,19 @@ class TeleopSwerveCommand(
 
         // SmartDashboard.putNumber("preset pos", JoyIO.presetPos.toDouble())
         if (JoyIO.presetPos != -1) {
+
             setCurrentCommand(
-                    GoToPosition(
-                            swerveAuto,
-                            FieldPosition(
-                                    swerveAuto.swo.fieldPosition.x,
-                                    swerveAuto.swo.fieldPosition.y,
-                                    180.0
-                            )
-                    ),
-                    GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
+//                    GoToPosition(
+//                            swerveAuto,
+//                            FieldPosition(
+//                                    swerveAuto.swo.fieldPosition.x,
+//                                    swerveAuto.swo.fieldPosition.y,
+//                                    180.0
+//                            )
+//                    ),
+//                    GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
+                    GoToPosition(swerveAuto, FieldPosition(presetPositions[JoyIO.presetPos].x, presetPositions[JoyIO.presetPos].y, gyro.getYaw()))
+
             )
             return
         }

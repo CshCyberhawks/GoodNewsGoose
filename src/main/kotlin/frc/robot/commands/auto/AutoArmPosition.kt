@@ -24,19 +24,18 @@ class AutoArmPosition(private val armSystem: ArmSystem, private val clawSystem: 
         armSystem.desiredArmAngle = armAngle
         armSystem.desiredExtensionPosition = extensionPosition
         armSystem.desiredTilt = tilt
-        armSystem.hitSetpoint = false
         clawSystem.clawState = clawState
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
         armSystem.run()
-        clawSystem.run()
     }
 
     // Called once the command ends or is interrupted.
     override fun end(interrupted: Boolean) {
         armSystem.kill()
+        clawSystem.clawState = ClawState.Idle
     }
 
     // Returns true when the command should end.
