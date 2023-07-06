@@ -16,11 +16,20 @@ class DumbAutoBalance(val gyro: GenericGyro, val driveTrain: SwerveDriveTrain) :
         setPos()
     }
 
+    private var levelStart = 0.0
+    private var isTiming = false
+
     fun setPos() {
         val pitchRoll: Vector2 = gyro.mergePitchRoll()
-        val negPitchRoll: Vector2 = Vector2.fromPolar(Polar(-Polar.fromVector2(pitchRoll).theta, Polar.fromVector2(pitchRoll).r / 40))
+        var negPitchRoll: Vector2 = Vector2()
+        if (Polar.fromVector2(gyro.mergePitchRoll()).r >= 9.0) {
+            negPitchRoll = Vector2.fromPolar(Polar(-Polar.fromVector2(pitchRoll).theta, .09))
+        }
+
         val position: Vector2 = negPitchRoll
         driveTrain.drive(position, 0.0)
+//        driveTrain.drive(Vector2(0.0, 0.0), 0.0)
+
         SmartDashboard.putNumber("AutoBalance Position X", position.x)
         SmartDashboard.putNumber("AutoBalance Position Y", position.y)
         SmartDashboard.putNumber("Pitch", gyro.getRoll())
@@ -29,13 +38,30 @@ class DumbAutoBalance(val gyro: GenericGyro, val driveTrain: SwerveDriveTrain) :
 
     override fun execute() {
         setPos()
+        SmartDashboard.putNumber("rollPitchMag", Polar.fromVector2(gyro.mergePitchRoll()).r)
     }
 
     override fun end(interrupted: Boolean) {
+//        driveTrain.drive(Vector2(), .1)
+        driveTrain.kill()
     }
 
     override fun isFinished(): Boolean {
-        SmartDashboard.putNumber("rollPitchMag", Polar.fromVector2(gyro.mergePitchRoll()).r)
-        return Polar.fromVector2(gyro.mergePitchRoll()).r < 6.0
+
+        if (Polar.fromVector2(gyro.mergePitchRoll()).r < 9.0 && !isTiming) {
+            levelStart = MiscCalculations.getCurrentTime()
+            isTiming = true
+        }
+
+        if (isTiming && Polar.fromVector2(gyro.mergePitchRoll()).r >= 9.0) {
+            isTiming = false
+        }
+
+//        SmartDashboard.putNumber("rollPitchMag", Polar.fromVector2(gyro.mergePitchRoll()).r)
+        SmartDashboard.putNumber("timer: ", MiscCalculations.getCurrentTime() - levelStart)
+        if (isTiming && MiscCalculations.getCurrentTime() - levelStart >= 150.0) {
+            return false
+        }
+        return false
     }
 }

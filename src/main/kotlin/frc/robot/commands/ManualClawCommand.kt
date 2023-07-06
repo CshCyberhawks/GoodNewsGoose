@@ -1,5 +1,6 @@
 package frc.robot.commands
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
@@ -13,8 +14,8 @@ class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
      * Creates a new ExampleCommand.
      */
     init {
-        // Use addRequirements() here to declare subsystem dependencies.
-        // addRequirements(subsystem)
+    // Use addRequirements() here to declare subsystem dependencies.
+    // addRequirements(subsystem)
     }
 
     // Called when the command is initially scheduled.
@@ -22,12 +23,12 @@ class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
-        subsystem.clawState = if (ControllerIO.clawSpit) {
-            ClawState.Spitting
+        if (ControllerIO.clawSpit) {
+            subsystem.clawState = ClawState.Spitting
         } else if (ControllerIO.spinClaw) {
-            ClawState.Intaking
-        } else {
-            ClawState.Idle
+            subsystem.clawState = ClawState.Intaking
+        } else if (ControllerIO.unspinClaw) {
+            subsystem.clawState = ClawState.Idle
         }
 
         subsystem.run()

@@ -43,18 +43,18 @@ class TeleopSwerveCommand(
 
     private var presetPositions: Array<FieldPosition>
 
-    private val yForAutoThing = 1.93
+    private val yForAutoThing = 1.98
 
     init {
         addRequirements(swerveDriveTrain)
-//1 was originally 3.83 +.24
+        // 1 was originally 3.83 +.24
         if (DriverStation.getAlliance() == DriverStation.Alliance.Blue) {
             SmartDashboard.putString("ds alliance", "blue")
 
             this.presetPositions =
                     arrayOf(
                             FieldPosition(-4.82, yForAutoThing, 180.0),
-                            FieldPosition(-4.07, yForAutoThing, 180.0),
+                            FieldPosition(-3.83, yForAutoThing, 180.0),
                             FieldPosition(-3.28, yForAutoThing, 180.0),
                             FieldPosition(-2.20, yForAutoThing, 180.0),
                             FieldPosition(-1.62, yForAutoThing, 180.0),
@@ -86,8 +86,8 @@ class TeleopSwerveCommand(
     }
 
     private fun setCurrentCommand(command1: CommandBase, command2: CommandBase) {
-        this.currentCommand = command1
-        this.currentCommand?.andThen(command2)?.schedule()
+        this.currentCommand = command1.andThen(command2)
+        this.currentCommand?.schedule()
     }
 
     fun recheckDS() {
@@ -97,7 +97,7 @@ class TeleopSwerveCommand(
             this.presetPositions =
                     arrayOf(
                             FieldPosition(-4.82, yForAutoThing, 180.0),
-                            FieldPosition(-4.07, yForAutoThing, 180.0),
+                            FieldPosition(-3.83, yForAutoThing, 180.0),
                             FieldPosition(-3.28, yForAutoThing, 180.0),
                             FieldPosition(-2.20, yForAutoThing, 180.0),
                             FieldPosition(-1.62, yForAutoThing, 180.0),
@@ -118,6 +118,12 @@ class TeleopSwerveCommand(
         }
     }
 
+    private fun closestPresetPos(): Vector2 {
+        return MiscCalculations.closestPoint(
+                Vector2(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y),
+                presetPositions.map { Vector2(it.x, it.y) }.toTypedArray()
+        )
+    }
 
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
@@ -128,9 +134,13 @@ class TeleopSwerveCommand(
         pipShuffle.setInteger(desiredPipe.toLong())
         currentLimelightShuffle.setString(currentLimelight.name)
 
+        SmartDashboard.putBoolean("kill cmd", JoyIO.killCommand)
+
         if (JoyIO.killCommand) {
+            println("killed")
             currentCommand?.cancel()
             currentCommand = null
+            swerveAuto.kill()
         }
 
         if (currentCommand != null && currentCommand?.isFinished() == false) {
@@ -174,10 +184,10 @@ class TeleopSwerveCommand(
             gyro.setYawOffset()
         }
 
-        if (JoyIO.togglePipe) {
-            desiredPipe = if (desiredPipe == 0) 1 else 0
-            currentLimelight.pipeline = desiredPipe
-        }
+        // if (JoyIO.togglePipe) {
+        //     desiredPipe = if (desiredPipe == 0) 1 else 0
+        //     currentLimelight.pipeline = desiredPipe
+        // }
 
         val quickThrottle = JoyIO.quickThrottle
         if (quickThrottle in 135..225) {
@@ -197,12 +207,12 @@ class TeleopSwerveCommand(
         val driveVec = Vector2(JoyIO.moveX * throttle, -JoyIO.moveY * throttle)
         var driveTwist = JoyIO.moveTwist * throttle
 
-        if (JoyIO.toggleLimelight) {
-            currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
-            currentLimelight = limelightArray[currentLimelightIndex]
-            //            currentLimelight.pipeline = desiredPipe
-            desiredPipe = currentLimelight.pipeline
-        }
+        // if (JoyIO.toggleLimelight) {
+        //     currentLimelightIndex = (currentLimelightIndex + 1) % limelightArray.size
+        //     currentLimelight = limelightArray[currentLimelightIndex]
+        //     //            currentLimelight.pipeline = desiredPipe
+        //     desiredPipe = currentLimelight.pipeline
+        // }
 
         if (JoyIO.limelightAngleLock) {
             driveTwist =
@@ -224,39 +234,64 @@ class TeleopSwerveCommand(
             setCurrentCommand(TeleopLimelight(currentLimelight, swerveDriveTrain, desiredPipe))
             return
         }
-//        if (JoyIO.limelightTranslateSingleAxisX) {
-//            SmartDashboard.putBoolean("single axis x set", true)
+        //        if (JoyIO.limelightTranslateSingleAxisX) {
+        //            SmartDashboard.putBoolean("single axis x set", true)
+        //            setCurrentCommand(
+        //                    AutoLimelightSingleAxis(
+        //                            swerveAuto,
+        //                            currentLimelight,
+        //                            0.61,
+        //                            AutoLimelightSingleAxis.Axis.X,
+        //                            desiredPipe
+        //                    )
+        //            )
+        //            return
+        //        } else {
+        //            SmartDashboard.putBoolean("single axis x set", false)
+        //        }
+        //        if (JoyIO.limelightTranslateSingleAxisY) {
+        //            setCurrentCommand(
+        //                    AutoLimelightSingleAxis(
+        //                            swerveAuto,
+        //                            currentLimelight,
+        //                            0.61,
+        //                            AutoLimelightSingleAxis.Axis.Y,
+        //                            desiredPipe
+        //                    )
+        //            )
+        //            return
+        //        }
+
+//        if (JoyIO.nearestConePos) {
 //            setCurrentCommand(
-//                    AutoLimelightSingleAxis(
+//                    GoToPosition(
 //                            swerveAuto,
-//                            currentLimelight,
-//                            0.61,
-//                            AutoLimelightSingleAxis.Axis.X,
-//                            desiredPipe
-//                    )
-//            )
-//            return
-//        } else {
-//            SmartDashboard.putBoolean("single axis x set", false)
-//        }
-//        if (JoyIO.limelightTranslateSingleAxisY) {
-//            setCurrentCommand(
-//                    AutoLimelightSingleAxis(
-//                            swerveAuto,
-//                            currentLimelight,
-//                            0.61,
-//                            AutoLimelightSingleAxis.Axis.Y,
-//                            desiredPipe
-//                    )
+//                            FieldPosition(
+//                                    swerveAuto.swo.fieldPosition.x,
+//                                    swerveAuto.swo.fieldPosition.y,
+//                                    180.0
+//                            )
+//                    ),
+//                    GoToPosition(swerveAuto, closestPresetPos())
 //            )
 //            return
 //        }
 
-        SmartDashboard.putNumber("preset pos", JoyIO.presetPos.toDouble())
+        // SmartDashboard.putNumber("preset pos", JoyIO.presetPos.toDouble())
         if (JoyIO.presetPos != -1) {
+
             setCurrentCommand(
-                    GoToPosition(swerveAuto, FieldPosition(swerveAuto.swo.fieldPosition.x, swerveAuto.swo.fieldPosition.y, 180.0)),
-                    GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
+//                    GoToPosition(
+//                            swerveAuto,
+//                            FieldPosition(
+//                                    swerveAuto.swo.fieldPosition.x,
+//                                    swerveAuto.swo.fieldPosition.y,
+//                                    180.0
+//                            )
+//                    ),
+//                    GoToPosition(swerveAuto, presetPositions[JoyIO.presetPos])
+                    GoToPosition(swerveAuto, FieldPosition(presetPositions[JoyIO.presetPos].x, presetPositions[JoyIO.presetPos].y, gyro.getYaw()))
+
             )
             return
         }

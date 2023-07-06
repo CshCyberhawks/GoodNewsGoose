@@ -9,13 +9,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import kotlin.math.abs
 
 class SwerveDriveTrain(
-    val swerveConfiguration: FourWheelSwerveConfiguration,
-    private val gyro: GenericGyro
+        val swerveConfiguration: FourWheelSwerveConfiguration,
+        private val gyro: GenericGyro
 ) : SubsystemBase() {
     companion object {
         fun normalizeWheelSpeeds(
-            wheelVectors: Array<Double>,
-            distanceFromZero: Double
+                wheelVectors: Array<Double>,
+                distanceFromZero: Double
         ): Array<Double> {
             var max = abs(wheelVectors[0])
 
@@ -46,9 +46,9 @@ class SwerveDriveTrain(
     }
 
     private fun calculateDrive(
-        driveCord: Vector2,
-        twistCord: Vector2,
-        disableFieldOrientation: Boolean = false
+            driveCord: Vector2,
+            twistCord: Vector2,
+            disableFieldOrientation: Boolean = false
     ): Polar {
         var driveCoordinate = driveCord
         if (!disableFieldOrientation) {
@@ -56,7 +56,7 @@ class SwerveDriveTrain(
         }
 
         return Polar.fromVector2(
-            Vector2(driveCoordinate.x + twistCord.x, driveCoordinate.y + twistCord.y)
+                Vector2(driveCoordinate.x + twistCord.x, driveCoordinate.y + twistCord.y)
         )
     }
 
@@ -67,55 +67,55 @@ class SwerveDriveTrain(
         }
 
         val frontRightVector =
-            calculateDrive(
-                input,
-                Vector2.fromPolar(
-                    Polar(
-                        swerveConfiguration.angleConfiguration.frontRight,
-                        inputTwist *
-                            swerveConfiguration.speedConfiguration.frontRight
-                    )
-                ),
-                disableFieldOrientation
+                calculateDrive(
+                        input,
+                        Vector2.fromPolar(
+                                Polar(
+                                        swerveConfiguration.angleConfiguration.frontRight,
+                                        inputTwist *
+                                                swerveConfiguration.speedConfiguration.frontRight
+                                )
+                        ),
+                        disableFieldOrientation
 
-            )
+                )
         val frontLeftVector =
-            calculateDrive(
-                input,
-                Vector2.fromPolar(
-                    Polar(
-                        swerveConfiguration.angleConfiguration.frontLeft,
-                        inputTwist *
-                            swerveConfiguration.speedConfiguration.frontLeft
-                    )
-                ),
-                disableFieldOrientation
+                calculateDrive(
+                        input,
+                        Vector2.fromPolar(
+                                Polar(
+                                        swerveConfiguration.angleConfiguration.frontLeft,
+                                        inputTwist *
+                                                swerveConfiguration.speedConfiguration.frontLeft
+                                )
+                        ),
+                        disableFieldOrientation
 
-            )
+                )
         val backRightVector =
-            calculateDrive(
-                input,
-                Vector2.fromPolar(
-                    Polar(
-                        swerveConfiguration.angleConfiguration.backRight,
-                        inputTwist *
-                            swerveConfiguration.speedConfiguration.backRight
-                    )
-                ),
-                disableFieldOrientation
+                calculateDrive(
+                        input,
+                        Vector2.fromPolar(
+                                Polar(
+                                        swerveConfiguration.angleConfiguration.backRight,
+                                        inputTwist *
+                                                swerveConfiguration.speedConfiguration.backRight
+                                )
+                        ),
+                        disableFieldOrientation
 
-            )
+                )
         val backLeftVector =
-            calculateDrive(
-                input,
-                Vector2.fromPolar(
-                    Polar(
-                        swerveConfiguration.angleConfiguration.backLeft,
-                        inputTwist * swerveConfiguration.speedConfiguration.backLeft
-                    )
-                ),
-                disableFieldOrientation
-            )
+                calculateDrive(
+                        input,
+                        Vector2.fromPolar(
+                                Polar(
+                                        swerveConfiguration.angleConfiguration.backLeft,
+                                        inputTwist * swerveConfiguration.speedConfiguration.backLeft
+                                )
+                        ),
+                        disableFieldOrientation
+                )
         val frontRightSpeed = frontRightVector.r
         val frontLeftSpeed = frontLeftVector.r
         val backRightSpeed = backRightVector.r
@@ -143,7 +143,7 @@ class SwerveDriveTrain(
 
     fun lockWheels() {
         swerveConfiguration.backRight.drive(
-            0.0, swerveConfiguration.angleConfiguration.backRight)
+                0.0, swerveConfiguration.angleConfiguration.backRight)
         swerveConfiguration.backLeft.drive(0.0, swerveConfiguration.angleConfiguration.backLeft)
         swerveConfiguration.frontRight.drive(0.0, swerveConfiguration.angleConfiguration.frontRight)
         swerveConfiguration.frontLeft.drive(0.0, swerveConfiguration.angleConfiguration.frontLeft)
@@ -151,17 +151,17 @@ class SwerveDriveTrain(
     }
 
     fun kill() {
-        swerveConfiguration.preserveWheelAngles()
+        swerveConfiguration.kill()
     }
 
     private fun logEncoderValues() {
         val vals =
-            arrayOf(
-                swerveConfiguration.frontRight.getRawEncoder(),
-                swerveConfiguration.frontLeft.getRawEncoder(),
-                swerveConfiguration.backLeft.getRawEncoder(),
-                swerveConfiguration.backRight.getRawEncoder()
-            )
+                arrayOf(
+                        swerveConfiguration.frontRight.getRawEncoder(),
+                        swerveConfiguration.frontLeft.getRawEncoder(),
+                        swerveConfiguration.backLeft.getRawEncoder(),
+                        swerveConfiguration.backRight.getRawEncoder()
+                )
 //        SmartDashboard.putString("Encoder values", vals.joinToString(", "))
     }
 }

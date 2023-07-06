@@ -4,7 +4,8 @@ import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.Joystick
 import frc.robot.constants.DriverPreferences
 
-object JoyIO {
+object
+JoyIO {
     private val rightJoy = Joystick(0)
     private val leftJoy = Joystick(1)
 
@@ -19,9 +20,9 @@ object JoyIO {
 
     val moveYThrottle
         get() =
-                if (DriverPreferences.hosas) {
-                    MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
-                } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
+            if (DriverPreferences.hosas) {
+                MiscCalculations.calculateDeadzone((-leftJoy.throttle + 1) / 2, .05)
+            } else MiscCalculations.calculateDeadzone((-rightJoy.throttle + 1) / 2, .05)
 
     val gyroReset
         get() = rightJoy.getRawButtonPressed(2)
@@ -34,9 +35,9 @@ object JoyIO {
 
     val moveTwist
         get() =
-                if (DriverPreferences.hosas) {
-                    MiscCalculations.calculateDeadzone(leftJoy.x, .08)
-                } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
+            if (DriverPreferences.hosas) {
+                MiscCalculations.calculateDeadzone(leftJoy.x, .08)
+            } else MiscCalculations.calculateDeadzone(rightJoy.twist, .08)
 
     val resetFieldLimelight
         get() = leftJoy.getRawButtonPressed(1)
@@ -50,13 +51,14 @@ object JoyIO {
             return rightJoy.pov
         }
 
-    private var killCommandLast = false
+    //    private var killCommandLast = false
     val killCommand: Boolean
         get() {
             val current = leftJoy.getRawButton(2)
-            val toggled = current && !killCommandLast
-            killCommandLast = current
-            return toggled
+            return current
+//            val toggled = current && !killCommandLast
+//            killCommandLast = current
+//            return toggled
         }
 
     private var limelightAngleLockLast = false
@@ -97,14 +99,14 @@ object JoyIO {
             return toggled
         }
 
-    private var toggleLimelightLast = false
-    val toggleLimelight: Boolean
-        get() {
-            val current = leftJoy.getRawButton(3)
-            val toggled = current && !toggleLimelightLast
-            toggleLimelightLast = current
-            return toggled
-        }
+    // private var toggleLimelightLast = false
+    // val toggleLimelight: Boolean
+    //     get() {
+    //         val current = leftJoy.getRawButton(3)
+    //         val toggled = current && !toggleLimelightLast
+    //         toggleLimelightLast = current
+    //         return toggled
+    //     }
 
     val resetSwo
         get() = rightJoy.getRawButton(11)
@@ -112,13 +114,18 @@ object JoyIO {
     val disableFieldOrientation
         get() = rightJoy.getRawButton(1)
 
-    private var togglePipeLast = false
-    val togglePipe: Boolean
+    // private var togglePipeLast = false
+    // val togglePipe: Boolean
+    //     get() {
+    //         val current = leftJoy.getRawButton(4)
+    //         val toggled = current && !togglePipeLast
+    //         togglePipeLast = current
+    //         return toggled
+    //     }
+
+    val nearestConePos: Boolean
         get() {
-            val current = leftJoy.getRawButton(4)
-            val toggled = current && !togglePipeLast
-            togglePipeLast = current
-            return toggled
+            return leftJoy.getRawButton(4)
         }
 
     val presetPos: Int

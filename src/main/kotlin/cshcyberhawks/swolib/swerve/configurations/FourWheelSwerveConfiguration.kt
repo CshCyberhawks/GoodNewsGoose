@@ -4,27 +4,34 @@ import cshcyberhawks.swolib.math.Polar
 import cshcyberhawks.swolib.swerve.SwerveWheel
 
 data class FourWheelAngleConfiguration(
-    val frontRight: Double = 45.0,
-    val frontLeft: Double = 135.0,
-    val backRight: Double = -45.0,
-    val backLeft: Double = -135.0
+        val frontRight: Double = 45.0,
+        val frontLeft: Double = 135.0,
+        val backRight: Double = -45.0,
+        val backLeft: Double = -135.0
 )
 
 data class FourWheelSpeedConfiguration(
-    val frontRight: Double = 0.5,
-    val frontLeft: Double = 0.5,
-    val backRight: Double = 0.5,
-    val backLeft: Double = 0.5
+        val frontRight: Double = 0.5,
+        val frontLeft: Double = 0.5,
+        val backRight: Double = 0.5,
+        val backLeft: Double = 0.5
 )
 
 class FourWheelSwerveConfiguration(
-    val frontRight: SwerveWheel,
-    val frontLeft: SwerveWheel,
-    val backRight: SwerveWheel,
-    val backLeft: SwerveWheel,
-    val angleConfiguration: FourWheelAngleConfiguration = FourWheelAngleConfiguration(),
-    val speedConfiguration: FourWheelSpeedConfiguration = FourWheelSpeedConfiguration()
+        val frontRight: SwerveWheel,
+        val frontLeft: SwerveWheel,
+        val backRight: SwerveWheel,
+        val backLeft: SwerveWheel,
+        val angleConfiguration: FourWheelAngleConfiguration = FourWheelAngleConfiguration(),
+        val speedConfiguration: FourWheelSpeedConfiguration = FourWheelSpeedConfiguration()
 ) {
+    fun kill() {
+        frontRight.kill()
+        frontLeft.kill()
+        backRight.kill()
+        backLeft.kill()
+    }
+
     fun preserveWheelAngles() {
         frontRight.preserveAngle()
         frontLeft.preserveAngle()
@@ -33,9 +40,9 @@ class FourWheelSwerveConfiguration(
     }
 
     fun getWheelVectors(): Array<Polar> = arrayOf(
-        frontRight.getWheelVector(),
-        frontLeft.getWheelVector(),
-        backRight.getWheelVector(),
-        backLeft.getWheelVector()
+            frontRight.getWheelVector(),
+            frontLeft.getWheelVector(),
+            backRight.getWheelVector(),
+            backLeft.getWheelVector()
     )
 }

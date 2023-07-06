@@ -21,7 +21,7 @@ class Pigeon2Gyro(port: Int) : GenericGyro {
     override fun getRoll(): Double = gyro.roll
 
     override fun mergePitchRoll(): Vector2 {
-        return Vector2.fromPolar(Polar(90.0, getPitch())) + Vector2.fromPolar(Polar(0.0, getRoll()))
+        return Vector2.fromPolar(Polar(-90.0, getPitch())) + Vector2.fromPolar(Polar(0.0, getRoll()))
     }
 
     /**
