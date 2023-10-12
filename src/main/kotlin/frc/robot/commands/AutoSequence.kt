@@ -29,6 +29,6 @@ class AutoSequence(private val swerveAuto: SwerveAuto, private val gyro: Generic
     }
 
     fun testFunction() {
-
+        println("Asdfasdfasf")
     }
 }
