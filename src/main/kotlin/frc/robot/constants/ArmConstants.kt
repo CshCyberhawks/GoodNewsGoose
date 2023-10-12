@@ -1,5 +1,7 @@
 package frc.robot.constants
 
+import frc.robot.commands.auto.GenericArmMovement
+
 object ArmConstants {
     const val armAngleOffset = 219.1339427283486
 
@@ -9,6 +11,6 @@ object ArmConstants {
 
     const val armInAngle = 35.0
     const val armMidAngle = 85.0
-    const val armHighAngle = 127.0
+    const val armHighAngle = 120.0
     const val armFloorAngle = 45.0
 }

@@ -43,7 +43,7 @@ object ControllerIO {
     val clawSpit: Boolean
         get() = abs(xbox.leftTriggerAxis) > 0.1
 
-    val armAlignTop
+    val armAlignHigh
         get() = xbox.yButtonPressed
 
     val armAlignMid

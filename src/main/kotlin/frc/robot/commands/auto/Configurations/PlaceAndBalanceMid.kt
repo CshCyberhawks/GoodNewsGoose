@@ -8,9 +8,6 @@ import cshcyberhawks.swolib.math.FieldPosition
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
-import edu.wpi.first.wpilibj2.command.WaitCommand
-import frc.robot.commands.auto.AutoBalance
-import frc.robot.commands.auto.AutoPlaceHigh
 import frc.robot.commands.auto.DumbAutoBalance
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem

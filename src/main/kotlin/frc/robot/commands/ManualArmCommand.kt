@@ -1,6 +1,10 @@
 package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
+import frc.robot.commands.auto.AngleMovement
+import frc.robot.commands.auto.ExtensionMovement
+import frc.robot.commands.auto.GenericArmMovement
+import frc.robot.commands.auto.TiltMovement
 import frc.robot.constants.ArmConstants
 import frc.robot.subsystems.ArmSystem
 import frc.robot.util.ControllerIO
@@ -8,49 +12,6 @@ import frc.robot.util.ControllerIO
 /**
  * @property subsystem
  */
-
-private interface GenericArmMovement {
-    var isRunning: Boolean
-
-    fun run()
-
-    fun isDone(): Boolean
-}
-
-private class AngleMovement(private val subsystem: ArmSystem, private val angle: Double) : GenericArmMovement {
-    override var isRunning: Boolean = false
-
-    override fun run() {
-        subsystem.desiredArmAngle = angle
-        isRunning = true
-    }
-
-    override fun isDone(): Boolean = subsystem.isFinished()
-}
-
-private class ExtensionMovement(private val subsystem: ArmSystem, private val extensionPosition: Double) : GenericArmMovement {
-    override var isRunning: Boolean = false
-
-    override fun run() {
-        subsystem.desiredExtensionPosition = extensionPosition
-        isRunning = true
-    }
-
-    override fun isDone(): Boolean = subsystem.isFinished()
-}
-
-private class TiltMovement(private val subsystem: ArmSystem, private val tiltPosition: Boolean) : GenericArmMovement {
-    override var isRunning: Boolean = false
-
-    override fun run() {
-        subsystem.desiredTilt = tiltPosition
-        isRunning = true
-    }
-
-    override fun isDone(): Boolean = true
-}
-
-
 class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
     private val armQueue = arrayListOf<GenericArmMovement>()
 
@@ -93,6 +54,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         subsystem.desiredArmAngle += ControllerIO.controlArmAngle * 2
 
         if (ControllerIO.armAlignClosed) {
+            armQueue.clear()
             armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionIn))
             armQueue.add(TiltMovement(subsystem, false))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armInAngle))
@@ -108,7 +70,8 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             subsystem.desiredExtensionPosition = ArmConstants.armExtensionIn
         }
 
-        if (ControllerIO.armAlignTop) {
+        if (ControllerIO.armAlignHigh) {
+            armQueue.clear()
             armQueue.add(AngleMovement(subsystem, ArmConstants.armMidAngle))
             armQueue.add(TiltMovement(subsystem, true))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armHighAngle))
@@ -116,6 +79,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.armAlignMid) {
+            armQueue.clear()
             armQueue.add(AngleMovement(subsystem, ArmConstants.armMidAngle))
             armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionMid))
         }
