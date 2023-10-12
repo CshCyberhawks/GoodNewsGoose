@@ -54,7 +54,7 @@ class ArmSystem : SubsystemBase() {
     var extensionPositionOffset = -1.0
     private val rawExtensionPosition
         get() = extensionEncoder.distance
-    private val extensionPosition
+    val extensionPosition
         get() = rawExtensionPosition - extensionPositionOffset
 
     private val armAnglePID = PIDController(10.0, 0.0, 0.0)

@@ -36,15 +36,19 @@ object ControllerIO {
 
     val armAlignClosed: Boolean
         get() = xbox.xButton
-    val armAlignUp
-        get() = xbox.yButton
 
-    val armAlignDown
-        get() = xbox.bButton
-
-    val armAlignFloor
+    val armAlignFloorCube
         get() = xbox.startButton
 
     val clawSpit: Boolean
         get() = abs(xbox.leftTriggerAxis) > 0.1
+
+    val armAlignTop
+        get() = xbox.yButtonPressed
+
+    val armAlignMid
+        get() = xbox.bButtonPressed
+
+    val armAlignShelf
+        get() = xbox.pov != -1
 }
