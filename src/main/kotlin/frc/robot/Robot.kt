@@ -8,9 +8,9 @@ import cshcyberhawks.swolib.hardware.implementations.SparkMaxTurnMotor
 import cshcyberhawks.swolib.hardware.implementations.TalonFXDriveMotor
 import cshcyberhawks.swolib.limelight.LedMode
 import cshcyberhawks.swolib.limelight.Limelight
+import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector3
-import cshcyberhawks.swolib.math.FieldPosition
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
 import cshcyberhawks.swolib.swerve.SwerveWheel
@@ -23,28 +23,22 @@ import edu.wpi.first.cscore.HttpCamera
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.trajectory.TrapezoidProfile
-import edu.wpi.first.math.filter.MedianFilter
-import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandBase
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import frc.robot.commands.ManualArmCommand
-import frc.robot.commands.ManualClawCommand
-import frc.robot.commands.TeleopSwerveCommand
-import frc.robot.commands.TestingAuto
-import frc.robot.commands.auto.AutoBalance
-import frc.robot.commands.auto.Configurations.PlaceAndBalanceMid
-import frc.robot.commands.auto.DumbAutoBalance
+import frc.robot.commands.*
 import frc.robot.constants.MotorConstants
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
-import frc.robot.util.ControllerIO
 import java.util.*
+import java.util.function.Supplier
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -59,11 +53,12 @@ class Robot : TimedRobot() {
 
     private val driverTab: ShuffleboardTab = Shuffleboard.getTab("Driver")
 
+    private val autoChooser = SendableChooser<AutoSequenceType>()
+
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
     private val swerveConfiguration: SwerveModuleConfiguration =
             SwerveModuleConfiguration(4.0, 0.0505, 7.0)
-
     private val drivePIDBackLeft = PIDController(0.01, 0.0, 0.0)
     private val turnPIDBackLeft = PIDController(.012, 0.0, 0.0002)
 
@@ -236,6 +231,9 @@ class Robot : TimedRobot() {
         limelightRight.setLED(LedMode.ForceOff)
         limelightLeft.setLED(LedMode.ForceOff)
 
+        autoChooser.addOption("None", AutoSequenceType.None)
+        autoChooser.addOption("Test", AutoSequenceType.Test)
+        driverTab.add("Auto Sequence", autoChooser)
         // driverTab.add("LL", limelightBack.feed)
     }
 
@@ -388,7 +386,7 @@ class Robot : TimedRobot() {
 //        armSystem.autoMode = true
         swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
-        autoCommand = TestingAuto(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
+        autoCommand = AutoSequence(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem, autoChooser.selected)
 //        autoCommand?.schedule()
 
 //        autoCommand = PlaceAndBalanceMid(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
