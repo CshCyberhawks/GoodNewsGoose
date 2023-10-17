@@ -405,6 +405,7 @@ class Robot : TimedRobot() {
     /** This function is called periodically during autonomous. */
     override fun autonomousPeriodic() {
         clawSystem.run()
+        armSystem.run()
     }
 
     /** This function is called once when teleop is enabled. */

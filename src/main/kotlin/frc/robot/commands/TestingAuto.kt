@@ -9,6 +9,7 @@ import frc.robot.commands.auto.AutoClaw
 import frc.robot.commands.auto.arm.AutoAlignHigh
 import frc.robot.commands.auto.arm.AutoArmPosition
 import frc.robot.commands.auto.arm.AutoPlaceHigh
+import frc.robot.commands.auto.arm.AutoPlaceMid
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
@@ -22,7 +23,7 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-            AutoPlaceHigh(armSystem, clawSystem)
+            AutoPlaceMid(armSystem, clawSystem)
 //                AutoPlaceHigh(armSystem, clawSystem),
 //                AutoPlaceMid(armSystem, clawSystem),
 //                GoToPosition(swerveAuto, Vector2(0.0, -4.4)),

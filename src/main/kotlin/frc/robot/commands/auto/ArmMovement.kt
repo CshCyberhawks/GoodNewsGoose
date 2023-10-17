@@ -33,15 +33,20 @@ class ExtensionMovement(private val subsystem: ArmSystem, private val extensionP
     override fun isDone(): Boolean = subsystem.isFinished()
 }
 
-class TiltMovement(private val subsystem: ArmSystem, private val tiltPosition: Boolean, private val timer: Boolean = false) : GenericArmMovement {
+class TiltMovement(private val subsystem: ArmSystem, private val tiltPosition: Boolean) : GenericArmMovement {
     override var isRunning: Boolean = false
-    var startTime = 0.0
+    private var startTime = 0.0
+    private var timer = false
 
     override fun run() {
+        if (subsystem.desiredTilt != tiltPosition && !tiltPosition) {
+            timer = true
+        }
+
         subsystem.desiredTilt = tiltPosition
         startTime = MiscCalculations.getCurrentTime()
         isRunning = true
     }
 
-    override fun isDone(): Boolean = !timer || startTime + 5.0 < MiscCalculations.getCurrentTime()
+    override fun isDone(): Boolean = !timer || startTime + 0.5 < MiscCalculations.getCurrentTime()
 }

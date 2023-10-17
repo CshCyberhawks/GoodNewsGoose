@@ -14,7 +14,7 @@ public class AutoAlignHigh(armSystem: ArmSystem) : SequentialCommandGroup() {
                 AngleMovement(armSystem, ArmConstants.armMidAngle),
                 TiltMovement(armSystem, true),
                 AngleMovement(armSystem, ArmConstants.armHighAngle),
-                ExtensionMovement(armSystem, ArmConstants.armExtensionMid)
+                ExtensionMovement(armSystem, ArmConstants.armExtensionOut)
             ))
         )
     }

@@ -12,7 +12,7 @@ public class AutoAlignClosed(armSystem: ArmSystem) : SequentialCommandGroup() {
         addCommands(
             AutoArmPosition(armSystem, listOf(
                 ExtensionMovement(armSystem, ArmConstants.armExtensionIn),
-                TiltMovement(armSystem, false, true),
+                TiltMovement(armSystem, false),
                 AngleMovement(armSystem, ArmConstants.armInAngle)
             ))
         )

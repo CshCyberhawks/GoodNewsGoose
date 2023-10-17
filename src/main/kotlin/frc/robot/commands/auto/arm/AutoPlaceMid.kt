@@ -11,10 +11,10 @@ import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
-class AutoPlaceHigh(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
+class AutoPlaceMid(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
     init {
         addCommands(
-            AutoAlignHigh(armSystem),
+            AutoAlignMid(armSystem),
             AutoClaw(clawSystem, ClawState.Spitting),
             Wait(0.5),
             AutoClaw(clawSystem, ClawState.Idle),

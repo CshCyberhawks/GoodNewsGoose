@@ -40,7 +40,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.extensionExtended) {
-            subsystem.desiredExtensionPosition = ArmConstants.armExtensionMid
+            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
 //            subsystem.desiredExtensionPosition = ExtensionPosition.EXTENDED
 
         }
@@ -61,13 +61,19 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.armAlignShelf) {
-            subsystem.desiredArmAngle = ArmConstants.armMidAngle
+            subsystem.desiredArmAngle = ArmConstants.armShelfAngle
         }
 
         if (ControllerIO.armAlignFloorCube) {
-            subsystem.desiredArmAngle = 45.0
+            subsystem.desiredArmAngle = ArmConstants.armFloorCubeAngle
             subsystem.desiredTilt = true
             subsystem.desiredExtensionPosition = ArmConstants.armExtensionIn
+        }
+
+        if (ControllerIO.armAlignFloorCone) {
+            subsystem.desiredArmAngle = ArmConstants.armFloorConeAngle
+            subsystem.desiredTilt = true
+            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
         }
 
         if (ControllerIO.armAlignHigh) {
@@ -75,7 +81,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             armQueue.add(AngleMovement(subsystem, ArmConstants.armMidAngle))
             armQueue.add(TiltMovement(subsystem, true))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armHighAngle))
-            armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionMid))
+            armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionOut))
         }
 
         if (ControllerIO.armAlignMid) {

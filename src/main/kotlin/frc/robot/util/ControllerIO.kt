@@ -10,9 +10,6 @@ object ControllerIO {
     val spinClaw: Boolean
         get() = abs(xbox.rightTriggerAxis) > 0.1
 
-    val unspinClaw: Boolean
-        get() = xbox.backButton
-
     private var toggleTiltLast = false
     val toggleTilt: Boolean
         get() {
@@ -39,6 +36,9 @@ object ControllerIO {
 
     val armAlignFloorCube
         get() = xbox.startButton
+
+    val armAlignFloorCone
+        get() = xbox.backButton
 
     val clawSpit: Boolean
         get() = abs(xbox.leftTriggerAxis) > 0.1

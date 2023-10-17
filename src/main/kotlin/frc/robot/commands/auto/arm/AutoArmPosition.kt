@@ -47,7 +47,6 @@ class AutoArmPosition(private val armSystem: ArmSystem, armMovementQueue: List<G
     override fun execute() {
         armLogic()
 
-        armSystem.run()
     }
 
     // Called once the command ends or is interrupted.

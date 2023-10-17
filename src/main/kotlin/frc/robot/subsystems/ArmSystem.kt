@@ -57,13 +57,14 @@ class ArmSystem : SubsystemBase() {
     val extensionPosition
         get() = rawExtensionPosition - extensionPositionOffset
 
-    private val armAnglePID = PIDController(10.0, 0.0, 0.0)
+    private val armAnglePID = PIDController(6.0, 0.0, 0.0)
     private var currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
     private var desiredArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
 
     private val armExtensionPID = PIDController(2.0, 0.0, 0.0)
     private var currentArmExtensionTrap = TrapezoidProfile.State(extensionPosition, 0.0)
     private var desiredArmExtensionTrap = TrapezoidProfile.State(extensionPosition, 0.0)
+    //accel = 45
     private val armAngleTrapConstraints = TrapezoidProfile.Constraints(360.0, 45.0)
     private val armExtensionTrapConstraints = TrapezoidProfile.Constraints(3600.0, 3000.0)
 
@@ -139,8 +140,8 @@ class ArmSystem : SubsystemBase() {
         extensionPositionShuffle.setDouble(extensionPosition)
 
 //        return;
-        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, if (desiredTilt) 130.0 else 100.0)
-        desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, ArmConstants.armExtensionMid)
+        desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, if (desiredTilt) 130.0 else 115.0)
+        desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, ArmConstants.armExtensionOut)
 
         extensionMotorCurrentShuffle.setDouble(extensionMotor.outputCurrent)
         extensionMotorVelocityShuffle.setDouble(extensionMotor.encoder.velocity)
