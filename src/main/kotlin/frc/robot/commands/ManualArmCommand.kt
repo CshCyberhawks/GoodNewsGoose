@@ -61,16 +61,19 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
         }
 
         if (ControllerIO.armAlignShelf) {
+            armQueue.clear()
             subsystem.desiredArmAngle = ArmConstants.armShelfAngle
         }
 
         if (ControllerIO.armAlignFloorCube) {
+            armQueue.clear()
             subsystem.desiredArmAngle = ArmConstants.armFloorCubeAngle
             subsystem.desiredTilt = true
             subsystem.desiredExtensionPosition = ArmConstants.armExtensionIn
         }
 
         if (ControllerIO.armAlignFloorCone) {
+            armQueue.clear()
             subsystem.desiredArmAngle = ArmConstants.armFloorConeAngle
             subsystem.desiredTilt = true
             subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
