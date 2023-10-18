@@ -231,8 +231,12 @@ class Robot : TimedRobot() {
         limelightRight.setLED(LedMode.ForceOff)
         limelightLeft.setLED(LedMode.ForceOff)
 
+        for (autoSequence in AutoSequenceType.values()) {
+            autoChooser.addOption(autoSequence.name, autoSequence)
+        }
+
         autoChooser.setDefaultOption("None", AutoSequenceType.None)
-        autoChooser.addOption("Test", AutoSequenceType.Test)
+
         driverTab.add("Auto Sequence", autoChooser)
         // driverTab.add("LL", limelightBack.feed)
     }
