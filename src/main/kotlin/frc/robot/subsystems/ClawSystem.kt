@@ -44,7 +44,7 @@ class ClawSystem : SubsystemBase() {
 
         clawMotor.set(when (clawState) {
             ClawState.Intaking -> 1.0
-            ClawState.Spitting -> -0.6
+            ClawState.Spitting -> -1.0
             ClawState.Idle -> 0.05
         })
 
