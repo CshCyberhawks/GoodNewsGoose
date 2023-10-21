@@ -256,10 +256,10 @@ class Robot : TimedRobot() {
 //        if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
 //            return
 //        }
-
-        if (!DriverStation.isTeleopEnabled()) {
-            return
-        }
+//
+//        if (!DriverStation.isTeleopEnabled()) {
+//            return
+//        }
 
         if (!odometryResetLLShuffle.getBoolean(true)) {
             return
@@ -310,11 +310,15 @@ class Robot : TimedRobot() {
         }
 
 
-        SmartDashboard.putBoolean("Front has targ", limelightRight.hasTarget())
-        SmartDashboard.putBoolean("Back has targ", limelightLeft.hasTarget())
+        SmartDashboard.putBoolean("Right has targ", limelightRight.hasTarget())
+        SmartDashboard.putBoolean("Left has targ", limelightLeft.hasTarget())
         SmartDashboard.putNumber(
-                "Time - lastLL",
-                MiscCalculations.getCurrentTime() - lastLLLightTime
+                "Time - Left Reset TIme",
+                MiscCalculations.getCurrentTime() - lastLeftLLResetTime
+        )
+        SmartDashboard.putNumber(
+            "Time - Right Reset TIme",
+            MiscCalculations.getCurrentTime() - lastRightLLResetTime
         )
 
         if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
