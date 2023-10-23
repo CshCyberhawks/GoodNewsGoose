@@ -9,6 +9,7 @@ import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import cshcyberhawks.swolib.swerve.SwerveOdometry
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.geometry.Pose2d
@@ -139,7 +140,7 @@ class SwerveAuto(
             yPIDOutputShuffle.setDouble(yPIDOutput)
         }
 
-        return Vector2(xPIDOutput, yPIDOutput)
+        return Vector2(MathUtil.clamp(xPIDOutput, -.2, .2), MathUtil.clamp(yPIDOutput, -.2, .2))
     }
 
     // twists and translates

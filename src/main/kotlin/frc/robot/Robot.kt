@@ -268,6 +268,14 @@ class Robot : TimedRobot() {
         limelightLeft.pipeline = 1
         limelightRight.pipeline = 1
 
+        val velocity = swo.getVelocity().x + swo.getVelocity().y
+
+        SmartDashboard.putNumber("SWO Velocity", velocity)
+
+        if (velocity < .1) {
+            return
+        }
+
         //        limelightLeft.pipeline = limelightLeft.fiducialPipeline
         //        limelightRight.pipeline = limelightRight.fiducialPipeline
 
@@ -280,7 +288,7 @@ class Robot : TimedRobot() {
         }
         if (!backPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .05 &&
-                limelightLeft.pipeline == limelightLeft.fiducialPipeline && !backArea.isEmpty && backArea.get() > .05
+                limelightLeft.pipeline == limelightLeft.fiducialPipeline && !backArea.isEmpty && backArea.get() > .075
         ) {
             val pos = backPosition.get()
             positions.add(pos)
@@ -292,7 +300,7 @@ class Robot : TimedRobot() {
         val frontArea = limelightRight.getArea()
         if (!frontPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .05 &&
-                limelightRight.pipeline == limelightRight.fiducialPipeline && !frontArea.isEmpty && frontArea.get() > .05
+                limelightRight.pipeline == limelightRight.fiducialPipeline && !frontArea.isEmpty && frontArea.get() > .075
         ) {
             val pos = frontPosition.get()
             positions.add(pos)
