@@ -274,9 +274,13 @@ class Robot : TimedRobot() {
         val positions: MutableList<FieldPosition> = mutableListOf()
 
         val backPosition = limelightLeft.getBotFieldPosition()
+        val backArea = limelightLeft.getArea()
+        if (!backArea.isEmpty) {
+            SmartDashboard.putNumber("Back Area", backArea.get())
+        }
         if (!backPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .05 &&
-                limelightLeft.pipeline == limelightLeft.fiducialPipeline
+                limelightLeft.pipeline == limelightLeft.fiducialPipeline && !backArea.isEmpty && backArea.get() > .05
         ) {
             val pos = backPosition.get()
             positions.add(pos)
@@ -285,9 +289,10 @@ class Robot : TimedRobot() {
         }
 
         val frontPosition = limelightRight.getBotFieldPosition()
+        val frontArea = limelightRight.getArea()
         if (!frontPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .05 &&
-                limelightRight.pipeline == limelightRight.fiducialPipeline
+                limelightRight.pipeline == limelightRight.fiducialPipeline && !frontArea.isEmpty && frontArea.get() > .05
         ) {
             val pos = frontPosition.get()
             positions.add(pos)
