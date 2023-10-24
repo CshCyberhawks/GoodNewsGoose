@@ -405,7 +405,6 @@ class Robot : TimedRobot() {
     override fun autonomousInit() {
 //        armSystem.initialize()
 //        armSystem.autoMode = true
-        swo.fieldPosition = Vector3(0.0, 0.0, 0.0)
         //        armSystem.brakeSolenoid.set(true)
         autoCommand = AutoSequence(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem, autoChooser.selected)
 //        autoCommand?.schedule()
