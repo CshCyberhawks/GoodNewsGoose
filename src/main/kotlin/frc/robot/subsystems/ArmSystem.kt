@@ -21,6 +21,7 @@ import frc.robot.constants.ArmConstants
 import frc.robot.constants.MotorConstants
 import frc.robot.util.ControllerIO
 import kotlin.math.abs
+import kotlin.math.sin
 
 class ArmSystem : SubsystemBase() {
     private val tiltSolenoid = Solenoid(MotorConstants.pcm, PneumaticsModuleType.CTREPCM, MotorConstants.tiltSolenoid)
@@ -59,7 +60,7 @@ class ArmSystem : SubsystemBase() {
 
 
     //p = 6, d = 0
-    private val armAnglePID = PIDController(6.0, 0.0, 0.01)
+    private val armAnglePID = PIDController(6.0, 0.0, 0.0)
     private var currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
     private var desiredArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
 
@@ -160,7 +161,7 @@ class ArmSystem : SubsystemBase() {
 //        }
 
 
-//        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
+        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
 //        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
 
 //        SmartDashboard.putNumber("Extension Setpoint", desiredExtensionPosition)
@@ -172,7 +173,6 @@ class ArmSystem : SubsystemBase() {
         SmartDashboard.putNumber("Angle Time Now", angleTimeNow)
         val angleTime: Double = if (previousAngleTime == -1.0) 0.0 else angleTimeNow - previousAngleTime
 
-        val armPIDOutput = armAnglePID.calculate(armAngleDegrees) / 360
 
 //        SmartDashboard.putNumber("Arm PID Output", armPIDOutput)
 
@@ -180,26 +180,46 @@ class ArmSystem : SubsystemBase() {
 
         val trapOutput = trapProfile.calculate(angleTime)
 
-        SmartDashboard.putNumber("Angle Time", angleTime)
-        SmartDashboard.putNumber("Arm Trap Desired", desiredArmAngleTrap.position)
-        SmartDashboard.putNumber("Arm Trap Current", currentArmAngleTrap.position)
+//        SmartDashboard.putNumber("Angle Time", angleTime)
+//        SmartDashboard.putNumber("Arm Trap Desired", desiredArmAngleTrap.position)
+//        SmartDashboard.putNumber("Arm Trap Current", currentArmAngleTrap.position)
+//
+//
+//        SmartDashboard.putNumber("Arm Trap Output", trapOutput.velocity)
+
+//        currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0);
 
 
-        SmartDashboard.putNumber("Arm Trap Output", trapOutput.velocity)
+        //r * f * sin(theta)
+        //r = .7m f = 56 theta
+        //gravity (nm) / max torque (nm)
+        val gravityFF = ((.7) * (56) * sin(Math.toRadians(armAngleDegrees))) / 624
+        SmartDashboard.putNumber("gravity ff", gravityFF)
+//        var armOutput = armPIDOutput
+        var armOutput = 0.0
 
-        currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0);
+        var ff = desiredArmAngle - armAngleDegrees
 
 
-        val armOutput =
-                if (armPIDOutput < 0) {
-//                    armPIDOutput - abs(trapOutput.velocity)
-                    armPIDOutput
+        SmartDashboard.putNumber("arm ff", ff)
+        if (abs(ff) > 15) {
+            armOutput += (ff / 60)
+            SmartDashboard.putBoolean("ff engaged", true)
+        }
+        else {
+            val armPIDOutput = armAnglePID.calculate(armAngleDegrees) / 360
+            SmartDashboard.putNumber("arm pid", armPIDOutput)
+            SmartDashboard.putBoolean("ff engaged", false)
+            if (armAngleDegrees < 50 || desiredTilt) {
+                armOutput += armPIDOutput + gravityFF
+            }
+            else {
+                armOutput += armPIDOutput + gravityFF + (ff / 60)
+            }
 
-                } else {
-//                    armPIDOutput + abs(trapOutput.velocity)
-                    armPIDOutput
+        }
 
-                }
+        SmartDashboard.putNumber("arm output", armOutput);
 
 //        SmartDashboard.putNumber("arm trap: ", abs(trapOutput.velocity))
 
@@ -292,7 +312,7 @@ class ArmSystem : SubsystemBase() {
     }
 
     fun isFinished(): Boolean {
-        return abs(desiredExtensionPosition - extensionPosition) < 50.0 && abs(desiredArmAngle - armAngleDegrees) < 3.0
+        return abs(desiredExtensionPosition - extensionPosition) < 50.0 && abs(desiredArmAngle - armAngleDegrees) < 5.0
     }
 
     override fun simulationPeriodic() {

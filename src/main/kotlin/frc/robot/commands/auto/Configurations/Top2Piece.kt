@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import frc.robot.commands.auto.arm.AutoPickupFloorCube
+import frc.robot.commands.auto.arm.AutoPlaceHybrid
 import frc.robot.commands.auto.arm.AutoPlaceMid
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
@@ -23,7 +24,7 @@ class Top2Piece(private val swerveAuto: SwerveAuto, private val gyro: GenericGyr
             autoPathManager.paths["TopTwoPieceOne"]!!,
             AutoPickupFloorCube(swerveSystem, swerveAuto, armSystem, clawSystem),
             autoPathManager.paths["TopTwoPieceTwo"]!!,
-            AutoPlaceMid(armSystem, clawSystem)
+            AutoPlaceHybrid(armSystem, clawSystem)
         )
     }
 }

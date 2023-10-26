@@ -4,9 +4,9 @@ object ArmConstants {
     const val armAngleOffset = 219.1339427283486
 
     const val armExtensionIn = 0.0
-    const val armExtensionCone = 1000.0
+    const val armExtensionCone = 1150.0
     const val armExtensionMid = 1700.0
-    const val armExtensionOut = 1600.0
+    const val armExtensionOut = 1500.0
     const val armExtensionLimit = 2000.0
 //    const val armExtensionOut = 2800.0
 
