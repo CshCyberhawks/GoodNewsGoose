@@ -140,7 +140,7 @@ class SwerveAuto(
             yPIDOutputShuffle.setDouble(yPIDOutput)
         }
 
-        return Vector2(xPIDOutput, yPIDOutput)
+        return Vector2(MathUtil.clamp(xPIDOutput, -.4, .4), MathUtil.clamp(yPIDOutput, -.4, .4))
     }
 
     // twists and translates

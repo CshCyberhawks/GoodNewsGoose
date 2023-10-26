@@ -156,12 +156,12 @@ class Robot : TimedRobot() {
             )
 
     // val autoTrapConstraints = TrapezoidProfile.Constraints(4.0, 1.0)
-    private val autoTrapConstraints = TrapezoidProfile.Constraints(5.0, 3.0)
-    private val twistTrapConstraints = TrapezoidProfile.Constraints(90.0, 20.0)
+    private val autoTrapConstraints = TrapezoidProfile.Constraints(3.0, 2.0)
+    private val twistTrapConstraints = TrapezoidProfile.Constraints(80.0, 15.0)
 
-    private val autoPIDX = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
-    private val autoPIDY = ProfiledPIDController(1.0, 0.0, 0.01, autoTrapConstraints)
-    private val twistPID = PIDController(0.1, 0.0, 0.00)
+    private val autoPIDX = ProfiledPIDController(0.75, 0.0, 0.01, autoTrapConstraints)
+    private val autoPIDY = ProfiledPIDController(0.75, 0.0, 0.01, autoTrapConstraints)
+    private val twistPID = PIDController(0.05, 0.0, 0.00)
 
     private val auto =
             SwerveAuto(
@@ -171,7 +171,7 @@ class Robot : TimedRobot() {
                     twistTrapConstraints,
                     // TrapezoidProfile.Constraints(4.0, 1.5),
                     5.0, // TODO: Tune PIDs so this can be smaller
-                    0.05,
+                    0.2,
                     swo,
                     swerveDriveTrain,
                     gyro,
@@ -195,7 +195,7 @@ class Robot : TimedRobot() {
 
     var autoCommand: CommandBase? = null
 
-    private var teleopArmCommand = ManualArmCommand(armSystem)
+    private var teleopArmCommand = ManualArmCommand(armSystem, clawSystem)
     private var teleopClawCommand = ManualClawCommand(clawSystem)
 
     private val odometryResetLLShuffle =
@@ -261,6 +261,10 @@ class Robot : TimedRobot() {
 //            return
 //        }
 
+        if (DriverStation.isAutonomousEnabled()) {
+            return
+        }
+
         if (!odometryResetLLShuffle.getBoolean(true)) {
             return
         }
@@ -268,13 +272,14 @@ class Robot : TimedRobot() {
         limelightLeft.pipeline = 1
         limelightRight.pipeline = 1
 
-        val velocity = swo.getVelocity().x + swo.getVelocity().y
+        val velocity = Math.sqrt((swo.getVelocity().x * swo.getVelocity().x) + (swo.getVelocity().y * swo.getVelocity().y ))
 
-        SmartDashboard.putNumber("SWO Velocity", velocity)
+//        SmartDashboard.putNumber("SWO Velocity", velocity)
 
-        if (velocity < .1) {
-            return
-        }
+//        if (velocity > 1.0) {
+//            return;
+//        }
+
 
         //        limelightLeft.pipeline = limelightLeft.fiducialPipeline
         //        limelightRight.pipeline = limelightRight.fiducialPipeline
@@ -284,11 +289,11 @@ class Robot : TimedRobot() {
         val backPosition = limelightLeft.getBotFieldPosition()
         val backArea = limelightLeft.getArea()
         if (!backArea.isEmpty) {
-            SmartDashboard.putNumber("Back Area", backArea.get())
+//            SmartDashboard.putNumber("Back Area", backArea.get())
         }
         if (!backPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .05 &&
-                limelightLeft.pipeline == limelightLeft.fiducialPipeline && !backArea.isEmpty && backArea.get() > .075
+                limelightLeft.pipeline == limelightLeft.fiducialPipeline && !backArea.isEmpty && backArea.get() > .1
         ) {
             val pos = backPosition.get()
             positions.add(pos)
@@ -300,7 +305,7 @@ class Robot : TimedRobot() {
         val frontArea = limelightRight.getArea()
         if (!frontPosition.isEmpty &&
                 MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .05 &&
-                limelightRight.pipeline == limelightRight.fiducialPipeline && !frontArea.isEmpty && frontArea.get() > .075
+                limelightRight.pipeline == limelightRight.fiducialPipeline && !frontArea.isEmpty && frontArea.get() > .1
         ) {
             val pos = frontPosition.get()
             positions.add(pos)
@@ -323,16 +328,16 @@ class Robot : TimedRobot() {
         }
 
 
-        SmartDashboard.putBoolean("Right has targ", limelightRight.hasTarget())
-        SmartDashboard.putBoolean("Left has targ", limelightLeft.hasTarget())
-        SmartDashboard.putNumber(
-                "Time - Left Reset TIme",
-                MiscCalculations.getCurrentTime() - lastLeftLLResetTime
-        )
-        SmartDashboard.putNumber(
-            "Time - Right Reset TIme",
-            MiscCalculations.getCurrentTime() - lastRightLLResetTime
-        )
+//        SmartDashboard.putBoolean("Right has targ", limelightRight.hasTarget())
+//        SmartDashboard.putBoolean("Left has targ", limelightLeft.hasTarget())
+//        SmartDashboard.putNumber(
+//                "Time - Left Reset TIme",
+//                MiscCalculations.getCurrentTime() - lastLeftLLResetTime
+//        )
+//        SmartDashboard.putNumber(
+//            "Time - Right Reset TIme",
+//            MiscCalculations.getCurrentTime() - lastRightLLResetTime
+//        )
 
         if (DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled()) {
             return
@@ -436,6 +441,8 @@ class Robot : TimedRobot() {
         // Note the Kotlin safe-call(?.), this ensures autonomousCommand is not null before
         // cancelling it
         autonomousCommand?.cancel()
+
+        armSystem.resetPosition()
 
         gyro.setYawOffset()
         //        gyro.setYawOffset()

@@ -14,11 +14,23 @@ import frc.robot.subsystems.ClawSystem
 class AutoPlaceMid(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
     init {
         addCommands(
-            AutoAlignMid(armSystem),
+//            AutoAlignMid(armSystem),
+//            AutoClaw(clawSystem, ClawState.Spitting),
+//            Wait(0.5),
+//            AutoClaw(clawSystem, ClawState.Idle),
+//            AutoAlignClosed(armSystem)
+            AutoArmPosition(armSystem, listOf(
+                AngleMovement(armSystem, ArmConstants.armMidAngle),
+                ExtensionMovement(armSystem, ArmConstants.armExtensionMid),
+                AngleMovement(armSystem, ArmConstants.armPlaceMidAngle)
+            )),
             AutoClaw(clawSystem, ClawState.Spitting),
-            Wait(0.5),
-            AutoClaw(clawSystem, ClawState.Idle),
-            AutoAlignClosed(armSystem)
+            AutoArmPosition(armSystem, listOf(
+                AngleMovement(armSystem, ArmConstants.armPlaceMidAngle - 10),
+                ExtensionMovement(armSystem, ArmConstants.armExtensionIn),
+                AngleMovement(armSystem, ArmConstants.armInAngle)
+            )),
+            AutoClaw(clawSystem, ClawState.Idle)
         )
     }
 }

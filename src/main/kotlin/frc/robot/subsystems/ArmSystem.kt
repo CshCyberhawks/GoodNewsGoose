@@ -57,7 +57,9 @@ class ArmSystem : SubsystemBase() {
     val extensionPosition
         get() = rawExtensionPosition - extensionPositionOffset
 
-    private val armAnglePID = PIDController(6.0, 0.0, 0.0)
+
+    //p = 6, d = 0
+    private val armAnglePID = PIDController(6.0, 0.0, 0.01)
     private var currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
     private var desiredArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
 
@@ -70,7 +72,7 @@ class ArmSystem : SubsystemBase() {
 
 //    private val armExtensionPID = PIDController(0.2, 0.0, 0.0)
 
-    private var previousAngleTime = 0.0
+    private var previousAngleTime = -1.0
     private var previousExtensionTime = 0.0
     //    private val armAnglePID = ProfiledPIDController(15.0, 0.0, 0.0, TrapezoidProfile.Constraints(360.0, 49.0))
 
@@ -93,7 +95,7 @@ class ArmSystem : SubsystemBase() {
             armAnglePID.setpoint = value
             desiredArmAngleTrap = TrapezoidProfile.State(value, 0.0)
             currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0)
-            previousAngleTime = 0.0
+//            previousAngleTime = 0.0
 //            armAnglePID.reset(armAngleDegrees)
             field = value
         }
@@ -122,6 +124,7 @@ class ArmSystem : SubsystemBase() {
     fun initialize() {
         desiredExtensionPosition = 0.0
         extensionPositionOffset = 0.0
+        currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0);
     }
 
     fun run() {
@@ -134,37 +137,40 @@ class ArmSystem : SubsystemBase() {
 //            setExtensionPosition(ArmConstants.armExtensionMid)
         }
 
-        SmartDashboard.putNumber("Extension Position", extensionPosition)
-        SmartDashboard.putNumber("Raw Extension Position", rawExtensionPosition)
+//        SmartDashboard.putNumber("Extension Position", extensionPosition)
+//        SmartDashboard.putNumber("Raw Extension Position", rawExtensionPosition)
 
         extensionPositionShuffle.setDouble(extensionPosition)
 
 //        return;
         desiredArmAngle = MathUtil.clamp(desiredArmAngle, 35.0, if (desiredTilt) 130.0 else 115.0)
-        desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, ArmConstants.armExtensionOut)
+        desiredExtensionPosition = MathUtil.clamp(desiredExtensionPosition, 0.0, ArmConstants.armExtensionLimit)
 
         extensionMotorCurrentShuffle.setDouble(extensionMotor.outputCurrent)
         extensionMotorVelocityShuffle.setDouble(extensionMotor.encoder.velocity)
         extensionMotorPositionShuffle.setDouble(extensionMotor.encoder.position)
 
-        SmartDashboard.putBoolean("Extension In", extensionInBeamBreak.get())
+//        SmartDashboard.putBoolean("Extension In", extensionInBeamBreak.get())
         extensionInShuffle.setBoolean(extensionInBeamBreak.get())
-        SmartDashboard.putBoolean("Extension Mid", extensionMidBeamBreak.get())
-        SmartDashboard.putBoolean("Extension Out", extensionOutBeamBreak.get())
+//        SmartDashboard.putBoolean("Extension Mid", extensionMidBeamBreak.get())
+//        SmartDashboard.putBoolean("Extension Out", extensionOutBeamBreak.get())
 
 //        else if (extensionExtended) {
 //            extensionPositionOffset = 3600 - rawExtensionPosition
 //        }
 
 
-        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
-        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
+//        SmartDashboard.putNumber("Arm Angle", armAngleDegrees)
+//        SmartDashboard.putNumber("Arm Setpoint", desiredArmAngle)
 
-        SmartDashboard.putNumber("Extension Setpoint", desiredExtensionPosition)
+//        SmartDashboard.putNumber("Extension Setpoint", desiredExtensionPosition)
         extensionSetpointShuffle.setDouble(desiredExtensionPosition)
 
+        SmartDashboard.putNumber("Previous Angle Time", previousAngleTime)
+
         val angleTimeNow = WPIUtilJNI.now() * 1.0e-6
-        val angleTime: Double = if (previousAngleTime == 0.0) 0.0 else angleTimeNow - previousAngleTime
+        SmartDashboard.putNumber("Angle Time Now", angleTimeNow)
+        val angleTime: Double = if (previousAngleTime == -1.0) 0.0 else angleTimeNow - previousAngleTime
 
         val armPIDOutput = armAnglePID.calculate(armAngleDegrees) / 360
 
@@ -174,20 +180,33 @@ class ArmSystem : SubsystemBase() {
 
         val trapOutput = trapProfile.calculate(angleTime)
 
-//        SmartDashboard.putNumber("Arm Trap Output", trapOutput.velocity)
+        SmartDashboard.putNumber("Angle Time", angleTime)
+        SmartDashboard.putNumber("Arm Trap Desired", desiredArmAngleTrap.position)
+        SmartDashboard.putNumber("Arm Trap Current", currentArmAngleTrap.position)
+
+
+        SmartDashboard.putNumber("Arm Trap Output", trapOutput.velocity)
+
+        currentArmAngleTrap = TrapezoidProfile.State(armAngleDegrees, 0.0);
+
 
         val armOutput =
                 if (armPIDOutput < 0) {
-                    armPIDOutput - abs(trapOutput.velocity)
+//                    armPIDOutput - abs(trapOutput.velocity)
+                    armPIDOutput
+
                 } else {
-                    armPIDOutput + abs(trapOutput.velocity)
+//                    armPIDOutput + abs(trapOutput.velocity)
+                    armPIDOutput
+
                 }
+
+//        SmartDashboard.putNumber("arm trap: ", abs(trapOutput.velocity))
 
 //        if (armAngleDegrees > 135.0) {
 //            armOutput = -0.15
 //        }
 
-        currentArmAngleTrap = trapOutput
 
         if (extensionPositionOffset != -1.0) {
             val extensionManualControl = ControllerIO.extensionManualControl
@@ -220,8 +239,8 @@ class ArmSystem : SubsystemBase() {
 
                 currentArmExtensionTrap = extensionTrapOut
 
-                SmartDashboard.putNumber("Extension Trap", extensionTrapOutput)
-                SmartDashboard.putNumber("Extension Output", extensionOutput)
+//                SmartDashboard.putNumber("Extension Trap", extensionTrapOutput)
+//                SmartDashboard.putNumber("Extension Output", extensionOutput)
 
                 extensionTrapShuffle.setDouble(extensionTrapOutput)
                 extensionOutputShuffle.setDouble(extensionOutput)
@@ -246,7 +265,7 @@ class ArmSystem : SubsystemBase() {
 //            }
         } else {
             armAngleMotor.set(0.0)
-            extensionMotor.set(0.1)
+            extensionMotor.set(0.4)
             extensionMotorOutputShuffle.setDouble(0.1)
         }
 
@@ -264,6 +283,12 @@ class ArmSystem : SubsystemBase() {
     fun kill() {
         armAngleMotor.set(0.0)
         extensionMotor.set(0.0)
+    }
+
+    fun resetPosition() {
+        desiredTilt = false
+        desiredArmAngle = ArmConstants.armInAngle
+        desiredExtensionPosition = ArmConstants.armExtensionIn
     }
 
     fun isFinished(): Boolean {

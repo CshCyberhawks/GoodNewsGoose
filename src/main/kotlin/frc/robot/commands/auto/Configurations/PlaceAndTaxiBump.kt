@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import frc.robot.commands.auto.arm.AutoAlignHigh
+import frc.robot.commands.auto.arm.AutoPlaceHigh
+import frc.robot.commands.auto.arm.AutoPlaceMid
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
@@ -18,7 +20,7 @@ class PlaceAndTaxiBump(private val swerveAuto: SwerveAuto, private val gyro: Gen
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-                AutoAlignHigh(armSystem),
+                AutoPlaceMid(armSystem, clawSystem),
                 autoPathManager.paths["TaxiBump"]!!,
         )
     }

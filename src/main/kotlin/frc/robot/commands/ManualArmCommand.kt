@@ -1,18 +1,17 @@
 package frc.robot.commands
 
 import edu.wpi.first.wpilibj2.command.CommandBase
-import frc.robot.commands.auto.AngleMovement
-import frc.robot.commands.auto.ExtensionMovement
-import frc.robot.commands.auto.GenericArmMovement
-import frc.robot.commands.auto.TiltMovement
+import frc.robot.commands.auto.*
 import frc.robot.constants.ArmConstants
 import frc.robot.subsystems.ArmSystem
+import frc.robot.subsystems.ClawState
+import frc.robot.subsystems.ClawSystem
 import frc.robot.util.ControllerIO
 
 /**
  * @property subsystem
  */
-class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
+class ManualArmCommand(private val subsystem: ArmSystem, private val clawSystem: ClawSystem) : CommandBase() {
     private val armQueue = arrayListOf<GenericArmMovement>()
 
     // Called when the command is initially scheduled.
@@ -76,7 +75,7 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             armQueue.clear()
             subsystem.desiredArmAngle = ArmConstants.armFloorConeAngle
             subsystem.desiredTilt = true
-            subsystem.desiredExtensionPosition = ArmConstants.armExtensionOut
+            subsystem.desiredExtensionPosition = ArmConstants.armExtensionCone
         }
 
         if (ControllerIO.armAlignHigh) {
@@ -87,10 +86,31 @@ class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
             armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionOut))
         }
 
+        if (ControllerIO.armPlaceHigh) {
+            armQueue.clear()
+            armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceHighAngle))
+            armQueue.add(ClawAction(clawSystem, ClawState.Spitting))
+            armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceHighAngle - 10))
+            armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionIn))
+            armQueue.add(TiltMovement(subsystem, false))
+            armQueue.add(AngleMovement(subsystem, ArmConstants.armInAngle))
+            armQueue.add(ClawAction(clawSystem, ClawState.Idle))
+        }
+
         if (ControllerIO.armAlignMid) {
             armQueue.clear()
             armQueue.add(AngleMovement(subsystem, ArmConstants.armMidAngle))
             armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionMid))
+        }
+
+        if (ControllerIO.armPlaceMid) {
+            armQueue.clear()
+            armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceMidAngle))
+            armQueue.add(ClawAction(clawSystem, ClawState.Spitting))
+            armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceMidAngle - 10))
+            armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionIn))
+            armQueue.add(AngleMovement(subsystem, ArmConstants.armInAngle))
+            armQueue.add(ClawAction(clawSystem, ClawState.Idle))
         }
 //
 //        if (ControllerIO.armAlignMid) {
