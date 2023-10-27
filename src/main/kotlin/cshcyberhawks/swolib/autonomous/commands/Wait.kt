@@ -7,14 +7,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 class Wait(val waitAmountSeconds: Double) : CommandBase() {
     private var startTime = 0.0
     override fun initialize() {
-        startTime = MiscCalculations.getCurrentTime()
+        startTime = MiscCalculations.getCurrentTimeSeconds()
     }
 
     override fun end(interrupted: Boolean) {
     }
 
     override fun isFinished(): Boolean {
-        SmartDashboard.putNumber("wait time", MiscCalculations.getCurrentTime() - startTime)
-        return (MiscCalculations.getCurrentTime() - startTime) > waitAmountSeconds
+        SmartDashboard.putNumber("wait time", MiscCalculations.getCurrentTimeSeconds() - startTime)
+        return (MiscCalculations.getCurrentTimeSeconds() - startTime) > waitAmountSeconds
     }
 }

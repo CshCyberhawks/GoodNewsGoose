@@ -17,5 +17,7 @@ object ArmConstants {
     const val armHighAngle = 130.0
     const val armPlaceHighAngle = 115.0
     const val armFloorCubeAngle = 45.0
-    const val armFloorConeAngle = 60.0
+    const val armFloorConeAngle = 55.0
+
+    const val armPlaceAngleDecrease = 7.5
 }

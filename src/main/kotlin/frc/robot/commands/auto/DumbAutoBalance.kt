@@ -1,6 +1,5 @@
 package frc.robot.commands.auto
 
-import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import cshcyberhawks.swolib.math.MiscCalculations
 import cshcyberhawks.swolib.math.Polar
@@ -49,7 +48,7 @@ class DumbAutoBalance(val gyro: GenericGyro, val driveTrain: SwerveDriveTrain) :
     override fun isFinished(): Boolean {
 
         if (Polar.fromVector2(gyro.mergePitchRoll()).r < 9.0 && !isTiming) {
-            levelStart = MiscCalculations.getCurrentTime()
+            levelStart = MiscCalculations.getCurrentTimeSeconds()
             isTiming = true
         }
 
@@ -58,8 +57,8 @@ class DumbAutoBalance(val gyro: GenericGyro, val driveTrain: SwerveDriveTrain) :
         }
 
 //        SmartDashboard.putNumber("rollPitchMag", Polar.fromVector2(gyro.mergePitchRoll()).r)
-        SmartDashboard.putNumber("timer: ", MiscCalculations.getCurrentTime() - levelStart)
-        if (isTiming && MiscCalculations.getCurrentTime() - levelStart >= 150.0) {
+        SmartDashboard.putNumber("timer: ", MiscCalculations.getCurrentTimeSeconds() - levelStart)
+        if (isTiming && MiscCalculations.getCurrentTimeSeconds() - levelStart >= 150.0) {
             return false
         }
         return false

@@ -26,7 +26,7 @@ class AutoPlaceMid(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCom
             )),
             AutoClaw(clawSystem, ClawState.Spitting),
             AutoArmPosition(armSystem, listOf(
-                AngleMovement(armSystem, ArmConstants.armPlaceMidAngle - 10),
+                AngleMovement(armSystem, ArmConstants.armPlaceMidAngle - ArmConstants.armPlaceAngleDecrease),
                 ExtensionMovement(armSystem, ArmConstants.armExtensionIn),
                 AngleMovement(armSystem, ArmConstants.armInAngle)
             )),

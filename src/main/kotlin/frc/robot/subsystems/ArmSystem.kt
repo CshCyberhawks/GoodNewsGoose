@@ -234,7 +234,7 @@ class ArmSystem : SubsystemBase() {
                 desiredExtensionPosition -= extensionManualControl * 25
             }
 
-            val extensionTimeNow = MiscCalculations.getCurrentTime()
+            val extensionTimeNow = MiscCalculations.getCurrentTimeSeconds()
             val extensionTime = if (previousExtensionTime == 0.0) 0.0 else extensionTimeNow - previousExtensionTime
 
 //            SmartDashboard.putNumber("Extension Trap Time", extensionTime)

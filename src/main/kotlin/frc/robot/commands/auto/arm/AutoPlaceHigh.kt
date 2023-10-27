@@ -25,7 +25,7 @@ class AutoPlaceHigh(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCo
             )),
             AutoClaw(clawSystem, ClawState.Spitting),
             AutoArmPosition(armSystem, listOf(
-                AngleMovement(armSystem, ArmConstants.armPlaceHighAngle - 10),
+                AngleMovement(armSystem, ArmConstants.armPlaceHighAngle - ArmConstants.armPlaceAngleDecrease),
                 ExtensionMovement(armSystem, ArmConstants.armExtensionIn),
                 TiltMovement(armSystem, false),
                 AngleMovement(armSystem, ArmConstants.armInAngle)

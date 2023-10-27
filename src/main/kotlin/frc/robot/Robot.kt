@@ -37,7 +37,6 @@ import frc.robot.constants.MotorConstants
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 import java.util.*
-import java.util.function.Supplier
 
 
 /**
@@ -292,26 +291,26 @@ class Robot : TimedRobot() {
 //            SmartDashboard.putNumber("Back Area", backArea.get())
         }
         if (!backPosition.isEmpty &&
-                MiscCalculations.getCurrentTime() - lastLeftLLResetTime >= .05 &&
+                MiscCalculations.getCurrentTimeSeconds() - lastLeftLLResetTime >= .05 &&
                 limelightLeft.pipeline == limelightLeft.fiducialPipeline && !backArea.isEmpty && backArea.get() > .1
         ) {
             val pos = backPosition.get()
             positions.add(pos)
         } else if (backPosition.isEmpty) {
-            lastLeftLLResetTime = MiscCalculations.getCurrentTime()
+            lastLeftLLResetTime = MiscCalculations.getCurrentTimeSeconds()
         }
 
         val frontPosition = limelightRight.getBotFieldPosition()
         val frontArea = limelightRight.getArea()
         if (!frontPosition.isEmpty &&
-                MiscCalculations.getCurrentTime() - lastRightLLResetTime >= .05 &&
+                MiscCalculations.getCurrentTimeSeconds() - lastRightLLResetTime >= .05 &&
                 limelightRight.pipeline == limelightRight.fiducialPipeline && !frontArea.isEmpty && frontArea.get() > .1
         ) {
             val pos = frontPosition.get()
             positions.add(pos)
 
         } else if (frontPosition.isEmpty) {
-            lastRightLLResetTime = MiscCalculations.getCurrentTime()
+            lastRightLLResetTime = MiscCalculations.getCurrentTimeSeconds()
         }
 
 
@@ -346,20 +345,20 @@ class Robot : TimedRobot() {
         if (limelightLeft.hasTarget() || limelightRight.hasTarget()) {
             // LED Code
             //                setLED(255, 0, 0, ledBuffer, led)
-            if (MiscCalculations.getCurrentTime() - lastLLLightTime >= .5) {
+            if (MiscCalculations.getCurrentTimeSeconds() - lastLLLightTime >= .5) {
                 if (limelightLeft.hasTarget()) {
                     limelightLeft.setLED(LedMode.ForceOn)
                 }
                 if (limelightRight.hasTarget()) {
                     limelightRight.setLED(LedMode.ForceOn)
                 }
-                lastLLLightTime = MiscCalculations.getCurrentTime()
+                lastLLLightTime = MiscCalculations.getCurrentTimeSeconds()
             }
         } else {
-            if (MiscCalculations.getCurrentTime() - lastLLLightTime >= .5) {
+            if (MiscCalculations.getCurrentTimeSeconds() - lastLLLightTime >= .5) {
                 limelightRight.setLED(LedMode.ForceOff)
                 limelightLeft.setLED(LedMode.ForceOff)
-                lastLLLightTime = MiscCalculations.getCurrentTime()
+                lastLLLightTime = MiscCalculations.getCurrentTimeSeconds()
             }
         }
     }
