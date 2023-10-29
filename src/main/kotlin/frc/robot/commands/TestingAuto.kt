@@ -1,17 +1,17 @@
 package frc.robot.commands
 
 import cshcyberhawks.swolib.autonomous.SwerveAuto
-import cshcyberhawks.swolib.autonomous.commands.GoToPosition
 import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
-import cshcyberhawks.swolib.math.FieldPosition
-import cshcyberhawks.swolib.math.Vector2
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
-import frc.robot.commands.auto.AutoPlaceHigh
-import frc.robot.commands.auto.AutoPlaceMid
-import frc.robot.commands.auto.DumbAutoBalance
+import frc.robot.commands.auto.AutoClaw
+import frc.robot.commands.auto.arm.AutoAlignHigh
+import frc.robot.commands.auto.arm.AutoArmPosition
+import frc.robot.commands.auto.arm.AutoPlaceHigh
+import frc.robot.commands.auto.arm.AutoPlaceMid
 import frc.robot.subsystems.ArmSystem
+import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
 // define an empty SequentialCommandGroup
@@ -23,9 +23,10 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-                AutoPlaceHigh(armSystem, clawSystem),
+            AutoPlaceMid(armSystem, clawSystem)
+//                AutoPlaceHigh(armSystem, clawSystem),
 //                AutoPlaceMid(armSystem, clawSystem),
-                GoToPosition(swerveAuto, Vector2(0.0, -4.4)),
+//                GoToPosition(swerveAuto, Vector2(0.0, -4.4)),
 //                                AutoPlaceHigh(armSystem, clawSystem)
 //                GoToPosition(swerveAuto, Vector2(0.0, -2.6)),
 //                DumbAutoBalance(gyro, swerveSystem),

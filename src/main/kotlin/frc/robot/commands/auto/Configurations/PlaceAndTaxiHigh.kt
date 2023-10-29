@@ -5,7 +5,9 @@ import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
-import frc.robot.commands.auto.AutoPlaceHigh
+import frc.robot.commands.auto.AutoBalance
+import frc.robot.commands.auto.arm.AutoAlignHigh
+import frc.robot.commands.auto.arm.AutoPlaceHigh
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
@@ -15,11 +17,12 @@ class PlaceAndTaxiHigh(private val swerveAuto: SwerveAuto, private val gyro: Gen
 
     // define the constructor
     init {
-        gyro.setYawOffset()
+//        gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
                 AutoPlaceHigh(armSystem, clawSystem),
                 autoPathManager.paths["TaxiTop"]!!,
+                AutoBalance(gyro, swerveAuto, swerveAuto.swo)
         )
     }
 }

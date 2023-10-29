@@ -113,7 +113,7 @@ class Limelight(
     }
 
     /** @return Target Area (0% of image to 100% of image) */
-    private fun getArea(): Optional<Double> {
+    fun getArea(): Optional<Double> {
         val out = limelight.getEntry("ta").getDouble(Double.NaN)
         return if (!out.isNaN()) Optional.of(out) else Optional.empty()
     }

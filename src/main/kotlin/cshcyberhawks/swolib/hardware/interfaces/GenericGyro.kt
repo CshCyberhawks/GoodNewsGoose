@@ -10,7 +10,7 @@ interface GenericGyro {
      * @return The current angle.
      */
     fun getYaw(): Double
-
+    
     fun getPitch(): Double
 
     fun getRoll(): Double

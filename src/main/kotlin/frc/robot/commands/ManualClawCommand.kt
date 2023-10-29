@@ -27,8 +27,6 @@ class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
             subsystem.clawState = ClawState.Spitting
         } else if (ControllerIO.spinClaw) {
             subsystem.clawState = ClawState.Intaking
-        } else if (ControllerIO.unspinClaw) {
-            subsystem.clawState = ClawState.Idle
         }
 
         subsystem.run()

@@ -5,7 +5,6 @@ import com.revrobotics.CANSparkMax
 import com.revrobotics.CANSparkMaxLowLevel
 import cshcyberhawks.swolib.math.MiscCalculations
 import edu.wpi.first.wpilibj.DigitalInput
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.constants.MotorConstants
 
@@ -27,14 +26,14 @@ class ClawSystem : SubsystemBase() {
     var clawState = ClawState.Idle
     fun run() {
         if (clawState == ClawState.Intaking && !intakeBeamBreak.get() && breakTime == -1.0) {
-            breakTime = MiscCalculations.getCurrentTime()
+            breakTime = MiscCalculations.getCurrentTimeSeconds()
         }
 
         if (clawState != ClawState.Intaking) {
             breakTime = -1.0
         }
 
-        if (breakTime != -1.0 && MiscCalculations.getCurrentTime() >= breakTime + 0.2) {
+        if (breakTime != -1.0 && MiscCalculations.getCurrentTimeSeconds() >= breakTime + 0.2) {
             clawState = ClawState.Idle
         }
 
@@ -44,7 +43,7 @@ class ClawSystem : SubsystemBase() {
 
         clawMotor.set(when (clawState) {
             ClawState.Intaking -> 1.0
-            ClawState.Spitting -> -0.6
+            ClawState.Spitting -> -1.0
             ClawState.Idle -> 0.05
         })
 

@@ -16,25 +16,29 @@ class AutoPath(
     inputFile: File,
     val swerveAuto: SwerveAuto,
     val gyro: GenericGyro,
+    alliance: Alliance,
     private val commandsList: HashMap<Int, CommandBase> = HashMap()
 ) : CommandBase() {
-    private var positions: List<FieldPosition>
+    private var positions: MutableList<FieldPosition>
 
     private var currentCommand: CommandBase? = null
     private var attachedCommand: CommandBase? = null
     private var currentIndex = 0
 
     init {
-        if (DriverStation.getAlliance() == Alliance.Blue) {
+        SmartDashboard.putString("Auto Path Alliance", alliance.name)
+
+        if (alliance == Alliance.Blue) {
             this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
                 FieldPosition(-it.point.y, it.point.x, AngleCalculations.wrapAroundAngles(it.point.angle))
-            }
+            }.toMutableList()
         } else {
             this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
                 FieldPosition(it.point.y, it.point.x, AngleCalculations.wrapAroundAngles(it.point.angle))
-            }
+            }.toMutableList()
         }
 
+        positions.add(positions.last())
     }
 
     override fun initialize() {
@@ -60,6 +64,7 @@ class AutoPath(
 
 
     override fun isFinished(): Boolean {
+        SmartDashboard.putBoolean("auto path finished", currentIndex == positions.size && currentCommand != null && currentCommand?.isFinished == true)
         return currentIndex == positions.size && currentCommand != null && currentCommand?.isFinished == true
     }
 }
