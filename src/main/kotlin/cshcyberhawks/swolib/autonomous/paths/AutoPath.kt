@@ -16,6 +16,7 @@ class AutoPath(
     inputFile: File,
     val swerveAuto: SwerveAuto,
     val gyro: GenericGyro,
+    alliance: Alliance,
     private val commandsList: HashMap<Int, CommandBase> = HashMap()
 ) : CommandBase() {
     private var positions: MutableList<FieldPosition>
@@ -25,7 +26,9 @@ class AutoPath(
     private var currentIndex = 0
 
     init {
-        if (DriverStation.getAlliance() == Alliance.Blue) {
+        SmartDashboard.putString("Auto Path Alliance", alliance.name)
+
+        if (alliance == Alliance.Blue) {
             this.positions = Klaxon().parseArray<AutoPathNode>(inputFile)!!.map {
                 FieldPosition(-it.point.y, it.point.x, AngleCalculations.wrapAroundAngles(it.point.angle))
             }.toMutableList()

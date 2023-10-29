@@ -53,6 +53,8 @@ class Robot : TimedRobot() {
     private val driverTab: ShuffleboardTab = Shuffleboard.getTab("Driver")
 
     private val autoChooser = SendableChooser<AutoSequenceType>()
+    private val teamChooser = SendableChooser<DriverStation.Alliance>()
+    private var lastAlliance = DriverStation.getAlliance()
 
     private var autonomousCommand: Command? = null
     private var robotContainer: RobotContainer? = null
@@ -187,7 +189,7 @@ class Robot : TimedRobot() {
                     arrayOf(limelightRight, limelightLeft)
             )
 
-    private val autoPathManager = AutoPathManager(auto, gyro)
+    private var autoPathManager = AutoPathManager(auto, gyro, DriverStation.getAlliance())
 
     private var armSystem = ArmSystem()
     private val clawSystem = ClawSystem()
@@ -236,7 +238,14 @@ class Robot : TimedRobot() {
 
         autoChooser.setDefaultOption("None", AutoSequenceType.None)
 
+        teamChooser.addOption("Blue", DriverStation.Alliance.Blue)
+        teamChooser.addOption("Red", DriverStation.Alliance.Red)
+
+        teamChooser.setDefaultOption(DriverStation.getAlliance().name, DriverStation.getAlliance())
+
+
         driverTab.add("Auto Sequence", autoChooser)
+        driverTab.add("Team Chooser", teamChooser)
         // driverTab.add("LL", limelightBack.feed)
     }
 
@@ -395,6 +404,12 @@ class Robot : TimedRobot() {
         //        }
 
         resetOdometryLL()
+
+        if (lastAlliance != teamChooser.selected) {
+            autoPathManager = AutoPathManager(auto, gyro, teamChooser.selected)
+        }
+
+        lastAlliance = teamChooser.selected
 
         CommandScheduler.getInstance().run()
     }

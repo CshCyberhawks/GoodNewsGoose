@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
 import frc.robot.commands.auto.DumbAutoBalance
+import frc.robot.commands.auto.arm.AutoPlaceHigh
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
@@ -21,10 +22,10 @@ class PlaceAndBalanceMid(private val swerveAuto: SwerveAuto, private val gyro: G
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-//                AutoPlaceHigh(armSystem, clawSystem),
+                AutoPlaceHigh(armSystem, clawSystem),
                 autoPathManager.paths["MidTaxiBalance1"]!!,
 //                GoToPosition(swerveAuto, Vector2())
-                Wait(5.0),
+                Wait(4.0),
                 autoPathManager.paths["MidTaxiBalance2"]!!,
                 DumbAutoBalance(gyro, swerveSystem),
 //            LockWheels(swerveSystem)

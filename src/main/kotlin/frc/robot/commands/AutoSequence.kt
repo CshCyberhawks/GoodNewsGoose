@@ -5,10 +5,7 @@ import cshcyberhawks.swolib.hardware.interfaces.GenericGyro
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import cshcyberhawks.swolib.autonomous.paths.AutoPathManager
 import cshcyberhawks.swolib.swerve.SwerveDriveTrain
-import frc.robot.commands.auto.Configurations.BumbsideBalance
-import frc.robot.commands.auto.Configurations.Top2Piece
-import frc.robot.commands.auto.Configurations.PlaceAndTaxiAndBalanceHigh
-import frc.robot.commands.auto.Configurations.PlaceAndTaxiBump
+import frc.robot.commands.auto.Configurations.*
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
@@ -19,7 +16,8 @@ enum class AutoSequenceType {
     TaxiBalanceTop,
     BumpsideBalance,
     Top2Piece,
-    PlaceAndTaxiBump
+    PlaceAndTaxiBump,
+    PlaceAndBalanceMid
 }
 class AutoSequence(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem, private val currentSequence: AutoSequenceType) :
     SequentialCommandGroup() {
@@ -38,6 +36,9 @@ class AutoSequence(private val swerveAuto: SwerveAuto, private val gyro: Generic
             }
             AutoSequenceType.PlaceAndTaxiBump -> {
                 PlaceAndTaxiBump(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+            }
+            AutoSequenceType.PlaceAndBalanceMid -> {
+                PlaceAndBalanceMid(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
             }
         }
     }
