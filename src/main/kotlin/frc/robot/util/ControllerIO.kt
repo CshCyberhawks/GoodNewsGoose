@@ -46,8 +46,14 @@ object ControllerIO {
     val armAlignHigh
         get() = xbox.yButtonPressed
 
+    val armPlaceHigh
+        get() = xbox.yButtonReleased
+
     val armAlignMid
         get() = xbox.bButtonPressed
+
+    val armPlaceMid
+        get() = xbox.bButtonReleased
 
     val armAlignShelf
         get() = xbox.pov != -1

@@ -26,7 +26,7 @@ class SwerveOdometry(
     private val field2d: Optional<Field2d> = Optional.empty()
 ) {
     var fieldPosition = Vector3() + startingPosition
-    private var lastTime = MiscCalculations.getCurrentTime()
+    private var lastTime = MiscCalculations.getCurrentTimeSeconds()
 
     private val odometryShuffleTab: ShuffleboardTab = Shuffleboard.getTab("Odometry")
     private val xPosition: GenericEntry = odometryShuffleTab.add("X Position", 0.0).withPosition(0, 0).withSize(2, 1).entry
@@ -59,7 +59,7 @@ class SwerveOdometry(
     }
 
     fun updatePosition() {
-        fieldPosition += getVelocity() * (MiscCalculations.getCurrentTime() - lastTime)
+        fieldPosition += getVelocity() * (MiscCalculations.getCurrentTimeSeconds() - lastTime)
 
         for (limelight in limelightList) {
             val limelightPosition = limelight.getBotPosition()
@@ -76,7 +76,7 @@ class SwerveOdometry(
 
             if (JoyIO.resetFieldLimelight) {
                 val limelightRotation = limelight.getBotYaw()
-                if (!limelightRotation.isEmpty && MiscCalculations.getCurrentTime() - lastYawLLTime > 0.3) {
+                if (!limelightRotation.isEmpty && MiscCalculations.getCurrentTimeSeconds() - lastYawLLTime > 0.3) {
                     SmartDashboard.putNumber("ll rotation", limelightRotation.get())
                     val rotation = AngleCalculations.wrapAroundAngles(if (DriverStation.getAlliance() == Alliance.Red) {
                         limelightRotation.get()
@@ -92,7 +92,7 @@ class SwerveOdometry(
                         }
                     }
 
-                    lastYawLLTime = MiscCalculations.getCurrentTime()
+                    lastYawLLTime = MiscCalculations.getCurrentTimeSeconds()
                     gyro.setYawOffset(rotation)
                 }
             }
@@ -119,7 +119,7 @@ class SwerveOdometry(
         }
 
         updateField()
-        lastTime = MiscCalculations.getCurrentTime()
+        lastTime = MiscCalculations.getCurrentTimeSeconds()
     }
 
     private fun updateField() {

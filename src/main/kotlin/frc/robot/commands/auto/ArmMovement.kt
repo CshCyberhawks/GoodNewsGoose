@@ -2,6 +2,8 @@ package frc.robot.commands.auto
 
 import cshcyberhawks.swolib.math.MiscCalculations
 import frc.robot.subsystems.ArmSystem
+import frc.robot.subsystems.ClawState
+import frc.robot.subsystems.ClawSystem
 
 interface GenericArmMovement {
     var isRunning: Boolean
@@ -44,9 +46,20 @@ class TiltMovement(private val subsystem: ArmSystem, private val tiltPosition: B
         }
 
         subsystem.desiredTilt = tiltPosition
-        startTime = MiscCalculations.getCurrentTime()
+        startTime = MiscCalculations.getCurrentTimeSeconds()
         isRunning = true
     }
 
-    override fun isDone(): Boolean = !timer || startTime + 0.5 < MiscCalculations.getCurrentTime()
+    override fun isDone(): Boolean = !timer || startTime + 0.5 < MiscCalculations.getCurrentTimeSeconds()
+}
+
+class ClawAction(private val subsystem: ClawSystem, private val state: ClawState) : GenericArmMovement {
+    override var isRunning: Boolean = false
+
+    override fun run() {
+        subsystem.clawState = state
+        isRunning = true
+    }
+
+    override fun isDone(): Boolean = true
 }

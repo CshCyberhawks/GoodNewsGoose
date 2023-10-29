@@ -5,13 +5,13 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder
 
 class VelocityDutyCycleEncoder(port: Int) {
     private val encoder = DutyCycleEncoder(port)
-    private var lastTime = MiscCalculations.getCurrentTime()
+    private var lastTime = MiscCalculations.getCurrentTimeSeconds()
     private var lastPosition = encoder.get()
 
     val velocity: Double
         get() {
             val currentPosition = encoder.get()
-            val currentTime = MiscCalculations.getCurrentTime()
+            val currentTime = MiscCalculations.getCurrentTimeSeconds()
 
             val velo = (currentPosition - lastPosition) / (currentTime - lastTime)
 

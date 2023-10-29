@@ -34,6 +34,7 @@ class NavXGyro(private val port: SPI.Port) : GenericGyro {
     }
 
 
+
     /**
      * Sets the angle offset of the gyro to the current direction.
      *
