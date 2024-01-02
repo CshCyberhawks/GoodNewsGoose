@@ -15,7 +15,7 @@ import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
 // define an empty SequentialCommandGroup
-class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem) :
+class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain) :
         SequentialCommandGroup() {
 
     // define the constructor
@@ -23,7 +23,7 @@ class TestingAuto(private val swerveAuto: SwerveAuto, private val gyro: GenericG
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-            AutoPlaceMid(armSystem, clawSystem)
+                AutoPlaceMid(armSystem)
 //                AutoPlaceHigh(armSystem, clawSystem),
 //                AutoPlaceMid(armSystem, clawSystem),
 //                GoToPosition(swerveAuto, Vector2(0.0, -4.4)),

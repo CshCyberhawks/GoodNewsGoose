@@ -11,7 +11,7 @@ import frc.robot.util.ControllerIO
 /**
  * @property subsystem
  */
-class ManualArmCommand(private val subsystem: ArmSystem, private val clawSystem: ClawSystem) : CommandBase() {
+class ManualArmCommand(private val subsystem: ArmSystem) : CommandBase() {
     private val armQueue = arrayListOf<GenericArmMovement>()
 
     // Called when the command is initially scheduled.
@@ -89,12 +89,12 @@ class ManualArmCommand(private val subsystem: ArmSystem, private val clawSystem:
         if (ControllerIO.armPlaceHigh) {
             armQueue.clear()
             armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceHighAngle))
-            armQueue.add(ClawAction(clawSystem, ClawState.Spitting))
+            armQueue.add(ClawAction(ClawState.Spitting))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceHighAngle - ArmConstants.armPlaceAngleDecrease))
             armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionIn))
             armQueue.add(TiltMovement(subsystem, false))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armInAngle))
-            armQueue.add(ClawAction(clawSystem, ClawState.Idle))
+            armQueue.add(ClawAction(ClawState.Idle))
         }
 
         if (ControllerIO.armAlignMid) {
@@ -106,11 +106,11 @@ class ManualArmCommand(private val subsystem: ArmSystem, private val clawSystem:
         if (ControllerIO.armPlaceMid) {
             armQueue.clear()
             armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceMidAngle))
-            armQueue.add(ClawAction(clawSystem, ClawState.Spitting))
+            armQueue.add(ClawAction(ClawState.Spitting))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armPlaceMidAngle - ArmConstants.armPlaceAngleDecrease))
             armQueue.add(ExtensionMovement(subsystem, ArmConstants.armExtensionIn))
             armQueue.add(AngleMovement(subsystem, ArmConstants.armInAngle))
-            armQueue.add(ClawAction(clawSystem, ClawState.Idle))
+            armQueue.add(ClawAction(ClawState.Idle))
         }
 //
 //        if (ControllerIO.armAlignMid) {

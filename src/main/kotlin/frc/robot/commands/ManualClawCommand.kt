@@ -9,13 +9,13 @@ import frc.robot.util.ControllerIO
 /**
  * @property subsystem
  */
-class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
+class ManualClawCommand() : CommandBase() {
     /**
      * Creates a new ExampleCommand.
      */
     init {
-    // Use addRequirements() here to declare subsystem dependencies.
-    // addRequirements(subsystem)
+        // Use addRequirements() here to declare subsystem dependencies.
+        // addRequirements(subsystem)
     }
 
     // Called when the command is initially scheduled.
@@ -24,12 +24,12 @@ class ManualClawCommand(private val subsystem: ClawSystem) : CommandBase() {
     // Called every time the scheduler runs while the command is scheduled.
     override fun execute() {
         if (ControllerIO.clawSpit) {
-            subsystem.clawState = ClawState.Spitting
+            ClawSystem.clawState = ClawState.Spitting
         } else if (ControllerIO.spinClaw) {
-            subsystem.clawState = ClawState.Intaking
+            ClawSystem.clawState = ClawState.Intaking
         }
 
-        subsystem.run()
+        ClawSystem.run()
     }
 
     // Called once the command ends or is interrupted.

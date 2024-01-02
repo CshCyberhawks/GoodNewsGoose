@@ -14,7 +14,7 @@ enum class ClawState {
     Idle
 }
 
-class ClawSystem : SubsystemBase() {
+object ClawSystem : SubsystemBase() {
     private val clawMotor = CANSparkMax(MotorConstants.clawMotor, CANSparkMaxLowLevel.MotorType.kBrushless)
 
     val intakeBeamBreak = DigitalInput(MotorConstants.intakeBeamBreak)

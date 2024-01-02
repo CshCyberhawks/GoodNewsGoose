@@ -12,7 +12,7 @@ import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
 // define an empty SequentialCommandGroup
-class Top2Piece(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem) :
+class Top2Piece(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain) :
         SequentialCommandGroup() {
 
     // define the constructor
@@ -20,11 +20,11 @@ class Top2Piece(private val swerveAuto: SwerveAuto, private val gyro: GenericGyr
         gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-            AutoPlaceMid(armSystem, clawSystem),
-            autoPathManager.paths["TopTwoPieceOne"]!!,
-            AutoPickupFloorCube(swerveSystem, swerveAuto, armSystem, clawSystem),
-            autoPathManager.paths["TopTwoPieceTwo"]!!,
-            AutoPlaceHybrid(armSystem, clawSystem)
+                AutoPlaceMid(armSystem),
+                autoPathManager.paths["TopTwoPieceOne"]!!,
+                AutoPickupFloorCube(swerveSystem, swerveAuto, armSystem),
+                autoPathManager.paths["TopTwoPieceTwo"]!!,
+                AutoPlaceHybrid(armSystem)
         )
     }
 }

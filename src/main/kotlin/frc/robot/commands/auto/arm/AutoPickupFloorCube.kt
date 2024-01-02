@@ -13,13 +13,13 @@ import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
-public class AutoPickupFloorCube(swerveSystem: SwerveDriveTrain, swerveAuto: SwerveAuto, armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
+public class AutoPickupFloorCube(swerveSystem: SwerveDriveTrain, swerveAuto: SwerveAuto, armSystem: ArmSystem) : SequentialCommandGroup() {
     init {
         addCommands(
-            AutoAlignFloorCube(armSystem),
-            Wait(0.5),
-            AutoDriveUntilCube(swerveSystem, swerveAuto, armSystem, clawSystem),
-            AutoAlignClosed(armSystem)
+                AutoAlignFloorCube(armSystem),
+                Wait(0.5),
+                AutoDriveUntilCube(swerveSystem, swerveAuto, armSystem),
+                AutoAlignClosed(armSystem)
         )
     }
 }

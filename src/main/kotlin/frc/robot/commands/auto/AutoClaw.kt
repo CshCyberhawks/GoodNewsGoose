@@ -13,10 +13,10 @@ import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
 
-class AutoClaw(val clawSystem: ClawSystem, private val clawState: ClawState) : CommandBase() {
+class AutoClaw(private val clawState: ClawState) : CommandBase() {
 
     override fun initialize() {
-        clawSystem.clawState = clawState
+        ClawSystem.clawState = clawState
     }
 
 

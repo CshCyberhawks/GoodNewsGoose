@@ -19,8 +19,9 @@ enum class AutoSequenceType {
     PlaceAndTaxiBump,
     PlaceAndBalanceMid
 }
-class AutoSequence(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem, private val currentSequence: AutoSequenceType) :
-    SequentialCommandGroup() {
+
+class AutoSequence(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val currentSequence: AutoSequenceType) :
+        SequentialCommandGroup() {
     init {
         gyro.setYawOffset()
         when (currentSequence) {
@@ -29,26 +30,29 @@ class AutoSequence(private val swerveAuto: SwerveAuto, private val gyro: Generic
             AutoSequenceType.TaxiTop -> taxiTop()
             AutoSequenceType.TaxiBalanceTop -> taxiBalanceTop()
             AutoSequenceType.BumpsideBalance -> {
-                BumbsideBalance(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+                BumbsideBalance(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem).schedule()
             }
+
             AutoSequenceType.Top2Piece -> {
-                Top2Piece(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+                Top2Piece(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem).schedule()
             }
+
             AutoSequenceType.PlaceAndTaxiBump -> {
-                PlaceAndTaxiBump(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+                PlaceAndTaxiBump(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem).schedule()
             }
+
             AutoSequenceType.PlaceAndBalanceMid -> {
-                PlaceAndBalanceMid(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+                PlaceAndBalanceMid(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem).schedule()
             }
         }
     }
 
     fun taxiTop() {
-        PlaceAndTaxiHigh(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+        PlaceAndTaxiHigh(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem).schedule()
     }
 
     fun taxiBalanceTop() {
-        PlaceAndTaxiAndBalanceHigh(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem, clawSystem).schedule()
+        PlaceAndTaxiAndBalanceHigh(swerveAuto, gyro, armSystem, autoPathManager, swerveSystem).schedule()
     }
 
     fun testFunction() {

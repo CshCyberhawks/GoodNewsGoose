@@ -10,11 +10,11 @@ import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
 
-class AutoDriveUntilCube(val swerveSystem: SwerveDriveTrain, val swerveAuto: SwerveAuto, val armSystem: ArmSystem, val clawSystem: ClawSystem) : CommandBase() {
+class AutoDriveUntilCube(val swerveSystem: SwerveDriveTrain, val swerveAuto: SwerveAuto, val armSystem: ArmSystem) : CommandBase() {
     var startTime = -1.0
 
     override fun initialize() {
-        clawSystem.clawState = ClawState.Intaking
+        ClawSystem.clawState = ClawState.Intaking
         startTime = MiscCalculations.getCurrentTimeSeconds()
     }
 
@@ -32,6 +32,6 @@ class AutoDriveUntilCube(val swerveSystem: SwerveDriveTrain, val swerveAuto: Swe
     }
 
     override fun isFinished(): Boolean {
-        return clawSystem.clawState == ClawState.Idle
+        return ClawSystem.clawState == ClawState.Idle
     }
 }

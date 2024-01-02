@@ -53,11 +53,11 @@ class TiltMovement(private val subsystem: ArmSystem, private val tiltPosition: B
     override fun isDone(): Boolean = !timer || startTime + 0.5 < MiscCalculations.getCurrentTimeSeconds()
 }
 
-class ClawAction(private val subsystem: ClawSystem, private val state: ClawState) : GenericArmMovement {
+class ClawAction(private val state: ClawState) : GenericArmMovement {
     override var isRunning: Boolean = false
 
     override fun run() {
-        subsystem.clawState = state
+        ClawSystem.clawState = state
         isRunning = true
     }
 

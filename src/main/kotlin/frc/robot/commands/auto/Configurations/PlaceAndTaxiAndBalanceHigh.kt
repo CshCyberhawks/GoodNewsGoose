@@ -10,16 +10,16 @@ import frc.robot.commands.auto.arm.AutoPlaceMid
 import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
-class PlaceAndTaxiAndBalanceHigh(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem) :
-    SequentialCommandGroup() {
+class PlaceAndTaxiAndBalanceHigh(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain) :
+        SequentialCommandGroup() {
 
     // define the constructor
     init {
 //        gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-            AutoPlaceMid(armSystem, clawSystem),
-            autoPathManager.paths["TaxiAndBalance"]!!,
+                AutoPlaceMid(armSystem),
+                autoPathManager.paths["TaxiAndBalance"]!!,
         )
     }
 }

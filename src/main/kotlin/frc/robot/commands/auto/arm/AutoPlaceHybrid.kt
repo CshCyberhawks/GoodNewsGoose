@@ -8,7 +8,7 @@ import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
-class AutoPlaceHybrid(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
+class AutoPlaceHybrid(armSystem: ArmSystem) : SequentialCommandGroup() {
     init {
         addCommands(
 //            AutoAlignHigh(armSystem),
@@ -16,11 +16,11 @@ class AutoPlaceHybrid(armSystem: ArmSystem, clawSystem: ClawSystem) : Sequential
 //            Wait(0.5),
 //            AutoClaw(clawSystem, ClawState.Idle),
 //            AutoAlignClosed(armSystem)
-            AutoArmPosition(armSystem, listOf(
-               AngleMovement(armSystem, ArmConstants.armInAngle + 10),
-                ExtensionMovement(armSystem, ArmConstants.armExtensionMid)
-            )),
-            AutoClaw(clawSystem, ClawState.Spitting),
+                AutoArmPosition(armSystem, listOf(
+                        AngleMovement(armSystem, ArmConstants.armInAngle + 10),
+                        ExtensionMovement(armSystem, ArmConstants.armExtensionMid)
+                )),
+                AutoClaw(ClawState.Spitting),
         )
     }
 }

@@ -192,12 +192,11 @@ class Robot : TimedRobot() {
     private var autoPathManager = AutoPathManager(auto, gyro, DriverStation.getAlliance())
 
     private var armSystem = ArmSystem()
-    private val clawSystem = ClawSystem()
 
     var autoCommand: CommandBase? = null
 
-    private var teleopArmCommand = ManualArmCommand(armSystem, clawSystem)
-    private var teleopClawCommand = ManualClawCommand(clawSystem)
+    private var teleopArmCommand = ManualArmCommand(armSystem)
+    private var teleopClawCommand = ManualClawCommand()
 
     private val odometryResetLLShuffle =
             driverTab.add("Reset Odometry With Limelight", true).getEntry()
@@ -280,7 +279,7 @@ class Robot : TimedRobot() {
         limelightLeft.pipeline = 1
         limelightRight.pipeline = 1
 
-        val velocity = Math.sqrt((swo.getVelocity().x * swo.getVelocity().x) + (swo.getVelocity().y * swo.getVelocity().y ))
+        val velocity = Math.sqrt((swo.getVelocity().x * swo.getVelocity().x) + (swo.getVelocity().y * swo.getVelocity().y))
 
 //        SmartDashboard.putNumber("SWO Velocity", velocity)
 
@@ -425,7 +424,7 @@ class Robot : TimedRobot() {
 //        armSystem.initialize()
 //        armSystem.autoMode = true
         //        armSystem.brakeSolenoid.set(true)
-        autoCommand = AutoSequence(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem, autoChooser.selected)
+        autoCommand = AutoSequence(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, autoChooser.selected)
 //        autoCommand?.schedule()
 
 //        autoCommand = PlaceAndBalanceMid(auto, gyro, armSystem, autoPathManager, swerveDriveTrain, clawSystem)
@@ -441,7 +440,7 @@ class Robot : TimedRobot() {
 
     /** This function is called periodically during autonomous. */
     override fun autonomousPeriodic() {
-        clawSystem.run()
+        ClawSystem.run()
         armSystem.run()
     }
 

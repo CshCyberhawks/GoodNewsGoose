@@ -11,7 +11,7 @@ import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawState
 import frc.robot.subsystems.ClawSystem
 
-class AutoPlaceMid(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCommandGroup() {
+class AutoPlaceMid(armSystem: ArmSystem) : SequentialCommandGroup() {
     init {
         addCommands(
 //            AutoAlignMid(armSystem),
@@ -19,18 +19,18 @@ class AutoPlaceMid(armSystem: ArmSystem, clawSystem: ClawSystem) : SequentialCom
 //            Wait(0.5),
 //            AutoClaw(clawSystem, ClawState.Idle),
 //            AutoAlignClosed(armSystem)
-            AutoArmPosition(armSystem, listOf(
-                AngleMovement(armSystem, ArmConstants.armMidAngle),
-                ExtensionMovement(armSystem, ArmConstants.armExtensionMid),
-                AngleMovement(armSystem, ArmConstants.armPlaceMidAngle)
-            )),
-            AutoClaw(clawSystem, ClawState.Spitting),
-            AutoArmPosition(armSystem, listOf(
-                AngleMovement(armSystem, ArmConstants.armPlaceMidAngle - ArmConstants.armPlaceAngleDecrease),
-                ExtensionMovement(armSystem, ArmConstants.armExtensionIn),
-                AngleMovement(armSystem, ArmConstants.armInAngle)
-            )),
-            AutoClaw(clawSystem, ClawState.Idle)
+                AutoArmPosition(armSystem, listOf(
+                        AngleMovement(armSystem, ArmConstants.armMidAngle),
+                        ExtensionMovement(armSystem, ArmConstants.armExtensionMid),
+                        AngleMovement(armSystem, ArmConstants.armPlaceMidAngle)
+                )),
+                AutoClaw(ClawState.Spitting),
+                AutoArmPosition(armSystem, listOf(
+                        AngleMovement(armSystem, ArmConstants.armPlaceMidAngle - ArmConstants.armPlaceAngleDecrease),
+                        ExtensionMovement(armSystem, ArmConstants.armExtensionIn),
+                        AngleMovement(armSystem, ArmConstants.armInAngle)
+                )),
+                AutoClaw(ClawState.Idle)
         )
     }
 }

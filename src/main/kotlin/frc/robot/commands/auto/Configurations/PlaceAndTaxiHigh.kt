@@ -12,7 +12,7 @@ import frc.robot.subsystems.ArmSystem
 import frc.robot.subsystems.ClawSystem
 
 // define an empty SequentialCommandGroup
-class PlaceAndTaxiHigh(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain, private val clawSystem: ClawSystem) :
+class PlaceAndTaxiHigh(private val swerveAuto: SwerveAuto, private val gyro: GenericGyro, private val armSystem: ArmSystem, private val autoPathManager: AutoPathManager, private val swerveSystem: SwerveDriveTrain) :
         SequentialCommandGroup() {
 
     // define the constructor
@@ -20,7 +20,7 @@ class PlaceAndTaxiHigh(private val swerveAuto: SwerveAuto, private val gyro: Gen
 //        gyro.setYawOffset()
         // add the commands to the SequentialCommandGroup
         addCommands(
-                AutoPlaceHigh(armSystem, clawSystem),
+                AutoPlaceHigh(armSystem),
                 autoPathManager.paths["TaxiTop"]!!,
                 AutoBalance(gyro, swerveAuto, swerveAuto.swo)
         )
