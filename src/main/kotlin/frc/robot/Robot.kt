@@ -78,7 +78,7 @@ class Robot : TimedRobot() {
 
     private var backLeft: SwerveWheel =
             SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.backLeftDriveMotor),
+                    SparkMaxTurnMotor(MotorConstants.backLeftDriveMotor),
                     SparkMaxTurnMotor(
                             MotorConstants.backLeftTurnMotor,
                             MotorConstants.backLeftEncoder,
@@ -90,7 +90,7 @@ class Robot : TimedRobot() {
             )
     private var backRight: SwerveWheel =
             SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.backRightDriveMotor),
+                    SparkMaxTurnMotor(MotorConstants.backRightDriveMotor),
                     SparkMaxTurnMotor(
                             MotorConstants.backRightTurnMotor,
                             MotorConstants.backRightEncoder,
@@ -102,7 +102,7 @@ class Robot : TimedRobot() {
             )
     private var frontLeft: SwerveWheel =
             SwerveWheel(
-                    TalonFXDriveMotor(MotorConstants.frontLeftDriveMotor),
+                    SparkMaxDriveMotor(MotorConstants.frontLeftDriveMotor),
                     SparkMaxTurnMotor(
                             MotorConstants.frontLeftTurnMotor,
                             MotorConstants.frontLeftEncoder,
